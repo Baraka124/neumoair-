@@ -1,51 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Ultra-premium background -->
+  <!-- Cutting-edge gradient -->
   <defs>
-    <linearGradient id="ultraBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f3d66"/>
+    <linearGradient id="cuttingEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E6EA6"/>
+      <stop offset="50%" stop-color="#155588"/>
       <stop offset="100%" stop-color="#0a2d4d"/>
     </linearGradient>
-    <linearGradient id="dataLine" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#5ABF95"/>
-      <stop offset="50%" stop-color="#2E8B57"/>
-      <stop offset="100%" stop-color="#5ABF95"/>
-    </linearGradient>
+    <radialGradient id="alveolusGlow">
+      <stop offset="0%" stop-color="rgba(90, 191, 149, 0.3)"/>
+      <stop offset="100%" stop-color="rgba(90, 191, 149, 0)"/>
+    </radialGradient>
   </defs>
   
-  <rect width="100" height="100" fill="url(#ultraBg)" rx="25"/>
+  <rect width="100" height="100" fill="url(#cuttingEdge)" rx="25"/>
   
-  <!-- Advanced medical device visualization -->
-  <rect x="35" y="35" width="30" height="25" rx="4" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
+  <!-- 3D alveolus effect -->
+  <circle cx="50" cy="45" r="16" fill="url(#alveolusGlow)" stroke="white" stroke-width="2.5"/>
+  <circle cx="50" cy="45" r="10" fill="none" stroke="#5ABF95" stroke-width="2"/>
   
-  <!-- Spirometry data flow -->
-  <path d="M35 45 
-           C40 40, 45 38, 50 40 
-           C55 42, 60 45, 65 40" 
-        fill="none" 
-        stroke="url(#dataLine)" 
-        stroke-width="3" 
-        stroke-linecap="round"/>
+  <!-- Satellite alveoli -->
+  <circle cx="35" cy="40" r="5" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+  <circle cx="65" cy="40" r="5" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+  <circle cx="45" cy="55" r="5" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+  <circle cx="55" cy="55" r="5" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
   
-  <!-- Precision measurement points -->
-  <circle cx="45" cy="38" r="1.5" fill="white"/>
-  <circle cx="50" cy="40" r="1.5" fill="white"/>
-  <circle cx="55" cy="42" r="1.5" fill="white"/>
+  <!-- Data exchange lines -->
+  <path d="M50 45 L35 40 M50 45 L65 40 M50 45 L45 55 M50 45 L55 55" 
+        stroke="#5ABF95" 
+        stroke-width="1.5" 
+        stroke-dasharray="3,2"/>
   
-  <!-- Medical stethoscope curve (abstract) -->
-  <path d="M40 55 
-           Q45 60, 50 58 
-           Q55 60, 60 55" 
-        fill="none" 
-        stroke="white" 
-        stroke-width="2" 
-        opacity="0.7"/>
-  
-  <!-- App identifier -->
-  <text x="50" y="80" 
+  <!-- Digital readout style -->
+  <rect x="35" y="65" width="30" height="12" rx="3" fill="rgba(0,0,0,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <text x="50" y="73" 
         text-anchor="middle" 
-        fill="rgba(255,255,255,0.9)" 
-        font-family="'SF Pro Display', -apple-system, sans-serif" 
-        font-size="9" 
-        font-weight="600" 
-        letter-spacing="0.5">NEUMO</text>
+        fill="#5ABF95" 
+        font-family="'SF Mono', monospace" 
+        font-size="8" 
+        font-weight="600">FEV₁</text>
 </svg>
