@@ -1,1 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1E6EA6">
+    
+    <!-- PWA Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Lung transplant monitoring calculator">
+    
+    <title>NeumoAir | Lung Transplant Calculator</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    
+    <style>
+        /* ===== RESET ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        /* ===== APP LAYOUT ===== */
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: -webkit-fill-available;
+            background: #f8fafc;
+        }
+        
+        /* HEADER */
+        .header {
+            background: #1E6EA6;
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .header-sub {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        /* MAIN CONTENT - THIS SCROLLS */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
+            padding-bottom: 5rem; /* Space for buttons */
+        }
+        
+        /* MOBILE BOTTOM BUTTONS */
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0.75rem;
+            z-index: 50;
+        }
+        
+        /* ===== COMPONENTS ===== */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            color: #1E6EA6;
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #1E6EA6;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1E6EA6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #155588;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid #1E6EA6;
+            color: #1E6EA6;
+        }
+        
+        /* ===== RESULT DISPLAY ===== */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .result-card {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1E6EA6;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-label {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-top: 0.25rem;
+        }
+        
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .main { padding: 0.75rem; }
+            .card { padding: 1.25rem; }
+            .results-grid { grid-template-columns: 1fr; }
+            
+            /* iOS safe areas */
+            .header {
+                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+            }
+        }
+        
+        /* ===== UTILITIES ===== */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>NeumoAir</h1>
+            <div class="header-sub">Lung Transplant Calculator</div>
+        </header>
+        
+        <!-- Main Content (This Scrolls) -->
+        <main class="main" id="mainContent">
+            <!-- Patient Setup Card -->
+            <div class="card" id="setupCard">
+                <h2 class="card-title">Patient Setup</h2>
+                
+                <div class="input-group">
+                    <label class="input-label">Patient ID</label>
+                    <input type="text" class="input-field" id="patientId" placeholder="LTX-001">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Transplant Date</label>
+                    <input type="date" class="input-field" id="transplantDate">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Baseline FEV₁ (L)</label>
+                    <input type="number" step="0.01" class="input-field" id="baselineFev1" placeholder="2.85">
+                </div>
+            </div>
+            
+            <!-- Current Measurement Card -->
+            <div class="card hidden" id="measurementCard">
+                <h2 class="card-title">Current Measurement</h2>
+                
+                <div class="input-group">
+                    <label class="input-label">Measurement Date</label>
+                    <input type="date" class="input-field" id="measurementDate">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">FEV₁ (L)</label>
+                    <input type="number" step="0.01" class="input-field" id="currentFev1">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">FVC (L)</label>
+                    <input type="number" step="0.01" class="input-field" id="currentFvc">
+                </div>
+                
+                <!-- Results Display -->
+                <div id="resultsSection" class="hidden">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <div class="result-value" id="resultRatio">--</div>
+                            <div class="result-label">FEV₁/FVC Ratio</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-value" id="resultChange">--</div>
+                            <div class="result-label">Change from Baseline</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-value" id="resultBOS">--</div>
+                            <div class="result-label">BOS Stage</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-value" id="resultDays">--</div>
+                            <div class="result-label">Days Post-TX</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Card -->
+            <div class="card hidden" id="historyCard">
+                <h2 class="card-title">Visit History</h2>
+                <div id="historyList">
+                    <p class="text-center" style="color: #6b7280;">No visits recorded yet</p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Action Buttons (Mobile Optimized) -->
+        <div class="bottom-actions">
+            <button class="btn btn-outline" id="btnSetup">Setup</button>
+            <button class="btn btn-outline" id="btnMeasure">Measure</button>
+            <button class="btn btn-outline" id="btnHistory">History</button>
+            <button class="btn btn-primary" id="btnCalculate">Calculate</button>
+        </div>
+    </div>
 
+    <script>
+    // ========== APP STATE ==========
+    const state = {
+        patient: {
+            id: '',
+            transplantDate: '',
+            baselineFev1: null
+        },
+        visits: [],
+        currentView: 'setup' // 'setup' | 'measure' | 'history'
+    };
+    
+    // ========== DOM ELEMENTS ==========
+    const elements = {
+        setupCard: document.getElementById('setupCard'),
+        measurementCard: document.getElementById('measurementCard'),
+        historyCard: document.getElementById('historyCard'),
+        
+        // Inputs
+        patientId: document.getElementById('patientId'),
+        transplantDate: document.getElementById('transplantDate'),
+        baselineFev1: document.getElementById('baselineFev1'),
+        measurementDate: document.getElementById('measurementDate'),
+        currentFev1: document.getElementById('currentFev1'),
+        currentFvc: document.getElementById('currentFvc'),
+        
+        // Results
+        resultRatio: document.getElementById('resultRatio'),
+        resultChange: document.getElementById('resultChange'),
+        resultBOS: document.getElementById('resultBOS'),
+        resultDays: document.getElementById('resultDays'),
+        
+        // Buttons
+        btnSetup: document.getElementById('btnSetup'),
+        btnMeasure: document.getElementById('btnMeasure'),
+        btnHistory: document.getElementById('btnHistory'),
+        btnCalculate: document.getElementById('btnCalculate')
+    };
+    
+    // ========== INITIALIZATION ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        initApp();
+        setupEventListeners();
+        setDefaultDates();
+        
+        // Initialize PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    });
+    
+    function initApp() {
+        // Load saved data
+        const saved = localStorage.getItem('neumoair_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                state.patient = data.patient || state.patient;
+                state.visits = data.visits || [];
+                
+                // Fill inputs
+                if (state.patient.id) {
+                    elements.patientId.value = state.patient.id;
+                    elements.transplantDate.value = state.patient.transplantDate;
+                    elements.baselineFev1.value = state.patient.baselineFev1 || '';
+                    showView('measure');
+                }
+            } catch (e) {
+                console.log('Failed to load saved data:', e);
+            }
+        }
+    }
+    
+    function setupEventListeners() {
+        // Navigation buttons
+        elements.btnSetup.addEventListener('click', () => showView('setup'));
+        elements.btnMeasure.addEventListener('click', () => {
+            if (state.patient.id) showView('measure');
+            else alert('Please setup patient first');
+        });
+        elements.btnHistory.addEventListener('click', () => showView('history'));
+        elements.btnCalculate.addEventListener('click', calculate);
+        
+        // Auto-save on input changes
+        ['patientId', 'transplantDate', 'baselineFev1'].forEach(id => {
+            document.getElementById(id).addEventListener('change', savePatient);
+        });
+        
+        // Update results as user types
+        elements.currentFev1.addEventListener('input', updatePreview);
+        elements.currentFvc.addEventListener('input', updatePreview);
+    }
+    
+    // ========== VIEW MANAGEMENT ==========
+    function showView(view) {
+        state.currentView = view;
+        
+        // Hide all cards
+        elements.setupCard.classList.add('hidden');
+        elements.measurementCard.classList.add('hidden');
+        elements.historyCard.classList.add('hidden');
+        
+        // Show active card
+        if (view === 'setup') {
+            elements.setupCard.classList.remove('hidden');
+        } else if (view === 'measure') {
+            elements.measurementCard.classList.remove('hidden');
+            setDefaultDates();
+        } else if (view === 'history') {
+            elements.historyCard.classList.remove('hidden');
+            updateHistoryDisplay();
+        }
+    }
+    
+    // ========== CORE CALCULATIONS ==========
+    function calculate() {
+        // Get inputs
+        const date = elements.measurementDate.value;
+        const fev1 = parseFloat(elements.currentFev1.value);
+        const fvc = parseFloat(elements.currentFvc.value);
+        
+        // Validate
+        if (!date || !fev1 || !fvc) {
+            alert('Please enter all measurement values');
+            return;
+        }
+        
+        if (!state.patient.baselineFev1) {
+            alert('Please set baseline FEV₁ first');
+            return;
+        }
+        
+        // Calculate days post-transplant
+        const daysPostTx = calculateDaysPostTx(date);
+        
+        // Calculate metrics
+        const ratio = ((fev1 / fvc) * 100).toFixed(1);
+        const change = (((fev1 - state.patient.baselineFev1) / state.patient.baselineFev1) * 100).toFixed(1);
+        const bosStage = calculateBOSStage(change);
+        
+        // Display results
+        elements.resultRatio.textContent = `${ratio}%`;
+        elements.resultChange.textContent = `${parseFloat(change) > 0 ? '+' : ''}${change}%`;
+        elements.resultBOS.textContent = bosStage;
+        elements.resultDays.textContent = daysPostTx;
+        
+        // Show results
+        document.getElementById('resultsSection').classList.remove('hidden');
+        
+        // Save visit
+        saveVisit({
+            date,
+            fev1,
+            fvc,
+            ratio,
+            change,
+            bosStage,
+            daysPostTx
+        });
+        
+        // Scroll to results
+        elements.resultRatio.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    function calculateDaysPostTx(date) {
+        if (!state.patient.transplantDate) return 0;
+        const txDate = new Date(state.patient.transplantDate);
+        const measureDate = new Date(date);
+        const diff = measureDate.getTime() - txDate.getTime();
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+    
+    function calculateBOSStage(declinePercent) {
+        const decline = Math.abs(parseFloat(declinePercent));
+        if (decline < 10) return 'BOS 0';
+        if (decline < 20) return 'BOS 0-p';
+        if (decline < 35) return 'BOS 1';
+        return 'BOS 2-3';
+    }
+    
+    function updatePreview() {
+        const fev1 = parseFloat(elements.currentFev1.value);
+        const fvc = parseFloat(elements.currentFvc.value);
+        
+        if (fev1 && fvc) {
+            const ratio = ((fev1 / fvc) * 100).toFixed(1);
+            elements.resultRatio.textContent = `${ratio}%`;
+        }
+    }
+    
+    // ========== DATA PERSISTENCE ==========
+    function savePatient() {
+        state.patient = {
+            id: elements.patientId.value.trim(),
+            transplantDate: elements.transplantDate.value,
+            baselineFev1: parseFloat(elements.baselineFev1.value) || null
+        };
+        
+        persistData();
+        
+        if (state.patient.id && state.patient.transplantDate) {
+            showView('measure');
+        }
+    }
+    
+    function saveVisit(visit) {
+        state.visits.push({
+            ...visit,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Keep only last 50 visits
+        if (state.visits.length > 50) {
+            state.visits = state.visits.slice(-50);
+        }
+        
+        persistData();
+        updateHistoryDisplay();
+    }
+    
+    function persistData() {
+        const data = {
+            patient: state.patient,
+            visits: state.visits,
+            savedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('neumoair_data', JSON.stringify(data));
+    }
+    
+    // ========== UI UPDATES ==========
+    function updateHistoryDisplay() {
+        const container = document.getElementById('historyList');
+        
+        if (state.visits.length === 0) {
+            container.innerHTML = '<p class="text-center" style="color: #6b7280;">No visits recorded yet</p>';
+            return;
+        }
+        
+        let html = '';
+        state.visits.slice().reverse().forEach((visit, index) => {
+            html += `
+                <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                    <div style="font-weight: 600; color: #1E6EA6;">
+                        ${new Date(visit.date).toLocaleDateString()} • Day ${visit.daysPostTx}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                        <span>FEV₁: ${visit.fev1}L</span>
+                        <span style="color: ${visit.change.startsWith('-') ? '#dc2626' : '#059669'}">
+                            ${visit.change}%
+                        </span>
+                        <span>${visit.bosStage}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function setDefaultDates() {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Set default measurement date to today
+        elements.measurementDate.value = today;
+        
+        // Set max date to today
+        elements.measurementDate.max = today;
+        
+        // Set transplant date max to today
+        elements.transplantDate.max = today;
+    }
+    
+    // ========== MOBILE SCROLLING FIX ==========
+    // This ensures the main content scrolls properly
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) {
+        mainContent.style.webkitOverflowScrolling = 'touch';
+    }
+    
+    // Fix iOS 100vh issue
+    function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+    </script>
+</body>
+</html>
