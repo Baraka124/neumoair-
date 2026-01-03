@@ -1,34 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Dark blue background -->
-  <rect width="100" height="100" fill="#0f3d66" rx="20"/>
+  <rect width="100" height="100" fill="#1E6EA6" rx="20"/>
   
-  <!-- Graph background -->
-  <rect x="25" y="30" width="50" height="40" fill="rgba(255,255,255,0.1)" rx="8"/>
+  <!-- Calculator outline -->
+  <rect x="30" y="35" width="40" height="30" rx="5" fill="none" stroke="white" stroke-width="3"/>
   
-  <!-- Spirometry curve -->
-  <path d="M30 50 
-           C35 45, 40 42, 45 40 
-           C50 38, 55 36, 60 35 
-           C65 34, 70 38, 72 45 
-           C74 52, 70 58, 65 62 
-           C60 66, 55 65, 50 62 
-           C45 59, 40 55, 35 52" 
-        fill="none" 
+  <!-- Plus sign -->
+  <path d="M45 42 L55 42 M50 37 L50 47" 
         stroke="#5ABF95" 
         stroke-width="3" 
         stroke-linecap="round"/>
   
-  <!-- Data points -->
-  <circle cx="45" cy="40" r="2.5" fill="white"/>
-  <circle cx="60" cy="35" r="2.5" fill="white"/>
-  <circle cx="72" cy="45" r="2.5" fill="white"/>
-  <circle cx="65" cy="62" r="2.5" fill="white"/>
-  
-  <!-- App name abbreviation -->
-  <text x="50" y="85" 
-        text-anchor="middle" 
-        fill="white" 
-        font-family="Arial, sans-serif" 
-        font-size="14" 
-        font-weight="bold">NC</text>
+  <!-- Lung dots -->
+  <circle cx="40" cy="60" r="4" fill="white"/>
+  <circle cx="60" cy="60" r="4" fill="white"/>
 </svg>
