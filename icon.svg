@@ -1,22 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Clean blue background -->
-  <rect width="100" height="100" fill="#1E6EA6" rx="20"/>
+  <!-- Premium gradient background -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a365d"/>
+      <stop offset="100%" stop-color="#0f3d66"/>
+    </linearGradient>
+    <radialGradient id="dotGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5ABF95"/>
+      <stop offset="100%" stop-color="#2E8B57"/>
+    </radialGradient>
+    <filter id="softShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0a2d4d" flood-opacity="0.3"/>
+    </filter>
+  </defs>
   
-  <!-- Abstract lung shape -->
-  <path d="M40 40 
-           Q35 50, 40 60 
-           Q45 65, 50 65 
-           Q55 65, 60 60 
-           Q65 50, 60 40 
-           Q55 35, 50 35 
-           Q45 35, 40 40 Z" 
+  <!-- Premium rounded square -->
+  <rect width="100" height="100" fill="url(#bgGrad)" rx="20" filter="url(#softShadow)"/>
+  
+  <!-- Abstract lungs as interconnected nodes -->
+  <circle cx="40" cy="45" r="10" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5"/>
+  <circle cx="60" cy="45" r="10" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5"/>
+  
+  <!-- Central data hub -->
+  <circle cx="50" cy="55" r="6" fill="url(#dotGrad)" stroke="white" stroke-width="1.5"/>
+  
+  <!-- Connecting data flows -->
+  <path d="M40 45 Q45 50 50 55" 
+        stroke="rgba(90, 191, 149, 0.7)" 
+        stroke-width="2" 
         fill="none" 
-        stroke="white" 
-        stroke-width="4"/>
+        stroke-linecap="round"/>
+  <path d="M60 45 Q55 50 50 55" 
+        stroke="rgba(90, 191, 149, 0.7)" 
+        stroke-width="2" 
+        fill="none" 
+        stroke-linecap="round"/>
   
   <!-- Data trend line -->
-  <path d="M40 50 L50 45 L60 50" 
-        stroke="#5ABF95" 
-        stroke-width="3" 
+  <path d="M35 65 L45 60 L55 63 L65 58" 
+        stroke="white" 
+        stroke-width="2.5" 
+        fill="none" 
         stroke-linecap="round"/>
 </svg>
