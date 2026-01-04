@@ -1,8 +1,8 @@
 {
-  "name": "NeumoCalc",
+  "name": "NeumoCalc Timeline",
   "short_name": "NeumoCalc",
-  "description": "Instant lung transplant calculations",
-  "start_url": "/neumocalc/",
+  "description": "Lung transplant timeline calculator",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1E6EA6",
@@ -10,11 +10,7 @@
     {
       "src": "icon.svg",
       "type": "image/svg+xml",
-      "sizes": "any",
-      "purpose": "any maskable"
+      "sizes": "any"
     }
-  ],
-  "categories": ["medical", "productivity"],
-  "orientation": "portrait",
-  "scope": "/neumocalc/"
+  ]
 }
