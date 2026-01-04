@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "nginx -g 'daemon off;'"
-  },
-  "engines": {
-    "node": ">=14"
+    "start": "echo 'Static PWA - No server needed' && exit 0"
   }
 }
