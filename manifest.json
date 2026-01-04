@@ -1,8 +1,8 @@
 {
   "name": "NeumoCalc",
   "short_name": "NeumoCalc",
-  "description": "Instant lung transplant calculations. No setup, just results.",
-  "start_url": "/",
+  "description": "Instant lung transplant calculations",
+  "start_url": "/neumocalc/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1E6EA6",
@@ -16,5 +16,5 @@
   ],
   "categories": ["medical", "productivity"],
   "orientation": "portrait",
-  "scope": "/"
+  "scope": "/neumocalc/"
 }
