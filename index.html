@@ -7,2094 +7,892 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="Instant lung transplant calculations. No setup, just results.">
+    <meta name="description" content="Lung transplant calculation assistant with patient timeline tracking">
     
-    <title>NeumoCalc | Instant Transplant Metrics</title>
+    <title>NeumoCalc | Patient Timeline Calculator</title>
     
-    <!-- PWAa -->
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     
     <style>
-        /* ===== CSS RESET & BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html {
-            height: 100%;
-            -webkit-text-size-adjust: 100%;
-            font-size: 16px;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: #f8fafc;
-            color: #1f2937;
-            line-height: 1.5;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc; color: #1f2937; 
+            height: 100vh; overflow: hidden;
         }
         
         /* ===== APP CONTAINER ===== */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: -webkit-fill-available;
-            overflow: hidden;
-        }
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
         
-        /* ===== WELCOME SCREEN ===== */
-        .welcome-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #1E6EA6 0%, #0f3d66 100%);
-            color: white;
-            text-align: center;
-            animation: fadeIn 0.8s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .welcome-logo {
-            width: 120px;
-            height: 120px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2rem;
-            border: 2px solid rgba(255,255,255,0.2);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .welcome-logo-icon {
-            font-size: 3.5rem;
-        }
-        
-        .welcome-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-        
-        .welcome-subtitle {
-            font-size: 1.125rem;
-            opacity: 0.9;
-            margin-bottom: 3rem;
-            max-width: 400px;
-            line-height: 1.6;
-        }
-        
-        .welcome-cta {
-            width: 100%;
-            max-width: 300px;
-        }
-        
-        /* ===== MAIN APP (Hidden initially) ===== */
-        .main-app {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-        }
-        
-        /* ===== APP HEADER ===== */
+        /* ===== HEADER ===== */
         .app-header {
-            background: white;
-            padding: 0.875rem 1rem;
-            padding-top: max(0.875rem, env(safe-area-inset-top));
+            background: white; padding: 1rem;
             border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
+            display: flex; justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-shrink: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
-        .patient-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.125rem;
+        .patient-header {
+            display: flex; gap: 1rem; align-items: center;
         }
         
-        .patient-id {
-            font-weight: 700;
-            color: #1E6EA6;
-            font-family: 'SF Mono', 'Courier New', monospace;
-            font-size: 1rem;
+        .patient-id-display {
+            font-family: monospace; font-weight: 700;
+            color: #1E6EA6; font-size: 1.2rem;
         }
         
-        .patient-status {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #059669;
-        }
-        
-        .status-dot.offline {
-            background: #6b7280;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .header-btn {
-            background: none;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #4b5563;
-            transition: all 0.2s;
-            font-size: 1.125rem;
-        }
-        
-        .header-btn:hover {
-            background: #f3f4f6;
-            color: #1E6EA6;
+        .timeline-info {
+            font-size: 0.875rem; color: #6b7280;
         }
         
         /* ===== MODE SELECTOR ===== */
         .mode-selector {
-            display: flex;
-            background: white;
+            display: flex; background: white;
             border-bottom: 1px solid #e5e7eb;
-            padding: 0.5rem;
-            gap: 0.5rem;
-            flex-shrink: 0;
+            padding: 0.5rem; gap: 0.5rem;
         }
         
         .mode-btn {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 12px;
-            background: #f9fafb;
-            color: #6b7280;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .mode-btn:hover {
-            background: #f3f4f6;
+            flex: 1; padding: 0.75rem; border: none;
+            border-radius: 10px; background: #f9fafb;
+            color: #6b7280; font-weight: 600; cursor: pointer;
         }
         
         .mode-btn.active {
-            background: #1E6EA6;
-            color: white;
-            box-shadow: 0 2px 8px rgba(30, 110, 166, 0.2);
+            background: #1E6EA6; color: white;
         }
         
         /* ===== MAIN CONTENT ===== */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-            position: relative;
-        }
+        .main-content { flex: 1; overflow-y: auto; padding: 1rem; }
         
-        /* ===== QUICK CALC MODE (Default) ===== */
-        .quick-calc-mode {
-            padding: 1rem;
-            animation: slideUp 0.3s ease;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Baseline Banner */
-        .baseline-banner {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #bae6fd;
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .baseline-values {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        
-        .baseline-label {
-            font-size: 0.75rem;
-            color: #1E6EA6;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .baseline-numbers {
-            display: flex;
-            gap: 1rem;
-            font-family: 'SF Mono', 'Courier New', monospace;
-            font-weight: 600;
-        }
-        
-        .baseline-fev1 {
-            color: #1E6EA6;
-        }
-        
-        .baseline-fvc {
-            color: #059669;
-        }
-        
-        .change-baseline-btn {
-            background: rgba(30, 110, 166, 0.1);
-            border: none;
-            color: #1E6EA6;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1rem;
-        }
-        
-        .change-baseline-btn:hover {
-            background: rgba(30, 110, 166, 0.2);
-        }
-        
-        /* Live Calculator */
-        .live-calculator {
-            background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        /* ===== PATIENT SELECTOR (Quick Mode) ===== */
+        .patient-selector {
+            background: white; border-radius: 12px;
+            padding: 1rem; margin-bottom: 1rem;
             border: 1px solid #e5e7eb;
         }
         
-        .calc-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .patient-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem; margin-top: 1rem;
         }
         
-        @media (max-width: 640px) {
-            .calc-inputs {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
+        .patient-card {
+            border: 2px solid #e5e7eb; border-radius: 10px;
+            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
         }
         
-        .input-group {
-            position: relative;
+        .patient-card.active {
+            border-color: #1E6EA6; background: #f0f9ff;
         }
         
-        .input-label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #4b5563;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .patient-id { font-weight: 600; color: #1E6EA6; }
+        .patient-stats { font-size: 0.75rem; color: #6b7280; }
+        
+        /* ===== QUICK CALC ===== */
+        .quick-calc-container {
+            background: white; border-radius: 12px;
+            padding: 1.5rem; margin-top: 1rem;
+            border: 1px solid #e5e7eb;
         }
+        
+        .calc-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .input-group { position: relative; }
+        .input-label { font-size: 0.75rem; font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; }
         
         .calc-input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            font-family: 'SF Mono', 'Courier New', monospace;
-            color: #1f2937;
-            text-align: center;
-            transition: all 0.2s;
-            background: white;
-            -moz-appearance: textfield;
+            width: 100%; padding: 1rem; border: 2px solid #e5e7eb;
+            border-radius: 10px; font-size: 1.5rem; font-weight: 600;
+            font-family: monospace; text-align: center;
         }
         
-        .calc-input::-webkit-outer-spin-button,
-        .calc-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .calc-input:focus { outline: none; border-color: #1E6EA6; }
+        
+        /* ===== FULL PATIENT MODE ===== */
+        .full-patient-mode { display: none; }
+        
+        .patient-profile {
+            background: white; border-radius: 12px;
+            padding: 1.5rem; margin-bottom: 1rem;
         }
         
-        .calc-input:focus {
-            outline: none;
-            border-color: #1E6EA6;
-            box-shadow: 0 0 0 3px rgba(30, 110, 166, 0.1);
-        }
-        
-        .calc-input.positive {
-            border-color: #059669;
-            background: linear-gradient(to right, #f0fdf4, white);
-        }
-        
-        .calc-input.negative {
-            border-color: #dc2626;
-            background: linear-gradient(to right, #fef2f2, white);
-        }
-        
-        .input-unit {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .date-input-wrapper {
-            grid-column: 1 / -1;
+        .timeline-inputs {
+            display: grid; gap: 1rem; margin-top: 1rem;
         }
         
         .date-input {
-            width: 100%;
-            padding: 0.875rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #1f2937;
-            background: white;
-            text-align: center;
+            padding: 0.75rem; border: 2px solid #e5e7eb;
+            border-radius: 10px; width: 100%;
         }
         
-        .date-input:focus {
-            outline: none;
-            border-color: #1E6EA6;
+        /* ===== TIMELINE CALCULATIONS ===== */
+        .timeline-calculations {
+            background: white; border-radius: 12px;
+            padding: 1.5rem; margin-top: 1rem;
         }
         
-        /* Instant Results */
-        .instant-results {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            animation: fadeIn 0.3s ease;
+        .timeline-row {
+            display: flex; justify-content: space-between;
+            padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;
         }
         
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+        .timeline-label { color: #4b5563; }
+        .timeline-value { font-family: monospace; font-weight: 600; }
         
-        .results-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+        .value-positive { color: #059669; }
+        .value-negative { color: #dc2626; }
+        .value-neutral { color: #6b7280; }
         
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        
-        @media (max-width: 480px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
+        /* ===== RESULTS DISPLAY ===== */
+        .results-display {
+            background: white; border-radius: 12px;
+            padding: 1.5rem; margin-top: 1rem;
             border: 1px solid #e5e7eb;
-            transition: transform 0.2s;
         }
         
-        .result-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        .measurement-card {
+            background: #f8fafc; border-radius: 8px;
+            padding: 1rem; margin-bottom: 1rem;
         }
         
-        .result-value {
-            font-family: 'SF Mono', 'Courier New', monospace;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            line-height: 1;
+        .threshold-info {
+            background: #fef3c7; border-radius: 8px;
+            padding: 1rem; margin-top: 1rem;
+            border-left: 4px solid #f59e0b;
         }
         
-        .result-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-            font-weight: 500;
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex; gap: 0.75rem; margin-top: 1.5rem;
         }
         
-        .result-sub {
-            font-size: 0.6875rem;
-            color: #9ca3af;
-            margin-top: 0.125rem;
+        .btn {
+            flex: 1; padding: 1rem; border: none;
+            border-radius: 10px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
         }
         
-        /* BOS Indicator */
-        .bos-indicator-wrapper {
-            grid-column: 1 / -1;
-            margin-top: 0.5rem;
+        .btn-primary {
+            background: #1E6EA6; color: white;
         }
         
-        .bos-indicator {
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            font-weight: 700;
-            font-size: 1.125rem;
-            transition: all 0.3s;
-            border: 2px solid;
-        }
-        
-        .bos-indicator.bos0 {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border-color: #10b981;
-        }
-        
-        .bos-indicator.bos0p {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-            border-color: #f59e0b;
-        }
-        
-        .bos-indicator.bos1 {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border-color: #ef4444;
-        }
-        
-        .bos-indicator.bos2-3 {
-            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
-            color: #7f1d1d;
-            border-color: #dc2626;
-        }
-        
-        /* Quick Actions */
-        .quick-actions-bar {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .action-btn {
-            flex: 1;
-            padding: 1rem;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .action-btn.primary {
-            background: linear-gradient(135deg, #1E6EA6 0%, #155588 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(30, 110, 166, 0.2);
-        }
-        
-        .action-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(30, 110, 166, 0.3);
-        }
-        
-        .action-btn.secondary {
-            background: #f3f4f6;
-            color: #4b5563;
+        .btn-secondary {
+            background: #f3f4f6; color: #4b5563;
             border: 1px solid #d1d5db;
-        }
-        
-        .action-btn.secondary:hover {
-            background: #e5e7eb;
-        }
-        
-        /* ===== STANDARD MODE ===== */
-        .standard-mode {
-            padding: 1rem;
-            display: none;
-        }
-        
-        .scenario-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.75rem;
-            margin: 1rem 0;
-        }
-        
-        .scenario-card {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 1.25rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .scenario-card:hover {
-            border-color: #1E6EA6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        .scenario-card.active {
-            border-color: #1E6EA6;
-            background: #f0f9ff;
-        }
-        
-        .scenario-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .scenario-title {
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
-        }
-        
-        .scenario-desc {
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        
-        /* ===== REVIEW MODE ===== */
-        .review-mode {
-            padding: 1rem;
-            display: none;
-        }
-        
-        .comparison-view {
-            background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .comparison-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .comparison-title {
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        @media (max-width: 640px) {
-            .comparison-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-        }
-        
-        .comparison-col {
-            text-align: center;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .comparison-col.current {
-            background: #f0f9ff;
-            border-color: #bae6fd;
-        }
-        
-        .comparison-col.diff {
-            background: #f8fafc;
-            border-color: #e5e7eb;
-        }
-        
-        .col-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .col-value {
-            font-family: 'SF Mono', 'Courier New', monospace;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        
-        .col-value.positive {
-            color: #059669;
-        }
-        
-        .col-value.negative {
-            color: #dc2626;
-        }
-        
-        .col-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        
-        /* ===== TOAST NOTIFICATIONS ===== */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            color: #1f2937;
-            padding: 1rem 1.25rem;
-            border-radius: 14px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            max-width: 300px;
-            border-left: 4px solid #1E6EA6;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(100%); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .toast.success {
-            border-left-color: #059669;
-        }
-        
-        .toast.warning {
-            border-left-color: #f59e0b;
-        }
-        
-        .toast.error {
-            border-left-color: #dc2626;
-        }
-        
-        .toast-icon {
-            font-size: 1.25rem;
-        }
-        
-        /* ===== OFFLINE INDICATOR ===== */
-        .offline-indicator {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #f59e0b;
-            color: #92400e;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            z-index: 9999;
-            display: none;
-            animation: pulse 2s infinite;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         /* ===== MODALS ===== */
         .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 1rem;
-            animation: fadeIn 0.3s ease;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000; padding: 1rem;
         }
         
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
         
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white; border-radius: 12px;
+            padding: 1.5rem; width: 100%; max-width: 400px;
         }
         
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .modal-footer {
-            padding: 1.25rem 1.5rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-        }
-        
-        /* ===== UTILITY CLASSES ===== */
-        .hidden {
-            display: none !important;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
+        /* ===== UTILITIES ===== */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
         .mt-2 { margin-top: 0.5rem; }
         .mt-4 { margin-top: 1rem; }
-        .mt-6 { margin-top: 1.5rem; }
-        .mt-8 { margin-top: 2rem; }
         
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        
-        .font-mono {
-            font-family: 'SF Mono', 'Courier New', monospace;
-        }
-        
-        /* ===== PRINT STYLES ===== */
-        @media print {
-            .mode-selector,
-            .header-actions,
-            .action-btn,
-            .change-baseline-btn {
-                display: none !important;
-            }
-            
-            .main-content {
-                overflow: visible;
-                height: auto;
-            }
-            
-            .live-calculator,
-            .instant-results,
-            .comparison-view {
-                box-shadow: none;
-                border: 1px solid #ccc;
-                break-inside: avoid;
-            }
-        }
-        
-        /* ===== SAFE AREA SUPPORT ===== */
-        @supports (padding: max(0px)) {
-            .quick-calc-mode,
-            .standard-mode,
-            .review-mode {
-                padding-left: max(1rem, env(safe-area-inset-left));
-                padding-right: max(1rem, env(safe-area-inset-right));
-                padding-bottom: max(1rem, env(safe-area-inset-bottom));
-            }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .calc-inputs { grid-template-columns: 1fr; }
+            .patient-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Welcome Screen -->
-    <div class="app-container" id="welcomeScreen">
-        <div class="welcome-screen">
-            <div class="welcome-logo">
-                <div class="welcome-logo-icon">🫁</div>
-            </div>
-            <h1 class="welcome-title">NeumoCalc</h1>
-            <p class="welcome-subtitle">
-                Instant lung transplant calculations.<br>
-                <em style="opacity: 0.8; font-size: 0.9375rem;">Type numbers. Get results.</em>
-            </p>
-            
-            <div class="welcome-cta">
-                <button class="action-btn primary" id="startAppBtn" style="font-size: 1rem;">
-                    Start Calculating →
-                </button>
-                <div style="margin-top: 1rem; font-size: 0.8125rem; opacity: 0.8;">
-                    No setup needed. Works offline.
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Main Application -->
-    <div class="main-app" id="mainApp">
+    <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <div class="patient-info">
-                <div class="patient-id" id="currentPatientId">NM-001</div>
-                <div class="patient-status">
-                    <span class="status-dot" id="statusDot"></span>
-                    <span id="statusText">Ready</span>
-                </div>
+            <div class="patient-header">
+                <div class="patient-id-display" id="currentPatientId">No Patient Selected</div>
+                <div class="timeline-info" id="timelineInfo"></div>
             </div>
-            <div class="header-actions">
-                <button class="header-btn" id="newPatientBtn" title="New Patient">
-                    🆕
-                </button>
-                <button class="header-btn" id="exportBtn" title="Export">
-                    📤
-                </button>
-                <button class="header-btn" id="settingsBtn" title="Settings">
-                    ⚙️
-                </button>
+            <div>
+                <button class="btn-secondary" onclick="showNewPatientModal()">New Patient</button>
             </div>
         </header>
         
         <!-- Mode Selector -->
         <div class="mode-selector">
-            <button class="mode-btn active" data-mode="quick">
-                ⚡ Quick Calc
-            </button>
-            <button class="mode-btn" data-mode="standard">
-                📋 Full Session
-            </button>
-            <button class="mode-btn" data-mode="review">
-                📊 Review
-            </button>
+            <button class="mode-btn active" onclick="switchMode('quick')">⚡ Quick Calc</button>
+            <button class="mode-btn" onclick="switchMode('full')">📋 Full Patient</button>
+            <button class="mode-btn" onclick="switchMode('review')">📊 Review All</button>
         </div>
         
         <!-- Main Content -->
         <main class="main-content">
-            <!-- ===== QUICK CALC MODE ===== -->
-            <div class="quick-calc-mode" id="modeQuick">
-                <!-- Baseline Banner -->
-                <div class="baseline-banner">
-                    <div class="baseline-values">
-                        <div class="baseline-label">Baseline Values</div>
-                        <div class="baseline-numbers">
-                            <span class="baseline-fev1">FEV₁: 2.85 L</span>
-                            <span class="baseline-fvc">FVC: 3.40 L</span>
-                        </div>
+            <!-- Quick Calc Mode -->
+            <div id="modeQuick">
+                <div class="patient-selector">
+                    <h3>Select Patient</h3>
+                    <div class="patient-grid" id="patientGrid">
+                        <!-- Patient cards will be inserted here -->
                     </div>
-                    <button class="change-baseline-btn" id="changeBaselineBtn" title="Change baseline">
-                        ⚙️
-                    </button>
                 </div>
                 
-                <!-- Live Calculator -->
-                <div class="live-calculator">
+                <div class="quick-calc-container">
+                    <h3>Quick Calculation</h3>
                     <div class="calc-inputs">
-                        <!-- FEV1 Input -->
                         <div class="input-group">
-                            <div class="input-label">FEV₁</div>
-                            <input type="number" 
-                                   step="0.01" 
-                                   min="0.5" 
-                                   max="8.0" 
-                                   class="calc-input" 
-                                   id="inputFev1"
-                                   placeholder="2.85"
-                                   autofocus>
-                            <span class="input-unit">L</span>
+                            <div class="input-label">FEV₁ (L)</div>
+                            <input type="number" step="0.01" class="calc-input" 
+                                   id="quickFev1" placeholder="2.85" autofocus>
                         </div>
-                        
-                        <!-- FVC Input -->
                         <div class="input-group">
-                            <div class="input-label">FVC</div>
-                            <input type="number" 
-                                   step="0.01" 
-                                   min="0.5" 
-                                   max="10.0" 
-                                   class="calc-input" 
-                                   id="inputFvc"
-                                   placeholder="3.40">
-                            <span class="input-unit">L</span>
-                        </div>
-                        
-                        <!-- Date Input -->
-                        <div class="input-group date-input-wrapper">
-                            <div class="input-label">Date</div>
-                            <input type="date" 
-                                   class="date-input" 
-                                   id="inputDate">
+                            <div class="input-label">FVC (L)</div>
+                            <input type="number" step="0.01" class="calc-input" 
+                                   id="quickFvc" placeholder="3.40">
                         </div>
                     </div>
                     
-                    <!-- Context Selector -->
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button class="scenario-card mini" data-context="routine" style="flex: 1; padding: 0.75rem;">
-                            <div>📅</div>
-                            <div style="font-size: 0.75rem; font-weight: 600;">Routine</div>
-                        </button>
-                        <button class="scenario-card mini" data-context="concern" style="flex: 1; padding: 0.75rem;">
-                            <div>🚨</div>
-                            <div style="font-size: 0.75rem; font-weight: 600;">Concern</div>
-                        </button>
-                        <button class="scenario-card mini" data-context="postTx" style="flex: 1; padding: 0.75rem;">
-                            <div>💊</div>
-                            <div style="font-size: 0.75rem; font-weight: 600;">Post-Tx</div>
-                        </button>
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="clearQuickInputs()">Clear</button>
+                        <button class="btn-primary" onclick="calculateQuick()">Calculate</button>
                     </div>
                 </div>
                 
-                <!-- Instant Results -->
-                <div class="instant-results hidden" id="instantResults">
-                    <div class="results-header">
-                        <div class="results-title">Results</div>
-                        <div style="font-size: 0.75rem; color: #6b7280;">
-                            <span id="resultDate">Today</span>
+                <div class="results-display hidden" id="quickResults">
+                    <!-- Results will be inserted here -->
+                </div>
+            </div>
+            
+            <!-- Full Patient Mode -->
+            <div class="full-patient-mode hidden" id="modeFull">
+                <div class="patient-profile">
+                    <h3 id="fullPatientName">Patient Profile</h3>
+                    <div class="timeline-inputs">
+                        <div>
+                            <div class="input-label">Transplant Date</div>
+                            <input type="date" class="date-input" id="transplantDate">
                         </div>
-                    </div>
-                    
-                    <div class="results-grid">
-                        <!-- Ratio -->
-                        <div class="result-card">
-                            <div class="result-value" id="resultRatio">--</div>
-                            <div class="result-label">FEV₁/FVC Ratio</div>
-                            <div class="result-sub">%</div>
-                        </div>
-                        
-                        <!-- Change from Baseline -->
-                        <div class="result-card">
-                            <div class="result-value" id="resultChange">--</div>
-                            <div class="result-label">Change</div>
-                            <div class="result-sub">from Baseline</div>
-                        </div>
-                        
-                        <!-- Change from Last -->
-                        <div class="result-card">
-                            <div class="result-value" id="resultChangeLast">--</div>
-                            <div class="result-label">From Last</div>
-                            <div class="result-sub">Visit</div>
-                        </div>
-                        
-                        <!-- Rate -->
-                        <div class="result-card">
-                            <div class="result-value" id="resultRate">--</div>
-                            <div class="result-label">Rate</div>
-                            <div class="result-sub">L/month</div>
-                        </div>
-                    </div>
-                    
-                    <!-- BOS Indicator -->
-                    <div class="bos-indicator-wrapper">
-                        <div class="bos-indicator bos0" id="bosIndicator">
-                            <div id="bosTitle">Enter values to calculate</div>
-                            <div id="bosDesc" style="font-size: 0.875rem; font-weight: 400; opacity: 0.9;"></div>
+                        <div>
+                            <div class="input-label">Baseline FEV₁ (L)</div>
+                            <input type="number" step="0.01" class="calc-input" 
+                                   id="baselineFev1" placeholder="Best post-transplant value">
                         </div>
                     </div>
                 </div>
                 
-                <!-- Quick Actions -->
-                <div class="quick-actions-bar">
-                    <button class="action-btn secondary" id="clearBtn">
-                        🗑️ Clear
-                    </button>
-                    <button class="action-btn secondary" id="saveBtn">
-                        💾 Save
-                    </button>
-                    <button class="action-btn primary" id="exportQuickBtn">
-                        📤 Export to EHR
-                    </button>
+                <div class="timeline-calculations">
+                    <h3>Timeline Analysis</h3>
+                    <div id="timelineAnalysis">
+                        <!-- Timeline data will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="results-display" id="fullResults">
+                    <!-- Full results will be inserted here -->
                 </div>
             </div>
             
-            <!-- ===== STANDARD MODE ===== -->
-            <div class="standard-mode" id="modeStandard">
-                <div class="comparison-view">
-                    <div class="comparison-header">
-                        <div class="comparison-title">Full Session</div>
-                        <div style="font-size: 0.875rem; color: #6b7280;">
-                            For complete documentation
-                        </div>
-                    </div>
-                    
-                    <!-- Scenario Selector -->
-                    <div class="scenario-selector">
-                        <div class="scenario-card active" data-scenario="routine">
-                            <div class="scenario-icon">📅</div>
-                            <div class="scenario-title">Routine</div>
-                            <div class="scenario-desc">Monthly follow-up</div>
-                        </div>
-                        <div class="scenario-card" data-scenario="concern">
-                            <div class="scenario-icon">🚨</div>
-                            <div class="scenario-title">Concern</div>
-                            <div class="scenario-desc">Symptomatic evaluation</div>
-                        </div>
-                        <div class="scenario-card" data-scenario="postTx">
-                            <div class="scenario-icon">💊</div>
-                            <div class="scenario-title">Post-Tx</div>
-                            <div class="scenario-desc">Treatment assessment</div>
-                        </div>
-                        <div class="scenario-card" data-scenario="annual">
-                            <div class="scenario-icon">📋</div>
-                            <div class="scenario-title">Annual</div>
-                            <div class="scenario-desc">Comprehensive review</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Full Form (Same as quick calc but with notes) -->
-                    <div class="live-calculator">
-                        <div class="calc-inputs">
-                            <div class="input-group">
-                                <div class="input-label">FEV₁</div>
-                                <input type="number" step="0.01" class="calc-input" 
-                                       placeholder="2.85" id="stdFev1">
-                                <span class="input-unit">L</span>
-                            </div>
-                            <div class="input-group">
-                                <div class="input-label">FVC</div>
-                                <input type="number" step="0.01" class="calc-input" 
-                                       placeholder="3.40" id="stdFvc">
-                                <span class="input-unit">L</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Clinical Notes -->
-                        <div style="margin-top: 1.5rem;">
-                            <div class="input-label">Clinical Notes</div>
-                            <textarea style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 12px; min-height: 80px; font-family: inherit;" 
-                                      placeholder="e.g., Patient reports increased dyspnea, on prednisone 20mg daily"
-                                      id="clinicalNotes"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="quick-actions-bar">
-                        <button class="action-btn primary" id="saveFullBtn">
-                            💾 Save & Document
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- ===== REVIEW MODE ===== -->
-            <div class="review-mode" id="modeReview">
-                <div class="comparison-view">
-                    <div class="comparison-header">
-                        <div class="comparison-title">Trend Analysis</div>
-                        <div style="font-size: 0.875rem; color: #6b7280;">
-                            Last 3 visits comparison
-                        </div>
-                    </div>
-                    
-                    <div class="comparison-grid">
-                        <!-- Visit 1 -->
-                        <div class="comparison-col">
-                            <div class="col-title">Visit 1</div>
-                            <div class="col-value">2.82 L</div>
-                            <div class="col-label">FEV₁</div>
-                            <div class="col-value negative">-1.1%</div>
-                            <div class="col-label">Change</div>
-                        </div>
-                        
-                        <!-- Visit 2 -->
-                        <div class="comparison-col">
-                            <div class="col-title">Visit 2</div>
-                            <div class="col-value">2.79 L</div>
-                            <div class="col-label">FEV₁</div>
-                            <div class="col-value negative">-2.1%</div>
-                            <div class="col-label">Change</div>
-                        </div>
-                        
-                        <!-- Visit 3 (Current) -->
-                        <div class="comparison-col current">
-                            <div class="col-title">Current</div>
-                            <div class="col-value">2.75 L</div>
-                            <div class="col-label">FEV₁</div>
-                            <div class="col-value negative">-3.5%</div>
-                            <div class="col-label">Change</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trend Summary -->
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px; text-align: center;">
-                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">
-                            Trend over 90 days
-                        </div>
-                        <div style="font-family: 'SF Mono', monospace; font-weight: 600; color: #dc2626;">
-                            Decline: -0.07 L (-2.4%)
-                        </div>
-                        <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">
-                            Rate: -0.023 L/month
-                        </div>
+            <!-- Review Mode -->
+            <div class="full-patient-mode hidden" id="modeReview">
+                <div class="patient-profile">
+                    <h3>All Patients Summary</h3>
+                    <div id="allPatientsSummary">
+                        <!-- Summary will be inserted here -->
                     </div>
                 </div>
             </div>
         </main>
     </div>
     
-    <!-- Offline Indicator -->
-    <div class="offline-indicator" id="offlineIndicator">
-        ● Offline Mode
-    </div>
-    
-    <!-- Baseline Setup Modal -->
-    <div class="modal" id="baselineModal">
+    <!-- New Patient Modal -->
+    <div class="modal" id="newPatientModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Set Baseline Values</div>
+            <h3>Create New Patient</h3>
+            <div style="margin: 1rem 0;">
+                <div class="input-label">Patient ID (PT001, PT002, etc.)</div>
+                <input type="text" class="calc-input" id="newPatientId" 
+                       placeholder="PT001" style="font-size: 1rem;">
             </div>
-            <div class="modal-body">
-                <div style="margin-bottom: 1rem;">
-                    <div class="input-label">FEV₁ Baseline (L)</div>
-                    <input type="number" step="0.01" class="calc-input" 
-                           style="width: 100%; text-align: center;" 
-                           id="modalBaselineFev1" value="2.85">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <div class="input-label">FVC Baseline (L)</div>
-                    <input type="number" step="0.01" class="calc-input" 
-                           style="width: 100%; text-align: center;" 
-                           id="modalBaselineFvc" value="3.40">
-                </div>
-                <div style="font-size: 0.75rem; color: #6b7280; text-align: center;">
-                    Typically established 3-6 months post-transplant
-                </div>
+            <div style="margin: 1rem 0;">
+                <div class="input-label">Transplant Date</div>
+                <input type="date" class="date-input" id="newTransplantDate">
             </div>
-            <div class="modal-footer">
-                <button class="action-btn secondary" id="cancelBaselineBtn">
-                    Cancel
-                </button>
-                <button class="action-btn primary" id="saveBaselineBtn">
-                    Set Baseline
-                </button>
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="hideModal('newPatientModal')">Cancel</button>
+                <button class="btn-primary" onclick="createNewPatient()">Create</button>
             </div>
         </div>
     </div>
-    
-    <!-- Export Modal -->
-    <div class="modal" id="exportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Export Results</div>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <button class="action-btn secondary" id="exportCSVBtn">
-                        📊 Export as CSV
-                    </button>
-                    <button class="action-btn secondary" id="exportJSONBtn">
-                        📄 Export as JSON
-                    </button>
-                    <button class="action-btn primary" id="exportEHRBtn">
-                        🏥 Copy for EHR
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- JavaScript -->
-    <script>
-    // ============================================
-    // NEUMOCALC 10/10 - ULTIMATE CLINICAL CALCULATOR
-    // ============================================
-    
-    // Clinical Constants
-    const BOS_THRESHOLDS = {
-        0: 10,   // BOS 0-p: 10-19% decline
-        1: 20,   // BOS 1: 20-34% decline
-        2: 35    // BOS 2-3: ≥35% decline
-    };
-    
-    // App State
-    const state = {
-        // Current session
-        patient: {
-            id: 'NM-001',
-            baseline: {
-                fev1: 2.85,
-                fvc: 3.40,
-                date: '2024-01-15'
-            }
-        },
-        
-        // Current calculation
-        current: {
-            fev1: null,
-            fvc: null,
-            date: null,
-            context: 'routine'
-        },
-        
-        // History
-        visits: [],
-        
-        // Settings
-        settings: {
-            autoCalculate: true,
-            autoIncrementDate: true,
-            defaultExport: 'ehr',
-            offlineMode: true
-        },
-        
-        // UI State
-        mode: 'quick'
-    };
-    
-    // DOM Elements
-    const el = {};
-    
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeApp();
-    });
-    
-    function initializeApp() {
-        cacheElements();
-        setupEventListeners();
-        setupPWA();
-        loadFromStorage();
-        setupDefaults();
-        
-        console.log('🚀 NeumoCalc 10/10 loaded');
-    }
-    
-    function cacheElements() {
-        // Welcome screen
-        el.startAppBtn = document.getElementById('startAppBtn');
-        el.welcomeScreen = document.getElementById('welcomeScreen');
-        el.mainApp = document.getElementById('mainApp');
-        
-        // Header
-        el.currentPatientId = document.getElementById('currentPatientId');
-        el.statusDot = document.getElementById('statusDot');
-        el.statusText = document.getElementById('statusText');
-        el.newPatientBtn = document.getElementById('newPatientBtn');
-        el.exportBtn = document.getElementById('exportBtn');
-        el.settingsBtn = document.getElementById('settingsBtn');
-        
-        // Mode selector
-        el.modeBtns = document.querySelectorAll('.mode-btn');
-        el.modeQuick = document.getElementById('modeQuick');
-        el.modeStandard = document.getElementById('modeStandard');
-        el.modeReview = document.getElementById('modeReview');
-        
-        // Quick Calc Mode
-        el.inputFev1 = document.getElementById('inputFev1');
-        el.inputFvc = document.getElementById('inputFvc');
-        el.inputDate = document.getElementById('inputDate');
-        el.changeBaselineBtn = document.getElementById('changeBaselineBtn');
-        el.instantResults = document.getElementById('instantResults');
-        el.resultDate = document.getElementById('resultDate');
-        el.resultRatio = document.getElementById('resultRatio');
-        el.resultChange = document.getElementById('resultChange');
-        el.resultChangeLast = document.getElementById('resultChangeLast');
-        el.resultRate = document.getElementById('resultRate');
-        el.bosIndicator = document.getElementById('bosIndicator');
-        el.bosTitle = document.getElementById('bosTitle');
-        el.bosDesc = document.getElementById('bosDesc');
-        el.clearBtn = document.getElementById('clearBtn');
-        el.saveBtn = document.getElementById('saveBtn');
-        el.exportQuickBtn = document.getElementById('exportQuickBtn');
-        
-        // Standard Mode
-        el.stdFev1 = document.getElementById('stdFev1');
-        el.stdFvc = document.getElementById('stdFvc');
-        el.clinicalNotes = document.getElementById('clinicalNotes');
-        el.saveFullBtn = document.getElementById('saveFullBtn');
-        
-        // Modals
-        el.baselineModal = document.getElementById('baselineModal');
-        el.modalBaselineFev1 = document.getElementById('modalBaselineFev1');
-        el.modalBaselineFvc = document.getElementById('modalBaselineFvc');
-        el.cancelBaselineBtn = document.getElementById('cancelBaselineBtn');
-        el.saveBaselineBtn = document.getElementById('saveBaselineBtn');
-        el.exportModal = document.getElementById('exportModal');
-        el.exportCSVBtn = document.getElementById('exportCSVBtn');
-        el.exportJSONBtn = document.getElementById('exportJSONBtn');
-        el.exportEHRBtn = document.getElementById('exportEHRBtn');
-        
-        // Offline indicator
-        el.offlineIndicator = document.getElementById('offlineIndicator');
-        
-        // Context/scenario buttons
-        el.contextBtns = document.querySelectorAll('[data-context]');
-        el.scenarioCards = document.querySelectorAll('.scenario-card');
-    }
-    
-    function setupEventListeners() {
-        // Welcome screen
-        el.startAppBtn.addEventListener('click', startApp);
-        
-        // Header buttons
-        el.newPatientBtn.addEventListener('click', newPatient);
-        el.exportBtn.addEventListener('click', showExportModal);
-        el.settingsBtn.addEventListener('click', showSettings);
-        
-        // Mode selection
-        el.modeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const mode = this.dataset.mode;
-                switchMode(mode);
-            });
-        });
-        
-        // Quick Calc inputs
-        el.inputFev1.addEventListener('input', handleQuickInput);
-        el.inputFvc.addEventListener('input', handleQuickInput);
-        el.inputDate.addEventListener('change', updateDateDisplay);
-        
-        // Context buttons
-        el.contextBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const context = this.dataset.context;
-                setContext(context);
-            });
-        });
-        
-        // Quick actions
-        el.changeBaselineBtn.addEventListener('click', showBaselineModal);
-        el.clearBtn.addEventListener('click', clearInputs);
-        el.saveBtn.addEventListener('click', saveCalculation);
-        el.exportQuickBtn.addEventListener('click', quickExport);
-        
-        // Standard mode
-        el.stdFev1.addEventListener('input', handleStandardInput);
-        el.stdFvc.addEventListener('input', handleStandardInput);
-        el.saveFullBtn.addEventListener('click', saveFullCalculation);
-        
-        // Scenario cards
-        el.scenarioCards.forEach(card => {
-            card.addEventListener('click', function() {
-                if (this.dataset.scenario) {
-                    selectScenario(this.dataset.scenario);
-                }
-            });
-        });
-        
-        // Modal buttons
-        el.cancelBaselineBtn.addEventListener('click', () => hideModal('baselineModal'));
-        el.saveBaselineBtn.addEventListener('click', saveBaseline);
-        el.exportCSVBtn.addEventListener('click', exportCSV);
-        el.exportJSONBtn.addEventListener('click', exportJSON);
-        el.exportEHRBtn.addEventListener('click', exportForEHR);
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', handleKeyboardShortcuts);
-        
-        // Offline/online detection
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-    }
-    
-    function setupPWA() {
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-        
-        // Setup beforeinstallprompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            // Can show install button if needed
-        });
-    }
-    
-    function setupDefaults() {
-        // Set today's date
-        const today = new Date().toISOString().split('T')[0];
-        el.inputDate.value = today;
-        el.inputDate.max = today;
-        
-        // Auto-focus FEV1 input
-        setTimeout(() => {
-            el.inputFev1.focus();
-        }, 100);
-        
-        // Update status
-        updateOnlineStatus();
-    }
-    
-    function loadFromStorage() {
-        try {
-            const saved = localStorage.getItem('neumocalc_data');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.patient) state.patient = data.patient;
-                if (data.visits) state.visits = data.visits;
-                if (data.settings) state.settings = { ...state.settings, ...data.settings };
-                
-                console.log('📁 Loaded saved data');
-            }
-        } catch (e) {
-            console.warn('Failed to load saved data:', e);
-        }
-    }
-    
-    function saveToStorage() {
-        try {
-            const data = {
-                patient: state.patient,
-                visits: state.visits,
-                settings: state.settings,
-                savedAt: new Date().toISOString()
-            };
-            localStorage.setItem('neumocalc_data', JSON.stringify(data));
-        } catch (e) {
-            console.warn('Failed to save data:', e);
-        }
-    }
-    
-    // ===== APP FLOW =====
-    function startApp() {
-        el.welcomeScreen.style.display = 'none';
-        el.mainApp.style.display = 'flex';
-        
-        // Auto-calculate if both inputs have values
-        if (el.inputFev1.value && el.inputFvc.value) {
-            calculateQuick();
-        }
-    }
-    
-    function switchMode(mode) {
-        state.mode = mode;
-        
-        // Update UI
-        el.modeBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.mode === mode);
-        });
-        
-        // Show/hide modes
-        el.modeQuick.style.display = mode === 'quick' ? 'block' : 'none';
-        el.modeStandard.style.display = mode === 'standard' ? 'block' : 'none';
-        el.modeReview.style.display = mode === 'review' ? 'block' : 'none';
-        
-        // Update review mode if needed
-        if (mode === 'review') {
-            updateReviewMode();
-        }
-        
-        // Focus appropriate input
-        if (mode === 'quick') {
-            setTimeout(() => el.inputFev1.focus(), 100);
-        } else if (mode === 'standard') {
-            setTimeout(() => el.stdFev1.focus(), 100);
-        }
-    }
-    
-    // ===== QUICK CALC MODE =====
-    function handleQuickInput(e) {
-        const fev1 = parseFloat(el.inputFev1.value);
-        const fvc = parseFloat(el.inputFvc.value);
-        
-        // Validate input
-        if (fev1 < 0.5 || fev1 > 8.0) {
-            el.inputFev1.classList.add('negative');
-            return;
-        } else {
-            el.inputFev1.classList.remove('negative');
-        }
-        
-        if (fvc < 0.5 || fvc > 10.0) {
-            el.inputFvc.classList.add('negative');
-            return;
-        } else {
-            el.inputFvc.classList.remove('negative');
-        }
-        
-        // Auto-calculate if both values exist
-        if (fev1 && fvc) {
-            state.current.fev1 = fev1;
-            state.current.fvc = fvc;
-            state.current.date = el.inputDate.value;
-            
-            calculateQuick();
-        } else {
-            el.instantResults.classList.add('hidden');
-        }
-    }
-    
-    function calculateQuick() {
-        const fev1 = state.current.fev1;
-        const fvc = state.current.fvc;
-        
-        if (!fev1 || !fvc) return;
-        
-        // Calculate ratio
-        const ratio = (fev1 / fvc * 100).toFixed(1);
-        
-        // Calculate change from baseline
-        const change = ((fev1 - state.patient.baseline.fev1) / state.patient.baseline.fev1 * 100).toFixed(1);
-        
-        // Calculate change from last visit
-        let changeLast = '--';
-        if (state.visits.length > 0) {
-            const lastVisit = state.visits[state.visits.length - 1];
-            changeLast = ((fev1 - lastVisit.fev1) / lastVisit.fev1 * 100).toFixed(1);
-        }
-        
-        // Calculate rate (L/month)
-        let rate = '--';
-        if (state.visits.length > 0) {
-            const lastVisit = state.visits[state.visits.length - 1];
-            const daysDiff = dateDiffInDays(state.current.date, lastVisit.date);
-            if (daysDiff > 0) {
-                const monthsDiff = daysDiff / 30.44;
-                const fev1Diff = fev1 - lastVisit.fev1;
-                rate = (fev1Diff / monthsDiff).toFixed(3);
-            }
-        }
-        
-        // Determine BOS stage
-        const decline = Math.abs(parseFloat(change));
-        let bosStage = 'BOS 0';
-        let bosColor = 'bos0';
-        let bosDescription = 'Normal (decline <10%)';
-        
-        if (decline >= BOS_THRESHOLDS[2]) {
-            bosStage = 'BOS 2-3';
-            bosColor = 'bos2-3';
-            bosDescription = 'Moderate/Severe (decline ≥35%)';
-        } else if (decline >= BOS_THRESHOLDS[1]) {
-            bosStage = 'BOS 1';
-            bosColor = 'bos1';
-            bosDescription = 'Mild (decline ≥20%)';
-        } else if (decline >= BOS_THRESHOLDS[0]) {
-            bosStage = 'BOS 0-p';
-            bosColor = 'bos0p';
-            bosDescription = 'Potential (decline ≥10%)';
-        }
-        
-        // Update UI
-        el.resultRatio.textContent = `${ratio}%`;
-        el.resultChange.textContent = `${parseFloat(change) > 0 ? '+' : ''}${change}%`;
-        el.resultChangeLast.textContent = changeLast !== '--' ? `${parseFloat(changeLast) > 0 ? '+' : ''}${changeLast}%` : '--';
-        el.resultRate.textContent = rate !== '--' ? `${parseFloat(rate) > 0 ? '+' : ''}${rate}` : '--';
-        
-        // Update BOS indicator
-        el.bosIndicator.className = `bos-indicator ${bosColor}`;
-        el.bosTitle.textContent = bosStage;
-        el.bosDesc.textContent = bosDescription;
-        
-        // Update date display
-        updateDateDisplay();
-        
-        // Show results
-        el.instantResults.classList.remove('hidden');
-        
-        // Scroll results into view on mobile
-        if (window.innerWidth < 768) {
-            setTimeout(() => {
-                el.instantResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
-        }
-    }
-    
-    function updateDateDisplay() {
-        const date = el.inputDate.value;
-        if (!date) return;
-        
-        const today = new Date().toISOString().split('T')[0];
-        if (date === today) {
-            el.resultDate.textContent = 'Today';
-        } else {
-            const dateObj = new Date(date);
-            el.resultDate.textContent = dateObj.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        }
-    }
-    
-    function setContext(context) {
-        state.current.context = context;
-        
-        // Update UI
-        el.contextBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.context === context);
-        });
-        
-        // Add visual feedback
-        showToast(`Set to ${context} evaluation`, 'success');
-    }
-    
-    function clearInputs() {
-        el.inputFev1.value = '';
-        el.inputFvc.value = '';
-        el.instantResults.classList.add('hidden');
-        
-        // Set default date (today or auto-increment)
-        if (state.settings.autoIncrementDate && state.visits.length > 0) {
-            const lastVisit = state.visits[state.visits.length - 1];
-            const lastDate = new Date(lastVisit.date);
-            lastDate.setDate(lastDate.getDate() + 30); // +30 days
-            const nextDate = lastDate.toISOString().split('T')[0];
-            el.inputDate.value = nextDate;
-        } else {
-            el.inputDate.value = new Date().toISOString().split('T')[0];
-        }
-        
-        el.inputFev1.focus();
-        showToast('Cleared', 'success');
-    }
-    
-    function saveCalculation() {
-        if (!state.current.fev1 || !state.current.fvc) {
-            showToast('Enter values first', 'warning');
-            return;
-        }
-        
-        const visit = {
-            id: Date.now(),
-            date: state.current.date || new Date().toISOString().split('T')[0],
-            fev1: state.current.fev1,
-            fvc: state.current.fvc,
-            context: state.current.context,
-            calculatedAt: new Date().toISOString()
-        };
-        
-        state.visits.push(visit);
-        saveToStorage();
-        
-        // Update status
-        updateStatus();
-        
-        showToast(`Visit ${state.visits.length} saved`, 'success');
-        
-        // Clear for next entry (optional)
-        if (state.settings.autoIncrementDate) {
-            clearInputs();
-        }
-    }
-    
-    // ===== STANDARD MODE =====
-    function handleStandardInput() {
-        // Sync with quick calc inputs
-        el.inputFev1.value = el.stdFev1.value;
-        el.inputFvc.value = el.stdFvc.value;
-        
-        // Trigger calculation
-        handleQuickInput();
-    }
-    
-    function selectScenario(scenario) {
-        // Update UI
-        el.scenarioCards.forEach(card => {
-            card.classList.toggle('active', card.dataset.scenario === scenario);
-        });
-        
-        // Set context
-        setContext(scenario);
-        
-        // Auto-fill notes based on scenario
-        switch(scenario) {
-            case 'routine':
-                el.clinicalNotes.placeholder = 'Patient asymptomatic, routine follow-up';
-                break;
-            case 'concern':
-                el.clinicalNotes.placeholder = 'Patient reports increased dyspnea/cough';
-                break;
-            case 'postTx':
-                el.clinicalNotes.placeholder = 'Post-treatment assessment';
-                break;
-            case 'annual':
-                el.clinicalNotes.placeholder = 'Annual comprehensive review';
-                break;
-        }
-    }
-    
-    function saveFullCalculation() {
-        if (!el.stdFev1.value || !el.stdFvc.value) {
-            showToast('Enter values first', 'warning');
-            return;
-        }
-        
-        const visit = {
-            id: Date.now(),
-            date: el.inputDate.value,
-            fev1: parseFloat(el.stdFev1.value),
-            fvc: parseFloat(el.stdFvc.value),
-            context: state.current.context,
-            notes: el.clinicalNotes.value,
-            calculatedAt: new Date().toISOString()
-        };
-        
-        state.visits.push(visit);
-        saveToStorage();
-        
-        // Clear notes
-        el.clinicalNotes.value = '';
-        
-        showToast('Saved with clinical notes', 'success');
-    }
-    
-    // ===== REVIEW MODE =====
-    function updateReviewMode() {
-        if (state.visits.length < 3) return;
-        
-        // Show last 3 visits for comparison
-        const recentVisits = state.visits.slice(-3);
-        // In a real app, you'd update the comparison view here
-    }
-    
-    // ===== BASELINE MANAGEMENT =====
-    function showBaselineModal() {
-        el.modalBaselineFev1.value = state.patient.baseline.fev1;
-        el.modalBaselineFvc.value = state.patient.baseline.fvc;
-        showModal('baselineModal');
-    }
-    
-    function saveBaseline() {
-        const fev1 = parseFloat(el.modalBaselineFev1.value);
-        const fvc = parseFloat(el.modalBaselineFvc.value);
-        
-        if (!fev1 || !fvc) {
-            showToast('Enter valid baseline values', 'error');
-            return;
-        }
-        
-        if (fev1 < 0.5 || fev1 > 8.0) {
-            showToast('FEV₁ must be 0.5-8.0 L', 'error');
-            return;
-        }
-        
-        if (fvc < 0.5 || fvc > 10.0) {
-            showToast('FVC must be 0.5-10.0 L', 'error');
-            return;
-        }
-        
-        state.patient.baseline.fev1 = fev1;
-        state.patient.baseline.fvc = fvc;
-        state.patient.baseline.date = new Date().toISOString().split('T')[0];
-        
-        saveToStorage();
-        updateBaselineDisplay();
-        hideModal('baselineModal');
-        
-        showToast('Baseline updated', 'success');
-    }
-    
-    function updateBaselineDisplay() {
-        // Update baseline banner
-        const baselineEl = document.querySelector('.baseline-fev1');
-        const baselineFvcEl = document.querySelector('.baseline-fvc');
-        
-        if (baselineEl) {
-            baselineEl.textContent = `FEV₁: ${state.patient.baseline.fev1.toFixed(2)} L`;
-        }
-        if (baselineFvcEl) {
-            baselineFvcEl.textContent = `FVC: ${state.patient.baseline.fvc.toFixed(2)} L`;
-        }
-    }
-    
-    // ===== EXPORT FUNCTIONS =====
-    function showExportModal() {
-        showModal('exportModal');
-    }
-    
-    function quickExport() {
-        if (!state.current.fev1 || !state.current.fvc) {
-            showToast('Calculate first', 'warning');
-            return;
-        }
-        
-        exportForEHR();
-    }
-    
-    function exportCSV() {
-        if (state.visits.length === 0) {
-            showToast('No visits to export', 'warning');
-            hideModal('exportModal');
-            return;
-        }
-        
-        let csv = 'Date,FEV₁ (L),FVC (L),FEV₁/FVC (%),Change from Baseline (%),Context\n';
-        
-        state.visits.forEach(visit => {
-            const ratio = (visit.fev1 / visit.fvc * 100).toFixed(1);
-            const change = ((visit.fev1 - state.patient.baseline.fev1) / state.patient.baseline.fev1 * 100).toFixed(1);
-            csv += `${visit.date},${visit.fev1},${visit.fvc},${ratio},${change},${visit.context}\n`;
-        });
-        
-        downloadFile(csv, `neumocalc-${state.patient.id}-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
-        hideModal('exportModal');
-        showToast('Exported as CSV', 'success');
-    }
-    
-    function exportJSON() {
-        const data = {
-            patient: state.patient,
-            visits: state.visits,
-            exportedAt: new Date().toISOString()
-        };
-        
-        const json = JSON.stringify(data, null, 2);
-        downloadFile(json, `neumocalc-${state.patient.id}-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-        hideModal('exportModal');
-        showToast('Exported as JSON', 'success');
-    }
-    
-    function exportForEHR() {
-        if (!state.current.fev1 || !state.current.fvc) {
-            showToast('Calculate first', 'warning');
-            hideModal('exportModal');
-            return;
-        }
-        
-        // Calculate values
-        const ratio = (state.current.fev1 / state.current.fvc * 100).toFixed(1);
-        const change = ((state.current.fev1 - state.patient.baseline.fev1) / state.patient.baseline.fev1 * 100).toFixed(1);
-        
-        // Determine BOS stage
-        const decline = Math.abs(parseFloat(change));
-        let bosStage = 'BOS 0';
-        if (decline >= BOS_THRESHOLDS[2]) bosStage = 'BOS 2-3';
-        else if (decline >= BOS_THRESHOLDS[1]) bosStage = 'BOS 1';
-        else if (decline >= BOS_THRESHOLDS[0]) bosStage = 'BOS 0-p';
-        
-        // Create EHR-ready text
-        const ehrText = `Lung Transplant Monitoring - ${state.patient.id}
-Date: ${state.current.date}
-FEV₁: ${state.current.fev1.toFixed(2)} L (${change}% from baseline)
-FVC: ${state.current.fvc.toFixed(2)} L
-FEV₁/FVC: ${ratio}%
-BOS Stage: ${bosStage}
-Context: ${state.current.context}
 
-Baseline: FEV₁ ${state.patient.baseline.fev1.toFixed(2)} L, FVC ${state.patient.baseline.fvc.toFixed(2)} L
----`;
+<script>
+// ============================================
+// NEUMOCALC TIMELINE CALCULATOR
+// ============================================
+
+// App State
+const state = {
+    mode: 'quick',
+    currentPatient: null,
+    patients: new Map(), // PT001 → patientData
+    nextPatientId: 1
+};
+
+// DOM Elements
+const elements = {};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initializeElements();
+    loadFromStorage();
+    updatePatientDisplay();
+    setTodayDates();
+});
+
+function initializeElements() {
+    // Mode containers
+    elements.modeQuick = document.getElementById('modeQuick');
+    elements.modeFull = document.getElementById('modeFull');
+    elements.modeReview = document.getElementById('modeReview');
+    
+    // Quick mode
+    elements.quickFev1 = document.getElementById('quickFev1');
+    elements.quickFvc = document.getElementById('quickFvc');
+    elements.quickResults = document.getElementById('quickResults');
+    elements.patientGrid = document.getElementById('patientGrid');
+    
+    // Full mode
+    elements.transplantDate = document.getElementById('transplantDate');
+    elements.baselineFev1 = document.getElementById('baselineFev1');
+    elements.fullResults = document.getElementById('fullResults');
+    elements.timelineAnalysis = document.getElementById('timelineAnalysis');
+    
+    // Patient info
+    elements.currentPatientId = document.getElementById('currentPatientId');
+    elements.timelineInfo = document.getElementById('timelineInfo');
+    
+    // Review mode
+    elements.allPatientsSummary = document.getElementById('allPatientsSummary');
+    
+    // Modals
+    elements.newPatientModal = document.getElementById('newPatientModal');
+    elements.newPatientId = document.getElementById('newPatientId');
+    elements.newTransplantDate = document.getElementById('newTransplantDate');
+}
+
+// ===== PATIENT MANAGEMENT =====
+
+function generatePatientId() {
+    return `PT${state.nextPatientId.toString().padStart(3, '0')}`;
+}
+
+function createNewPatient() {
+    const id = elements.newPatientId.value.trim().toUpperCase() || generatePatientId();
+    const transplantDate = elements.newTransplantDate.value;
+    
+    if (!transplantDate) {
+        alert('Please enter transplant date');
+        return;
+    }
+    
+    // Create patient object
+    const patient = {
+        id: id,
+        transplantDate: transplantDate,
+        baselineFev1: null,
+        visits: [],
+        created: new Date().toISOString()
+    };
+    
+    // Add to state
+    state.patients.set(id, patient);
+    state.currentPatient = id;
+    state.nextPatientId++;
+    
+    // Update UI
+    updatePatientDisplay();
+    hideModal('newPatientModal');
+    saveToStorage();
+    
+    // Switch to full mode for setup
+    switchMode('full');
+}
+
+function selectPatient(patientId) {
+    state.currentPatient = patientId;
+    updatePatientDisplay();
+    
+    if (state.mode === 'full') {
+        loadPatientData();
+    }
+}
+
+function updatePatientDisplay() {
+    // Update header
+    if (state.currentPatient && state.patients.has(state.currentPatient)) {
+        const patient = state.patients.get(state.currentPatient);
+        elements.currentPatientId.textContent = patient.id;
         
-        // Copy to clipboard
-        navigator.clipboard.writeText(ehrText).then(() => {
-            hideModal('exportModal');
-            showToast('Copied to clipboard for EHR', 'success');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            showToast('Failed to copy', 'error');
-        });
-    }
-    
-    function downloadFile(content, filename, type) {
-        const blob = new Blob([content], { type: type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-    
-    // ===== UTILITY FUNCTIONS =====
-    function dateDiffInDays(date1, date2) {
-        const d1 = new Date(date1);
-        const d2 = new Date(date2);
-        const diff = Math.abs(d1 - d2);
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
-    }
-    
-    function newPatient() {
-        if (state.visits.length > 0 && !confirm('Start new patient? Current session will be saved.')) {
-            return;
+        // Calculate days since transplant
+        if (patient.transplantDate) {
+            const days = daysBetween(patient.transplantDate, new Date().toISOString().split('T')[0]);
+            elements.timelineInfo.textContent = `${days} days post-transplant`;
         }
-        
-        // Generate new patient ID
-        const randomNum = Math.floor(Math.random() * 999).toString().padStart(3, '0');
-        state.patient.id = `NM-${randomNum}`;
-        
-        // Reset current session
-        state.visits = [];
-        clearInputs();
-        
-        // Update UI
-        el.currentPatientId.textContent = state.patient.id;
-        updateStatus();
-        
-        showToast(`New patient: ${state.patient.id}`, 'success');
+    } else {
+        elements.currentPatientId.textContent = 'No Patient Selected';
+        elements.timelineInfo.textContent = '';
     }
     
-    function updateStatus() {
-        const visitCount = state.visits.length;
-        el.statusText.textContent = visitCount > 0 ? `${visitCount} visits` : 'Ready';
+    // Update patient grid
+    updatePatientGrid();
+}
+
+function updatePatientGrid() {
+    elements.patientGrid.innerHTML = '';
+    
+    state.patients.forEach((patient, id) => {
+        const card = document.createElement('div');
+        card.className = `patient-card ${id === state.currentPatient ? 'active' : ''}`;
+        card.innerHTML = `
+            <div class="patient-id">${patient.id}</div>
+            <div class="patient-stats">${patient.visits.length} visits</div>
+            <div class="patient-stats">${patient.transplantDate || 'No date'}</div>
+        `;
+        card.onclick = () => selectPatient(id);
+        elements.patientGrid.appendChild(card);
+    });
+}
+
+// ===== CALCULATION LOGIC =====
+
+function calculateQuick() {
+    const fev1 = parseFloat(elements.quickFev1.value);
+    const fvc = parseFloat(elements.quickFvc.value);
+    
+    if (!fev1 || !fvc) {
+        alert('Please enter both FEV₁ and FVC values');
+        return;
     }
     
-    function updateOnlineStatus() {
-        const isOnline = navigator.onLine;
-        
-        if (isOnline) {
-            el.statusDot.classList.remove('offline');
-            el.offlineIndicator.style.display = 'none';
-        } else {
-            el.statusDot.classList.add('offline');
-            el.offlineIndicator.style.display = 'block';
+    if (!state.currentPatient) {
+        alert('Please select a patient first');
+        return;
+    }
+    
+    const patient = state.patients.get(state.currentPatient);
+    const results = calculateAllValues(fev1, fvc, patient);
+    
+    // Display results
+    displayQuickResults(results, patient);
+}
+
+function calculateAllValues(fev1, fvc, patient) {
+    const ratio = (fev1 / fvc * 100).toFixed(1);
+    
+    const results = {
+        measurements: {
+            fev1: fev1.toFixed(2),
+            fvc: fvc.toFixed(2),
+            ratio: ratio
         }
-    }
+    };
     
-    function showModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('active');
-        }
-    }
-    
-    function hideModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('active');
-        }
-    }
-    
-    function showToast(message, type = 'info') {
-        // Remove existing toast
-        const existingToast = document.querySelector('.toast');
-        if (existingToast) {
-            existingToast.remove();
-        }
+    // Add baseline comparison if available
+    if (patient.baselineFev1) {
+        const change = ((fev1 - patient.baselineFev1) / patient.baselineFev1 * 100).toFixed(1);
+        const absChange = (fev1 - patient.baselineFev1).toFixed(2);
         
-        // Create toast
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        const icons = {
-            success: '✅',
-            warning: '⚠️',
-            error: '❌',
-            info: 'ℹ️'
+        results.baselineComparison = {
+            baseline: patient.baselineFev1.toFixed(2),
+            absoluteChange: absChange,
+            percentChange: change
         };
+    }
+    
+    // Add timeline calculations if transplant date exists
+    if (patient.transplantDate) {
+        const daysSinceTx = daysBetween(patient.transplantDate, new Date().toISOString().split('T')[0]);
+        results.timeline = {
+            daysSinceTransplant: daysSinceTx,
+            yearsSinceTransplant: (daysSinceTx / 365.25).toFixed(1)
+        };
+    }
+    
+    // Add last visit comparison if available
+    if (patient.visits.length > 0) {
+        const lastVisit = patient.visits[patient.visits.length - 1];
+        const daysSinceLast = daysBetween(lastVisit.date, new Date().toISOString().split('T')[0]);
+        const changeFromLast = ((fev1 - lastVisit.fev1) / lastVisit.fev1 * 100).toFixed(1);
+        const rate = ((fev1 - lastVisit.fev1) / (daysSinceLast / 30.44)).toFixed(3);
         
-        toast.innerHTML = `
-            <span class="toast-icon">${icons[type] || icons.info}</span>
-            <span>${message}</span>
+        results.lastVisitComparison = {
+            lastValue: lastVisit.fev1.toFixed(2),
+            daysSinceLast: daysSinceLast,
+            changeFromLast: changeFromLast,
+            ratePerMonth: rate
+        };
+    }
+    
+    return results;
+}
+
+function displayQuickResults(results, patient) {
+    let html = `
+        <div class="measurement-card">
+            <h4>Current Measurements</h4>
+            <div class="timeline-row">
+                <span class="timeline-label">FEV₁</span>
+                <span class="timeline-value">${results.measurements.fev1} L</span>
+            </div>
+            <div class="timeline-row">
+                <span class="timeline-label">FVC</span>
+                <span class="timeline-value">${results.measurements.fvc} L</span>
+            </div>
+            <div class="timeline-row">
+                <span class="timeline-label">FEV₁/FVC</span>
+                <span class="timeline-value">${results.measurements.ratio}%</span>
+            </div>
+        </div>
+    `;
+    
+    // Add baseline comparison
+    if (results.baselineComparison) {
+        const changeClass = parseFloat(results.baselineComparison.percentChange) < 0 ? 'value-negative' : 'value-positive';
+        html += `
+            <div class="measurement-card">
+                <h4>vs Baseline (${results.baselineComparison.baseline} L)</h4>
+                <div class="timeline-row">
+                    <span class="timeline-label">Δ FEV₁</span>
+                    <span class="timeline-value ${changeClass}">${results.baselineComparison.absoluteChange} L</span>
+                </div>
+                <div class="timeline-row">
+                    <span class="timeline-label">% Change</span>
+                    <span class="timeline-value ${changeClass}">${results.baselineComparison.percentChange}%</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add timeline info
+    if (results.timeline) {
+        html += `
+            <div class="measurement-card">
+                <h4>Transplant Timeline</h4>
+                <div class="timeline-row">
+                    <span class="timeline-label">Days post-Tx</span>
+                    <span class="timeline-value">${results.timeline.daysSinceTransplant}</span>
+                </div>
+                <div class="timeline-row">
+                    <span class="timeline-label">Years post-Tx</span>
+                    <span class="timeline-value">${results.timeline.yearsSinceTransplant}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add last visit comparison
+    if (results.lastVisitComparison) {
+        const changeClass = parseFloat(results.lastVisitComparison.changeFromLast) < 0 ? 'value-negative' : 'value-positive';
+        html += `
+            <div class="measurement-card">
+                <h4>vs Last Visit (${results.lastVisitComparison.lastValue} L)</h4>
+                <div class="timeline-row">
+                    <span class="timeline-label">Days since last</span>
+                    <span class="timeline-value">${results.lastVisitComparison.daysSinceLast}</span>
+                </div>
+                <div class="timeline-row">
+                    <span class="timeline-label">% Change</span>
+                    <span class="timeline-value ${changeClass}">${results.lastVisitComparison.changeFromLast}%</span>
+                </div>
+                <div class="timeline-row">
+                    <span class="timeline-label">Rate of change</span>
+                    <span class="timeline-value ${changeClass}">${results.lastVisitComparison.ratePerMonth} L/month</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add threshold reference (NOT diagnosis)
+    html += `
+        <div class="threshold-info">
+            <h4>ISHLT Reference Thresholds</h4>
+            <p>For clinical consideration only:</p>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                <li>≥10% decline: Consider potential BOS evaluation</li>
+                <li>≥20% decline: Consider further investigation</li>
+                <li>≥35% decline: Consider urgent evaluation</li>
+            </ul>
+            <small>Note: Clinical correlation and sustained decline required for diagnosis.</small>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-secondary" onclick="saveCurrentCalculation()">Save Visit</button>
+            <button class="btn-primary" onclick="exportPatientData()">Export Data</button>
+        </div>
+    `;
+    
+    elements.quickResults.innerHTML = html;
+    elements.quickResults.classList.remove('hidden');
+}
+
+// ===== TIMELINE CALCULATIONS =====
+
+function updateTimelineCalculations() {
+    if (!state.currentPatient) return;
+    
+    const patient = state.patients.get(state.currentPatient);
+    if (!patient.transplantDate) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const daysSinceTx = daysBetween(patient.transplantDate, today);
+    
+    let html = `
+        <div class="timeline-row">
+            <span class="timeline-label">Transplant Date</span>
+            <span class="timeline-value">${formatDate(patient.transplantDate)}</span>
+        </div>
+        <div class="timeline-row">
+            <span class="timeline-label">Days since transplant</span>
+            <span class="timeline-value">${daysSinceTx} days</span>
+        </div>
+        <div class="timeline-row">
+            <span class="timeline-label">Years since transplant</span>
+            <span class="timeline-value">${(daysSinceTx / 365.25).toFixed(1)} years</span>
+        </div>
+    `;
+    
+    if (patient.visits.length > 0) {
+        const lastVisit = patient.visits[patient.visits.length - 1];
+        const daysSinceLast = daysBetween(lastVisit.date, today);
+        
+        html += `
+            <div class="timeline-row">
+                <span class="timeline-label">Last visit</span>
+                <span class="timeline-value">${formatDate(lastVisit.date)} (${daysSinceLast} days ago)</span>
+            </div>
         `;
         
-        document.body.appendChild(toast);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-    
-    function handleKeyboardShortcuts(e) {
-        // Don't trigger if user is typing in an input
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-            return;
-        }
-        
-        // Ctrl/Cmd + S to save
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            saveCalculation();
-        }
-        
-        // Ctrl/Cmd + E to export
-        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-            e.preventDefault();
-            showExportModal();
-        }
-        
-        // Ctrl/Cmd + N for new patient
-        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-            e.preventDefault();
-            newPatient();
-        }
-        
-        // Escape to clear
-        if (e.key === 'Escape') {
-            clearInputs();
+        // Calculate overall trend if multiple visits
+        if (patient.visits.length > 1) {
+            const firstVisit = patient.visits[0];
+            const totalDays = daysBetween(firstVisit.date, today);
+            const fev1Change = lastVisit.fev1 - firstVisit.fev1;
+            const rate = (fev1Change / (totalDays / 30.44)).toFixed(3);
+            
+            html += `
+                <div class="timeline-row">
+                    <span class="timeline-label">Overall FEV₁ trend</span>
+                    <span class="timeline-value ${fev1Change < 0 ? 'value-negative' : 'value-positive'}">
+                        ${rate} L/month
+                    </span>
+                </div>
+            `;
         }
     }
     
-    function showSettings() {
-        // Simple settings toggle
-        const autoCalc = !state.settings.autoCalculate;
-        state.settings.autoCalculate = autoCalc;
+    elements.timelineAnalysis.innerHTML = html;
+}
+
+// ===== MODE MANAGEMENT =====
+
+function switchMode(mode) {
+    state.mode = mode;
+    
+    // Update mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(mode === 'quick' ? 'Quick' : 
+                                                              mode === 'full' ? 'Full' : 'Review'));
+    });
+    
+    // Show/hide modes
+    elements.modeQuick.classList.toggle('hidden', mode !== 'quick');
+    elements.modeFull.classList.toggle('hidden', mode !== 'full');
+    elements.modeReview.classList.toggle('hidden', mode !== 'review');
+    
+    // Load data for current mode
+    if (mode === 'full' && state.currentPatient) {
+        loadPatientData();
+    } else if (mode === 'review') {
+        updateReviewMode();
+    }
+}
+
+function loadPatientData() {
+    if (!state.currentPatient) return;
+    
+    const patient = state.patients.get(state.currentPatient);
+    
+    // Load transplant date
+    if (patient.transplantDate) {
+        elements.transplantDate.value = patient.transplantDate;
+    }
+    
+    // Load baseline
+    if (patient.baselineFev1) {
+        elements.baselineFev1.value = patient.baselineFev1;
+    }
+    
+    // Update timeline
+    updateTimelineCalculations();
+}
+
+// ===== UTILITY FUNCTIONS =====
+
+function daysBetween(date1, date2) {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    const diff = Math.abs(d2 - d1);
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+function setTodayDates() {
+    const today = new Date().toISOString().split('T')[0];
+    elements.newTransplantDate.value = today;
+    elements.transplantDate.value = today;
+}
+
+function clearQuickInputs() {
+    elements.quickFev1.value = '';
+    elements.quickFvc.value = '';
+    elements.quickResults.classList.add('hidden');
+    elements.quickFev1.focus();
+}
+
+function saveCurrentCalculation() {
+    if (!state.currentPatient) return;
+    
+    const fev1 = parseFloat(elements.quickFev1.value);
+    const fvc = parseFloat(elements.quickFvc.value);
+    
+    if (!fev1 || !fvc) return;
+    
+    const patient = state.patients.get(state.currentPatient);
+    patient.visits.push({
+        date: new Date().toISOString().split('T')[0],
+        fev1: fev1,
+        fvc: fvc,
+        calculatedAt: new Date().toISOString()
+    });
+    
+    // Save baseline if not set and this is first visit
+    if (!patient.baselineFev1) {
+        patient.baselineFev1 = fev1;
+        elements.baselineFev1.value = fev1;
+    }
+    
+    saveToStorage();
+    updateTimelineCalculations();
+    
+    alert('Visit saved successfully');
+}
+
+function exportPatientData() {
+    if (!state.currentPatient) return;
+    
+    const patient = state.patients.get(state.currentPatient);
+    const data = {
+        patient: patient,
+        exportedAt: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${patient.id}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function updateReviewMode() {
+    let html = '<div class="patient-grid">';
+    
+    state.patients.forEach(patient => {
+        const lastVisit = patient.visits.length > 0 ? patient.visits[patient.visits.length - 1] : null;
         
-        showToast(`Auto-calculation ${autoCalc ? 'enabled' : 'disabled'}`, 'info');
+        html += `
+            <div class="patient-card" onclick="selectPatient('${patient.id}'); switchMode('full')">
+                <div class="patient-id">${patient.id}</div>
+                <div class="patient-stats">${patient.visits.length} visits</div>
+                ${lastVisit ? `
+                    <div class="patient-stats">Last: ${formatDate(lastVisit.date)}</div>
+                    <div class="patient-stats">FEV₁: ${lastVisit.fev1.toFixed(2)} L</div>
+                ` : '<div class="patient-stats">No visits yet</div>'}
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    elements.allPatientsSummary.innerHTML = html;
+}
+
+// ===== STORAGE =====
+
+function saveToStorage() {
+    try {
+        const data = {
+            patients: Array.from(state.patients.entries()),
+            nextPatientId: state.nextPatientId,
+            currentPatient: state.currentPatient
+        };
+        localStorage.setItem('neumocalc_timeline', JSON.stringify(data));
+    } catch (e) {
+        console.warn('Failed to save data:', e);
     }
-    
-    // Fix iOS 100vh issue
-    function setVH() {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+function loadFromStorage() {
+    try {
+        const saved = localStorage.getItem('neumocalc_timeline');
+        if (saved) {
+            const data = JSON.parse(saved);
+            
+            // Restore patients Map
+            state.patients = new Map(data.patients || []);
+            state.nextPatientId = data.nextPatientId || 1;
+            state.currentPatient = data.currentPatient;
+            
+            // Select first patient if none selected
+            if (!state.currentPatient && state.patients.size > 0) {
+                state.currentPatient = Array.from(state.patients.keys())[0];
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to load data:', e);
     }
-    
-    setVH();
-    window.addEventListener('resize', setVH);
-    window.addEventListener('orientationchange', setVH);
-    
-    // Make functions available globally
-    window.switchMode = switchMode;
-    window.showModal = showModal;
-    window.hideModal = hideModal;
-    
-    console.log('✨ NeumoCalc 10/10 ready');
-    </script>
+}
+
+// ===== MODAL FUNCTIONS =====
+
+function showNewPatientModal() {
+    elements.newPatientId.value = generatePatientId();
+    elements.newPatientModal.classList.add('active');
+}
+
+function hideModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// ===== INITIALIZATION =====
+console.log('NeumoCalc Timeline Calculator loaded');
+</script>
 </body>
 </html>
