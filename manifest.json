@@ -1,58 +1,51 @@
 {
-  "name": "NeumoCalc Timeline",
-  "short_name": "NeumoCalc",
-  "description": "Lung transplant calculation assistant with patient timeline tracking",
+  "name": "PulmoMetrics Professional",
+  "short_name": "PulmoMetrics",
+  "description": "Professional objective lung function calculator for transplant monitoring",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#1E6EA6",
+  "background_color": "#F8FAFC",
+  "theme_color": "#1A5F7A",
   "orientation": "portrait",
-  "lang": "en",
-  
   "icons": [
-    {
-      "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "type": "image/png", 
-      "sizes": "512x512",
-      "purpose": "any maskable"
-    },
     {
       "src": "icon.svg",
       "type": "image/svg+xml",
-      "sizes": "any"
+      "sizes": "any",
+      "purpose": "any maskable"
     }
   ],
-  
-  "categories": ["medical", "productivity", "utilities"],
+  "categories": ["medical", "productivity", "health"],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/540x1200/1A5F7A/FFFFFF?text=PulmoMetrics+Professional",
+      "type": "image/png",
+      "sizes": "540x1200",
+      "form_factor": "narrow",
+      "label": "Mobile view of lung function calculator"
+    },
+    {
+      "src": "https://via.placeholder.com/1280x800/1A5F7A/FFFFFF?text=PulmoMetrics+Professional",
+      "type": "image/png",
+      "sizes": "1280x800",
+      "form_factor": "wide",
+      "label": "Desktop view showing patient timeline"
+    }
+  ],
   "shortcuts": [
     {
       "name": "New Calculation",
-      "short_name": "Calculate",
-      "description": "Enter new FEV₁/FVC values",
-      "url": "/?mode=quick",
-      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+      "short_name": "Quick Calc",
+      "description": "Start a new quick calculation",
+      "url": "/#quick",
+      "icons": [{ "src": "icon.svg", "sizes": "any" }]
     },
     {
-      "name": "Review Patients",
+      "name": "Patient Review",
       "short_name": "Review",
-      "description": "View all patient data",
-      "url": "/?mode=review",
-      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
-    }
-  ],
-  
-  "screenshots": [
-    {
-      "src": "screenshot-1.png",
-      "type": "image/png",
-      "sizes": "1280x720"
+      "description": "Review patient history",
+      "url": "/#review",
+      "icons": [{ "src": "icon.svg", "sizes": "any" }]
     }
   ]
 }
