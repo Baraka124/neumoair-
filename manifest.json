@@ -1,7 +1,7 @@
 {
-  "name": "NeumoAir",
-  "short_name": "NeumoAir",
-  "description": "Clinical calculator for lung transplant monitoring with ISHLT protocols",
+  "name": "NeumoCalc",
+  "short_name": "NeumoCalc",
+  "description": "Instant lung transplant calculations. No setup, just results.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
