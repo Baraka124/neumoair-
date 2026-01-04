@@ -3,1001 +3,3164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1E6EA6">
+    <meta name="theme-color" content="#1A5F7A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="Lung transplant calculation assistant with patient timeline tracking">
+    <meta name="description" content="Professional objective lung function calculator">
     
-    <title>NeumoCalc | Patient Timeline Calculator</title>
+    <title>PulmoMetrics | Lung Function Calculator</title>
     
-    <!-- PWA Manifest (Embedded) -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk5ldW1vQ2FsYyBUaW1lbGluZSIsCiAgInNob3J0X25hbWUiOiAiTmV1bW9DYWxjIiwKICAiZGVzY3JpcHRpb24iOiAiTHVuZyB0cmFuc3BsYW50IGNhbGN1bGF0aW9uIGFzc2lzdGFudCB3aXRoIHBhdGllbnQgdGltZWxpbmUgdHJhY2tpbmciLAogICJzdGFydF91cmwiOiAiLyIsCiAgInNjb3BlIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMUU2RUE2IiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLAogICJsYW5nIjogImVuIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaWNvbi5zdmciLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInNpemVzIjogImFueSIKICAgIH0KICBdLAogICJjYXRlZ29yaWVzIjogWyJtZWRpY2FsIiwgInByb2R1Y3Rpdml0eSIsICJ1dGlsaXRpZXMiXQp9">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     
-    <!-- App Icon (Embedded SVG) -->
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxRTZFQTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTU1NTg4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI1NiIgZmlsbD0idXJsKCNncmFkKSIvPgogIDxwYXRoIGQ9Ik0yMDAgMjAwIFExNTAgMjUwIDIwMCAzMDAgUTI1MCAzNTAgMjAwIDQwMCBNMzEyIDIwMCBRMzYyIDI1MCAzMTIgMzAwIFEyNjIgMzUwIDMxMiA0MDAgTTI1NiAyNDAgTDI1NiAzNjAgTTIwMCAyNTYgTDMxMiAyNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI4MCIgcj0iOCIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+    <!-- App Icon -->
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
     
     <style>
-        /* ===== RESET & BASE ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { height: 100%; -webkit-text-size-adjust: 100%; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: #f8fafc; color: #1f2937; line-height: 1.5;
-            height: 100vh; height: -webkit-fill-available; overflow: hidden;
+        /* ===== CSS RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            /* Professional Medical Color Palette */
+            --primary: #1A5F7A;
+            --primary-dark: #154B61;
+            --primary-light: #2D9596;
+            --secondary: #57C5B6;
+            --background: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-elevated: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+            --success: #059669;
+            --warning: #F59E0B;
+            --alert: #DC2626;
+            --border: #E5E7EB;
+            --border-light: #F3F4F6;
+            
+            /* Spacing Scale (8px base) */
+            --space-0: 0px;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.5rem;
+            --space-6: 2rem;
+            --space-7: 2.5rem;
+            --space-8: 3rem;
+            
+            /* Typography */
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            --font-family-mono: 'SF Mono', 'Roboto Mono', 'Consolas', monospace;
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.12);
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Z-index layers */
+            --z-base: 1;
+            --z-elevated: 10;
+            --z-sticky: 100;
+            --z-modal: 1000;
+            --z-toast: 10000;
+        }
+        
+        /* Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #2D9596;
+                --primary-dark: #1A5F7A;
+                --background: #111827;
+                --surface: #1F2937;
+                --surface-elevated: #374151;
+                --text-primary: #F9FAFB;
+                --text-secondary: #D1D5DB;
+                --text-tertiary: #9CA3AF;
+                --border: #374151;
+                --border-light: #4B5563;
+            }
+        }
+        
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
         
         /* ===== APP CONTAINER ===== */
-        .app-container { display: flex; flex-direction: column; height: 100vh; }
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: -webkit-fill-available;
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface);
+        }
         
-        /* ===== HEADER ===== */
+        @media (min-width: 768px) {
+            .app-container {
+                box-shadow: var(--shadow-xl);
+                border-radius: var(--radius-lg);
+                margin: var(--space-4) auto;
+                height: calc(100vh - 2 * var(--space-4));
+                max-height: 900px;
+            }
+        }
+        
+        /* ===== PROFESSIONAL HEADER ===== */
         .app-header {
-            background: white; padding: 1rem;
-            padding-top: max(1rem, env(safe-area-inset-top));
-            border-bottom: 1px solid #e5e7eb;
-            display: flex; justify-content: space-between;
-            align-items: center; position: sticky; top: 0; z-index: 100;
+            background: var(--surface-elevated);
+            padding: var(--space-4);
+            padding-top: max(var(--space-4), env(safe-area-inset-top));
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: var(--z-sticky);
+            backdrop-filter: blur(10px);
+            background: rgba(var(--surface-elevated-rgb), 0.95);
         }
         
-        .patient-header { display: flex; gap: 1rem; align-items: center; }
-        .patient-id-display { font-family: monospace; font-weight: 700; color: #1E6EA6; font-size: 1.2rem; }
-        .timeline-info { font-size: 0.875rem; color: #6b7280; }
-        
-        /* ===== MODE SELECTOR ===== */
-        .mode-selector {
-            display: flex; background: white; border-bottom: 1px solid #e5e7eb;
-            padding: 0.5rem; gap: 0.5rem; flex-shrink: 0;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .mode-btn {
-            flex: 1; padding: 0.75rem; border: none; border-radius: 10px;
-            background: #f9fafb; color: #6b7280; font-weight: 600;
-            cursor: pointer; transition: all 0.2s;
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
         }
         
-        .mode-btn.active { background: #1E6EA6; color: white; box-shadow: 0 2px 8px rgba(30, 110, 166, 0.2); }
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .app-name h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        
+        .app-name span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .header-btn:hover {
+            background: var(--border-light);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        /* ===== PATIENT CONTEXT BAR ===== */
+        .patient-context-bar {
+            background: var(--surface);
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 73px; /* Header height */
+            z-index: var(--z-sticky);
+        }
+        
+        .patient-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .patient-info {
+            flex: 1;
+        }
+        
+        .patient-id {
+            font-family: var(--font-family-mono);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .patient-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: var(--space-3);
+            margin-top: 2px;
+        }
+        
+        .patient-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .patient-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        /* ===== NAVIGATION ===== */
+        .app-navigation {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-2) var(--space-4);
+            gap: var(--space-2);
+            position: sticky;
+            top: 143px; /* Header + patient bar height */
+            z-index: var(--z-sticky);
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: var(--space-3) var(--space-2);
+            border: none;
+            border-radius: var(--radius-lg);
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .nav-btn:hover {
+            background: var(--border-light);
+            color: var(--primary);
+        }
+        
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(26, 95, 122, 0.2);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
         
         /* ===== MAIN CONTENT ===== */
-        .main-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem; }
-        
-        /* ===== PATIENT SELECTOR ===== */
-        .patient-selector {
-            background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
-            border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: var(--space-4);
         }
         
-        .patient-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 0.75rem; margin-top: 1rem;
+        /* ===== QUICK CALC MODE ===== */
+        .mode-section {
+            display: none;
+            animation: fadeIn var(--transition-normal);
         }
         
-        .patient-card {
-            border: 2px solid #e5e7eb; border-radius: 10px; padding: 0.75rem;
-            cursor: pointer; transition: all 0.2s; background: white;
+        .mode-section.active {
+            display: block;
         }
-        
-        .patient-card:hover { border-color: #1E6EA6; transform: translateY(-2px); }
-        .patient-card.active { border-color: #1E6EA6; background: #f0f9ff; }
-        
-        .patient-id { font-weight: 600; color: #1E6EA6; }
-        .patient-stats { font-size: 0.75rem; color: #6b7280; }
-        
-        /* ===== CALCULATOR ===== */
-        .calc-container {
-            background: white; border-radius: 12px; padding: 1.5rem; margin-top: 1rem;
-            border: 1px solid #e5e7eb; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        
-        .calc-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-        
-        .input-group { position: relative; }
-        .input-label { font-size: 0.75rem; font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        
-        .calc-input {
-            width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 10px;
-            font-size: 1.5rem; font-weight: 600; font-family: monospace; text-align: center;
-            transition: all 0.2s; -moz-appearance: textfield;
-        }
-        
-        .calc-input::-webkit-outer-spin-button,
-        .calc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .calc-input:focus { outline: none; border-color: #1E6EA6; box-shadow: 0 0 0 3px rgba(30, 110, 166, 0.1); }
-        
-        /* ===== RESULTS ===== */
-        .results-container {
-            background: white; border-radius: 12px; padding: 1.5rem; margin-top: 1rem;
-            border: 1px solid #e5e7eb; display: none;
-        }
-        
-        .results-container.show { display: block; animation: fadeIn 0.3s ease; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
+        .calculator-card {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            margin-bottom: var(--space-5);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-title .badge {
+            background: var(--primary-light);
+            color: white;
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Measurement Inputs */
+        .measurement-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-5);
+            margin-bottom: var(--space-5);
+        }
+        
+        @media (max-width: 640px) {
+            .measurement-inputs {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .input-help {
+            color: var(--text-tertiary);
+            font-weight: normal;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .measurement-input {
+            width: 100%;
+            padding: var(--space-5) var(--space-4);
+            padding-right: 60px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-family-mono);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: left;
+            transition: all var(--transition-fast);
+            background: var(--surface);
+        }
+        
+        .measurement-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+        }
+        
+        .measurement-input::placeholder {
+            color: var(--text-tertiary);
+            opacity: 0.5;
+        }
+        
+        .input-unit {
+            position: absolute;
+            right: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+        
+        /* Comparison Selector */
+        .comparison-selector {
+            background: var(--background);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin: var(--space-5) 0;
+            border: 1px solid var(--border);
+        }
+        
+        .comparison-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .comparison-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        
+        .comparison-option {
+            display: flex;
+            align-items: center;
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+        }
+        
+        .comparison-option:hover {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+        
+        .comparison-option.selected {
+            background: var(--surface);
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(26, 95, 122, 0.1);
+        }
+        
+        .option-radio {
+            margin-right: var(--space-3);
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+        
+        .option-content {
+            flex: 1;
+        }
+        
+        .option-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            margin-bottom: 2px;
+        }
+        
+        .option-input {
+            margin-top: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            width: 100%;
+            font-family: var(--font-family-mono);
+            font-size: 0.875rem;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .option-note {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+            display: block;
+        }
+        
+        /* ===== RESULTS PANEL ===== */
+        .results-panel {
+            margin-top: var(--space-5);
+            display: none;
+        }
+        
+        .results-panel.visible {
+            display: block;
+            animation: fadeIn var(--transition-normal);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+        
+        .results-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .results-timestamp {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+        
+        /* Current Measurements */
+        .current-measurements {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--border);
+        }
+        
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-4);
+        }
+        
+        @media (max-width: 480px) {
+            .measurements-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+            }
+        }
+        
         .measurement-card {
-            background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, var(--background), var(--surface));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+            transition: transform var(--transition-fast);
+        }
+        
+        .measurement-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .measurement-value {
+            font-family: var(--font-family-mono);
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: var(--space-2) 0;
+            color: var(--primary);
+        }
+        
+        .measurement-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+        
+        .measurement-unit {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        
+        /* Comparison Results */
+        .comparison-results {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--border);
+        }
+        
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+        
+        .comparison-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .comparison-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .metric-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-family: var(--font-family-mono);
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .metric-value.positive {
+            color: var(--success);
+        }
+        
+        .metric-value.negative {
+            color: var(--alert);
+        }
+        
+        .metric-value.neutral {
+            color: var(--text-primary);
+        }
+        
+        .metric-unit {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        /* Protocol Context */
+        .protocol-context {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-top: var(--space-4);
+            border: 1px solid var(--border);
+        }
+        
+        .protocol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+        
+        .protocol-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .threshold-display {
+            display: flex;
+            gap: var(--space-3);
+        }
+        
+        .threshold-badge {
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .threshold-badge.monitor {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+        
+        .threshold-badge.review {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .threshold-badge.action {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--alert);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+        
+        .protocol-note {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            padding: var(--space-4);
+            background: var(--background);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .protocol-note strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        /* ===== FULL STUDY MODE ===== */
+        .timeline-setup {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-5);
+            border: 1px solid var(--border);
+        }
+        
+        .timeline-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+        
+        @media (max-width: 640px) {
+            .timeline-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .date-input {
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family);
+            font-size: 0.875rem;
+            width: 100%;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .date-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .timeline-display {
+            background: rgba(26, 95, 122, 0.05);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-top: var(--space-4);
+            border: 1px solid rgba(26, 95, 122, 0.1);
         }
         
         .timeline-row {
-            display: flex; justify-content: space-between; padding: 0.75rem 0;
-            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-2) 0;
+            font-size: 0.875rem;
         }
         
-        .timeline-label { color: #4b5563; }
-        .timeline-value { font-family: monospace; font-weight: 600; }
-        
-        .value-positive { color: #059669; }
-        .value-negative { color: #dc2626; }
-        .value-neutral { color: #6b7280; }
-        
-        /* ===== THRESHOLD INFO ===== */
-        .threshold-info {
-            background: #fef3c7; border-radius: 8px; padding: 1rem; margin-top: 1rem;
-            border-left: 4px solid #f59e0b; animation: pulse 2s infinite;
+        .timeline-label {
+            color: var(--primary);
+            font-weight: 500;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.9; }
+        .timeline-value {
+            font-family: var(--font-family-mono);
+            font-weight: 600;
+        }
+        
+        /* Clinical Notes */
+        .clinical-notes-section {
+            margin-top: var(--space-5);
+        }
+        
+        .notes-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: var(--space-4);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-family);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            resize: vertical;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .notes-hint {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-2);
+        }
+        
+        /* ===== REVIEW MODE ===== */
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-5);
+        }
+        
+        .patient-summary {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-5);
+            border: 1px solid var(--border);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: var(--space-3);
+        }
+        
+        .summary-value {
+            font-family: var(--font-family-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin: var(--space-2) 0;
+        }
+        
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .visits-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        
+        .visit-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .visit-card:hover {
+            border-color: var(--primary);
+            transform: translateX(2px);
+        }
+        
+        .visit-date {
+            font-family: var(--font-family-mono);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .visit-values {
+            display: flex;
+            gap: var(--space-4);
+            font-family: var(--font-family-mono);
+        }
+        
+        .visit-fev1 {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        .visit-fvc {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8) var(--space-4);
+            color: var(--text-tertiary);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+            opacity: 0.3;
         }
         
         /* ===== ACTION BUTTONS ===== */
-        .action-buttons {
-            display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
+        .action-bar {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-5);
+            padding-top: var(--space-5);
+            border-top: 1px solid var(--border);
         }
         
-        .btn {
-            flex: 1; padding: 1rem; border: none; border-radius: 10px;
-            font-weight: 600; cursor: pointer; transition: all 0.2s;
+        .action-btn {
+            flex: 1;
+            padding: var(--space-4);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
         }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #1E6EA6 0%, #155588 100%);
-            color: white; box-shadow: 0 2px 8px rgba(30, 110, 166, 0.2);
+        .action-btn:active {
+            transform: translateY(1px);
         }
         
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30, 110, 166, 0.3); }
-        
-        .btn-secondary {
-            background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db;
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 95, 122, 0.3);
         }
         
-        .btn-secondary:hover { background: #e5e7eb; }
+        .action-btn.primary:hover {
+            box-shadow: 0 6px 20px rgba(26, 95, 122, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.secondary {
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+        }
+        
+        .action-btn.secondary:hover {
+            background: var(--border-light);
+            color: var(--text-primary);
+            border-color: var(--text-tertiary);
+        }
         
         /* ===== MODALS ===== */
-        .modal {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 2000; padding: 1rem;
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: var(--z-modal);
+            padding: var(--space-4);
+            animation: fadeIn var(--transition-normal);
         }
         
-        .modal.show { display: flex; animation: fadeIn 0.3s ease; }
+        .modal-overlay.active {
+            display: flex;
+        }
         
         .modal-content {
-            background: white; border-radius: 16px; width: 100%;
-            max-width: 400px; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: var(--surface-elevated);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 440px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .modal-header { padding: 1.5rem; border-bottom: 1px solid #e5e7eb; }
-        .modal-body { padding: 1.5rem; }
-        .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid #e5e7eb; display: flex; gap: 0.75rem; }
-        
-        /* ===== PWA INSTALL BUTTON ===== */
-        .install-btn {
-            position: fixed; bottom: 20px; right: 20px; padding: 10px 20px;
-            background: #1E6EA6; color: white; border: none; border-radius: 25px;
-            font-weight: bold; z-index: 1000; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* ===== OFFLINE INDICATOR ===== */
-        .offline-indicator {
-            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-            background: #f59e0b; color: #92400e; padding: 0.5rem 1rem;
-            border-radius: 9999px; font-size: 0.75rem; font-weight: 600;
-            z-index: 9999; display: none; animation: pulse 2s infinite;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .modal-header {
+            padding: var(--space-5);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 640px) {
-            .calc-inputs { grid-template-columns: 1fr; }
-            .patient-grid { grid-template-columns: repeat(2, 1fr); }
-            .main-content { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
         
-        /* ===== UTILITIES ===== */
-        .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--border-light);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .modal-close:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            padding: var(--space-5);
+        }
+        
+        .modal-footer {
+            padding: var(--space-4) var(--space-5);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-3);
+        }
+        
+        /* Protocol Settings Modal */
+        .protocol-settings {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+        
+        .threshold-setting {
+            background: var(--background);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            border: 1px solid var(--border);
+        }
+        
+        .threshold-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-3);
+        }
+        
+        .threshold-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .threshold-level {
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .threshold-level.monitor { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+        .threshold-level.review { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .threshold-level.action { background: rgba(220, 38, 38, 0.1); color: var(--alert); }
+        
+        .threshold-input-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .threshold-input {
+            flex: 1;
+            padding: var(--space-3);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family-mono);
+            font-size: 1rem;
+            text-align: center;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .threshold-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .threshold-percent {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 30px;
+        }
+        
+        .threshold-description {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-2);
+            line-height: 1.5;
+        }
+        
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+        
+        .visible {
+            display: block !important;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-2 { margin-top: var(--space-2); }
+        .mt-4 { margin-top: var(--space-4); }
+        .mt-5 { margin-top: var(--space-5); }
+        .mt-6 { margin-top: var(--space-6); }
+        
+        .mb-2 { margin-bottom: var(--space-2); }
+        .mb-4 { margin-bottom: var(--space-4); }
+        .mb-5 { margin-bottom: var(--space-5); }
+        
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: var(--z-toast);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+        
+        .toast {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            box-shadow: var(--shadow-xl);
+            border-left: 4px solid var(--primary);
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideInRight var(--transition-normal);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.error { border-left-color: var(--alert); }
+        
+        /* ===== SAFE AREA SUPPORT ===== */
+        @supports (padding: max(0px)) {
+            .main-content {
+                padding-left: max(var(--space-4), env(safe-area-inset-left));
+                padding-right: max(var(--space-4), env(safe-area-inset-right));
+                padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <div class="patient-header">
-                <div class="patient-id-display" id="currentPatientId">No Patient Selected</div>
-                <div class="timeline-info" id="timelineInfo"></div>
-            </div>
-            <div>
-                <button class="btn-secondary" onclick="showNewPatientModal()">New Patient</button>
+            <div class="header-content">
+                <div class="app-title">
+                    <div class="app-logo">PM</div>
+                    <div class="app-name">
+                        <h1>PulmoMetrics</h1>
+                        <span>Objective Lung Function Calculator</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" id="protocolSettingsBtn" title="Protocol Settings">
+                        ⚙️
+                    </button>
+                    <button class="header-btn" id="exportBtn" title="Export Data">
+                        📤
+                    </button>
+                </div>
             </div>
         </header>
         
-        <!-- Mode Selector -->
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="switchMode('quick')">⚡ Quick Calc</button>
-            <button class="mode-btn" onclick="switchMode('full')">📋 Full Patient</button>
-            <button class="mode-btn" onclick="switchMode('review')">📊 Review All</button>
+        <!-- Patient Context -->
+        <div class="patient-context-bar">
+            <div class="patient-selector">
+                <div class="patient-avatar" id="patientAvatar">PT</div>
+                <div class="patient-info">
+                    <span class="patient-id" id="patientId">Select Patient</span>
+                    <div class="patient-meta">
+                        <span>📅 TX: <span id="txDateDisplay">--</span></span>
+                        <span>📊 Baseline: <span id="baselineDisplay">-- L</span></span>
+                        <span>🔄 Visits: <span id="visitsCount">0</span></span>
+                    </div>
+                </div>
+                <div class="patient-actions">
+                    <button class="header-btn" id="newPatientBtn" title="New Patient">
+                        🆕
+                    </button>
+                    <button class="header-btn" id="patientListBtn" title="Patient List">
+                        👥
+                    </button>
+                </div>
+            </div>
         </div>
+        
+        <!-- Navigation -->
+        <nav class="app-navigation">
+            <button class="nav-btn active" data-mode="quick">
+                <span class="nav-icon">⚡</span>
+                <span>Quick Calc</span>
+            </button>
+            <button class="nav-btn" data-mode="full">
+                <span class="nav-icon">📋</span>
+                <span>Full Study</span>
+            </button>
+            <button class="nav-btn" data-mode="review">
+                <span class="nav-icon">📊</span>
+                <span>Review</span>
+            </button>
+        </nav>
         
         <!-- Main Content -->
         <main class="main-content">
             <!-- Quick Calc Mode -->
-            <div id="modeQuick">
-                <div class="patient-selector">
-                    <h3>Select Patient</h3>
-                    <div class="patient-grid" id="patientGrid">
-                        <!-- Patient cards will be inserted here -->
+            <div id="modeQuick" class="mode-section active">
+                <div class="calculator-card">
+                    <div class="section-title">
+                        <span>Quick Calculation</span>
+                        <span class="badge">Current Visit</span>
                     </div>
-                </div>
-                
-                <div class="calc-container">
-                    <h3>Quick Calculation</h3>
-                    <div class="calc-inputs">
+                    
+                    <div class="measurement-inputs">
                         <div class="input-group">
-                            <div class="input-label">FEV₁ (L)</div>
-                            <input type="number" step="0.01" min="0.5" max="8.0" 
-                                   class="calc-input" id="quickFev1" placeholder="2.85" autofocus>
+                            <div class="input-label">
+                                <span>FEV₁</span>
+                                <span class="input-help">Forced Expiratory Volume</span>
+                            </div>
+                            <div class="input-wrapper">
+                                <input type="number" 
+                                       step="0.01" 
+                                       min="0.5" 
+                                       max="8.0" 
+                                       class="measurement-input" 
+                                       id="inputFev1"
+                                       placeholder="2.85"
+                                       autofocus>
+                                <span class="input-unit">L</span>
+                            </div>
                         </div>
+                        
                         <div class="input-group">
-                            <div class="input-label">FVC (L)</div>
-                            <input type="number" step="0.01" min="0.5" max="10.0" 
-                                   class="calc-input" id="quickFvc" placeholder="3.40">
+                            <div class="input-label">
+                                <span>FVC</span>
+                                <span class="input-help">Forced Vital Capacity</span>
+                            </div>
+                            <div class="input-wrapper">
+                                <input type="number" 
+                                       step="0.01" 
+                                       min="0.5" 
+                                       max="10.0" 
+                                       class="measurement-input" 
+                                       id="inputFvc"
+                                       placeholder="3.40">
+                                <span class="input-unit">L</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="action-buttons">
-                        <button class="btn-secondary" onclick="clearQuickInputs()">Clear</button>
-                        <button class="btn-primary" onclick="calculateQuick()">Calculate</button>
+                    <!-- Comparison Selector -->
+                    <div class="comparison-selector">
+                        <div class="comparison-title">
+                            <span>📊 Comparison Reference</span>
+                        </div>
+                        <div class="comparison-options">
+                            <label class="comparison-option" id="optionNone">
+                                <input type="radio" name="comparison" class="option-radio" value="none" checked>
+                                <div class="option-content">
+                                    <div class="option-label">Current values only</div>
+                                    <div class="option-note">Show raw measurements without comparison</div>
+                                </div>
+                            </label>
+                            
+                            <label class="comparison-option" id="optionBaseline">
+                                <input type="radio" name="comparison" class="option-radio" value="baseline">
+                                <div class="option-content">
+                                    <div class="option-label">vs Established Baseline</div>
+                                    <input type="number" 
+                                           step="0.01" 
+                                           class="option-input" 
+                                           id="baselineInput"
+                                           placeholder="Enter baseline FEV₁ (L)"
+                                           disabled>
+                                    <div class="option-note">Compare to post-transplant baseline value</div>
+                                </div>
+                            </label>
+                            
+                            <label class="comparison-option" id="optionLast">
+                                <input type="radio" name="comparison" class="option-radio" value="last">
+                                <div class="option-content">
+                                    <div class="option-label">vs Last Visit</div>
+                                    <div class="option-note" id="lastVisitNote">No previous visits found</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="results-container" id="quickResults">
-                    <!-- Results will be inserted here -->
+                <!-- Results Panel -->
+                <div class="results-panel" id="resultsPanel">
+                    <div class="results-header">
+                        <div class="results-title">Objective Measurements</div>
+                        <div class="results-timestamp" id="resultsTimestamp"></div>
+                    </div>
+                    
+                    <!-- Current Measurements -->
+                    <div class="current-measurements">
+                        <div class="measurements-grid">
+                            <div class="measurement-card">
+                                <span class="measurement-label">FEV₁</span>
+                                <div class="measurement-value" id="resultFev1">--</div>
+                                <span class="measurement-unit">Liters</span>
+                            </div>
+                            <div class="measurement-card">
+                                <span class="measurement-label">FVC</span>
+                                <div class="measurement-value" id="resultFvc">--</div>
+                                <span class="measurement-unit">Liters</span>
+                            </div>
+                            <div class="measurement-card">
+                                <span class="measurement-label">FEV₁/FVC</span>
+                                <div class="measurement-value" id="resultRatio">--</div>
+                                <span class="measurement-unit">Percentage</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Comparison Results -->
+                    <div class="comparison-results hidden" id="comparisonResults">
+                        <div class="comparison-header">
+                            <div class="comparison-title" id="comparisonTitle">Comparison</div>
+                            <div class="comparison-subtitle" id="comparisonSubtitle"></div>
+                        </div>
+                        
+                        <div class="metric-list">
+                            <div class="metric-item">
+                                <span class="metric-label">Absolute Change</span>
+                                <span class="metric-value neutral" id="resultDelta">--</span>
+                                <span class="metric-unit">L</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Percentage Change</span>
+                                <span class="metric-value neutral" id="resultPercent">--</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="metric-item" id="rateItem">
+                                <span class="metric-label">Rate of Change</span>
+                                <span class="metric-value neutral" id="resultRate">--</span>
+                                <span class="metric-unit">L/month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Protocol Context -->
+                    <div class="protocol-context hidden" id="protocolContext">
+                        <div class="protocol-header">
+                            <div class="protocol-title">
+                                <span>📈 Protocol Context</span>
+                            </div>
+                            <div class="threshold-display">
+                                <div class="threshold-badge monitor" id="thresholdMonitor">Monitor ≥<span>10</span>%</div>
+                                <div class="threshold-badge review" id="thresholdReview">Review ≥<span>20</span>%</div>
+                                <div class="threshold-badge action" id="thresholdAction">Action ≥<span>35</span>%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="protocol-note" id="protocolNote">
+                            <strong>Note:</strong> Objective measurements shown. Clinical interpretation required based on your protocol thresholds.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-bar">
+                    <button class="action-btn secondary" id="clearQuickBtn">
+                        <span>🗑️</span>
+                        <span>Clear</span>
+                    </button>
+                    <button class="action-btn secondary" id="saveQuickBtn">
+                        <span>💾</span>
+                        <span>Save Visit</span>
+                    </button>
+                    <button class="action-btn primary" id="copyResultsBtn">
+                        <span>📋</span>
+                        <span>Copy Results</span>
+                    </button>
                 </div>
             </div>
             
-            <!-- Full Patient Mode -->
-            <div id="modeFull" class="hidden">
-                <div class="calc-container">
-                    <h3 id="fullPatientName">Patient Timeline</h3>
-                    <div class="timeline-row">
-                        <span class="timeline-label">Transplant Date</span>
-                        <input type="date" class="calc-input" id="transplantDate" style="font-size: 1rem; padding: 0.5rem;">
+            <!-- Full Study Mode -->
+            <div id="modeFull" class="mode-section">
+                <div class="calculator-card">
+                    <div class="section-title">
+                        <span>Full Patient Study</span>
+                        <span class="badge" id="fullPatientBadge">--</span>
                     </div>
                     
-                    <div class="timeline-row">
-                        <span class="timeline-label">Baseline FEV₁ (L)</span>
-                        <input type="number" step="0.01" class="calc-input" id="baselineFev1" 
-                               placeholder="Best post-Tx value" style="font-size: 1rem; padding: 0.5rem;">
+                    <!-- Timeline Setup -->
+                    <div class="timeline-setup">
+                        <div class="input-label">Patient Timeline</div>
+                        <div class="timeline-inputs">
+                            <div class="input-group">
+                                <div class="input-label">Transplant Date</div>
+                                <input type="date" 
+                                       class="date-input" 
+                                       id="txDate"
+                                       max="">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-label">Baseline Established</div>
+                                <input type="date" 
+                                       class="date-input" 
+                                       id="baselineDate"
+                                       max="">
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-display">
+                            <div class="timeline-row">
+                                <span class="timeline-label">Time Post-Transplant</span>
+                                <span class="timeline-value" id="timePostTx">--</span>
+                            </div>
+                            <div class="timeline-row">
+                                <span class="timeline-label">Time Since Baseline</span>
+                                <span class="timeline-value" id="timeSinceBaseline">--</span>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div id="timelineAnalysis" class="mt-4">
-                        <!-- Timeline calculations will be inserted here -->
+                    <!-- Spirometry Inputs -->
+                    <div class="measurement-inputs">
+                        <div class="input-group">
+                            <div class="input-label">Current FEV₁</div>
+                            <div class="input-wrapper">
+                                <input type="number" 
+                                       step="0.01" 
+                                       class="measurement-input" 
+                                       id="stdFev1"
+                                       placeholder="Enter FEV₁">
+                                <span class="input-unit">L</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-label">Baseline FEV₁</div>
+                            <div class="input-wrapper">
+                                <input type="number" 
+                                       step="0.01" 
+                                       class="measurement-input" 
+                                       id="stdBaselineFev1"
+                                       placeholder="Enter baseline">
+                                <span class="input-unit">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clinical Notes -->
+                    <div class="clinical-notes-section">
+                        <div class="notes-label">Clinical Context</div>
+                        <textarea class="notes-textarea" 
+                                  id="clinicalNotes"
+                                  placeholder="Enter clinical context, symptoms, medications, or other relevant information..."></textarea>
+                        <div class="notes-hint">Optional: For your reference only</div>
                     </div>
                 </div>
                 
-                <div class="calc-container">
-                    <h3>Current Calculation</h3>
-                    <div class="calc-inputs">
-                        <div class="input-group">
-                            <div class="input-label">FEV₁ (L)</div>
-                            <input type="number" step="0.01" class="calc-input" id="fullFev1">
-                        </div>
-                        <div class="input-group">
-                            <div class="input-label">FVC (L)</div>
-                            <input type="number" step="0.01" class="calc-input" id="fullFvc">
+                <!-- Full Study Results -->
+                <div class="results-panel" id="stdResultsPanel">
+                    <div class="results-header">
+                        <div class="results-title">Comprehensive Analysis</div>
+                        <div class="results-timestamp" id="stdResultsTimestamp"></div>
+                    </div>
+                    
+                    <div class="current-measurements">
+                        <div class="measurements-grid">
+                            <div class="measurement-card">
+                                <span class="measurement-label">Current FEV₁</span>
+                                <div class="measurement-value" id="stdCurrentFev1">--</div>
+                                <span class="measurement-unit">Liters</span>
+                            </div>
+                            <div class="measurement-card">
+                                <span class="measurement-label">Baseline</span>
+                                <div class="measurement-value" id="stdBaseline">--</div>
+                                <span class="measurement-unit">Liters</span>
+                            </div>
+                            <div class="measurement-card">
+                                <span class="measurement-label">Time Period</span>
+                                <div class="measurement-value" id="stdTimePeriod">--</div>
+                                <span class="measurement-unit">Days</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="action-buttons">
-                        <button class="btn-primary" onclick="calculateFull()">Calculate & Save</button>
+                    <div class="comparison-results">
+                        <div class="comparison-header">
+                            <div class="comparison-title">Baseline Comparison</div>
+                            <div class="comparison-subtitle" id="stdComparisonSubtitle"></div>
+                        </div>
+                        
+                        <div class="metric-list">
+                            <div class="metric-item">
+                                <span class="metric-label">Cumulative Change</span>
+                                <span class="metric-value neutral" id="stdCumulativeDelta">--</span>
+                                <span class="metric-unit">L</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Percentage Change</span>
+                                <span class="metric-value neutral" id="stdPercentDecline">--</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Monthly Rate</span>
+                                <span class="metric-value neutral" id="stdMonthlyRate">--</span>
+                                <span class="metric-unit">L/month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="protocol-context">
+                        <div class="protocol-header">
+                            <div class="protocol-title">
+                                <span>📈 Long-term Trend</span>
+                            </div>
+                        </div>
+                        
+                        <div class="protocol-note" id="stdProtocolNote">
+                            <strong>Note:</strong> Long-term trend analysis. Compare with your established protocol thresholds for clinical context.
+                        </div>
                     </div>
                 </div>
                 
-                <div class="results-container" id="fullResults">
-                    <!-- Full results will be inserted here -->
+                <!-- Full Study Actions -->
+                <div class="action-bar">
+                    <button class="action-btn secondary" id="clearStdBtn">
+                        <span>🗑️</span>
+                        <span>Clear All</span>
+                    </button>
+                    <button class="action-btn primary" id="saveStudyBtn">
+                        <span>💾</span>
+                        <span>Save Full Study</span>
+                    </button>
                 </div>
             </div>
             
             <!-- Review Mode -->
-            <div id="modeReview" class="hidden">
-                <div class="calc-container">
-                    <h3>All Patients Summary</h3>
-                    <div id="allPatientsSummary">
-                        <!-- Summary will be inserted here -->
+            <div id="modeReview" class="mode-section">
+                <div class="calculator-card">
+                    <div class="section-title">
+                        <span>Patient Review</span>
+                        <span class="badge" id="reviewPatientBadge">--</span>
                     </div>
+                    
+                    <!-- Patient Summary -->
+                    <div class="patient-summary">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-value" id="reviewTxDays">--</div>
+                                <div class="summary-label">Days Post-Tx</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="reviewVisits">--</div>
+                                <div class="summary-label">Total Visits</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="reviewLastFev1">--</div>
+                                <div class="summary-label">Last FEV₁</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="reviewBestFev1">--</div>
+                                <div class="summary-label">Best FEV₁</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Visit History -->
+                    <div class="visits-list" id="visitsList">
+                        <!-- Visits will be populated here -->
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <p>No visit history available</p>
+                            <p class="notes-hint mt-2">Start by entering measurements in Quick Calc mode</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Review Actions -->
+                <div class="action-bar">
+                    <button class="action-btn secondary" id="exportPatientBtn">
+                        <span>📤</span>
+                        <span>Export Patient</span>
+                    </button>
+                    <button class="action-btn primary" id="newAnalysisBtn">
+                        <span>📝</span>
+                        <span>New Analysis</span>
+                    </button>
                 </div>
             </div>
         </main>
     </div>
     
-    <!-- New Patient Modal -->
-    <div class="modal" id="newPatientModal">
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Protocol Settings Modal -->
+    <div class="modal-overlay" id="protocolModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Create New Patient</h3>
+                <div class="modal-title">Protocol Settings</div>
+                <button class="modal-close" id="closeProtocolModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="input-group">
-                    <div class="input-label">Patient ID (PT001, PT002, etc.)</div>
-                    <input type="text" class="calc-input" id="newPatientId" 
-                           placeholder="PT001" style="font-size: 1rem;">
-                </div>
-                <div class="input-group mt-4">
-                    <div class="input-label">Transplant Date</div>
-                    <input type="date" class="calc-input" id="newTransplantDate" style="font-size: 1rem;">
+                <div class="protocol-settings">
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">
+                        Set custom decline thresholds for your clinical protocol. 
+                        The system will display when these thresholds are reached.
+                    </p>
+                    
+                    <div class="threshold-setting">
+                        <div class="threshold-header">
+                            <div class="threshold-label">
+                                <span>Monitor Threshold</span>
+                                <span class="threshold-level monitor">Level 1</span>
+                            </div>
+                            <div class="threshold-value" id="monitorValue">10%</div>
+                        </div>
+                        <div class="threshold-input-group">
+                            <input type="range" 
+                                   min="5" 
+                                   max="15" 
+                                   step="1" 
+                                   value="10" 
+                                   class="threshold-slider" 
+                                   id="monitorSlider">
+                            <input type="number" 
+                                   min="5" 
+                                   max="15" 
+                                   step="1" 
+                                   value="10" 
+                                   class="threshold-input" 
+                                   id="monitorInput">
+                            <span class="threshold-percent">%</span>
+                        </div>
+                        <div class="threshold-description">
+                            Initial threshold for monitoring changes from baseline
+                        </div>
+                    </div>
+                    
+                    <div class="threshold-setting">
+                        <div class="threshold-header">
+                            <div class="threshold-label">
+                                <span>Review Threshold</span>
+                                <span class="threshold-level review">Level 2</span>
+                            </div>
+                            <div class="threshold-value" id="reviewValue">20%</div>
+                        </div>
+                        <div class="threshold-input-group">
+                            <input type="range" 
+                                   min="15" 
+                                   max="30" 
+                                   step="1" 
+                                   value="20" 
+                                   class="threshold-slider" 
+                                   id="reviewSlider">
+                            <input type="number" 
+                                   min="15" 
+                                   max="30" 
+                                   step="1" 
+                                   value="20" 
+                                   class="threshold-input" 
+                                   id="reviewInput">
+                            <span class="threshold-percent">%</span>
+                        </div>
+                        <div class="threshold-description">
+                            Threshold for detailed review and assessment
+                        </div>
+                    </div>
+                    
+                    <div class="threshold-setting">
+                        <div class="threshold-header">
+                            <div class="threshold-label">
+                                <span>Action Threshold</span>
+                                <span class="threshold-level action">Level 3</span>
+                            </div>
+                            <div class="threshold-value" id="actionValue">35%</div>
+                        </div>
+                        <div class="threshold-input-group">
+                            <input type="range" 
+                                   min="25" 
+                                   max="50" 
+                                   step="1" 
+                                   value="35" 
+                                   class="threshold-slider" 
+                                   id="actionSlider">
+                            <input type="number" 
+                                   min="25" 
+                                   max="50" 
+                                   step="1" 
+                                   value="35" 
+                                   class="threshold-input" 
+                                   id="actionInput">
+                            <span class="threshold-percent">%</span>
+                        </div>
+                        <div class="threshold-description">
+                            Threshold for immediate clinical action consideration
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" onclick="hideModal('newPatientModal')">Cancel</button>
-                <button class="btn-primary" onclick="createNewPatient()">Create</button>
+                <button class="action-btn secondary" id="resetProtocolBtn">
+                    Reset to Defaults
+                </button>
+                <button class="action-btn primary" id="saveProtocolBtn">
+                    Save Protocol
+                </button>
             </div>
         </div>
     </div>
     
-    <!-- PWA Install Button -->
-    <button class="install-btn" id="installButton">📱 Install App</button>
-    
-    <!-- Offline Indicator -->
-    <div class="offline-indicator" id="offlineIndicator">● Offline Mode</div>
-
-<script>
-// ============================================
-// NEUMOCALC TIMELINE CALCULATOR
-// SINGLE-FILE PWA WITH OFFLINE SUPPORT
-// ============================================
-
-// App State
-const state = {
-    mode: 'quick',
-    currentPatient: null,
-    patients: new Map(),
-    nextPatientId: 1,
-    appVersion: '2.0.0'
-};
-
-// DOM Elements
-const elements = {};
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-});
-
-function initApp() {
-    initializeElements();
-    loadFromStorage();
-    setupPWA();
-    setTodayDates();
-    updatePatientDisplay();
-    updateOnlineStatus();
-    
-    console.log('🚀 NeumoCalc v' + state.appVersion + ' loaded');
-}
-
-function initializeElements() {
-    // Mode containers
-    elements.modeQuick = document.getElementById('modeQuick');
-    elements.modeFull = document.getElementById('modeFull');
-    elements.modeReview = document.getElementById('modeReview');
-    
-    // Quick mode
-    elements.quickFev1 = document.getElementById('quickFev1');
-    elements.quickFvc = document.getElementById('quickFvc');
-    elements.quickResults = document.getElementById('quickResults');
-    elements.patientGrid = document.getElementById('patientGrid');
-    
-    // Full mode
-    elements.transplantDate = document.getElementById('transplantDate');
-    elements.baselineFev1 = document.getElementById('baselineFev1');
-    elements.fullFev1 = document.getElementById('fullFev1');
-    elements.fullFvc = document.getElementById('fullFvc');
-    elements.fullResults = document.getElementById('fullResults');
-    elements.timelineAnalysis = document.getElementById('timelineAnalysis');
-    
-    // Patient info
-    elements.currentPatientId = document.getElementById('currentPatientId');
-    elements.timelineInfo = document.getElementById('timelineInfo');
-    
-    // Review mode
-    elements.allPatientsSummary = document.getElementById('allPatientsSummary');
-    
-    // Modals
-    elements.newPatientModal = document.getElementById('newPatientModal');
-    elements.newPatientId = document.getElementById('newPatientId');
-    elements.newTransplantDate = document.getElementById('newTransplantDate');
-    
-    // PWA
-    elements.installButton = document.getElementById('installButton');
-    elements.offlineIndicator = document.getElementById('offlineIndicator');
-}
-
-// ===== PWA OFFLINE SUPPORT =====
-
-function setupPWA() {
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register(URL.createObjectURL(
-            new Blob([`
-// Service Worker for NeumoCalc
-const CACHE_NAME = 'neumocalc-${state.appVersion}';
-const FILES_TO_CACHE = ['/'];
-
-self.addEventListener('install', (e) => {
-    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE)));
-    self.skipWaiting();
-});
-
-self.addEventListener('activate', (e) => {
-    e.waitUntil(caches.keys().then(keys => 
-        Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
-    ));
-    self.clients.claim();
-});
-
-self.addEventListener('fetch', (e) => {
-    e.respondWith(caches.match(e.request).then(response => response || fetch(e.request)));
-});
-            `], { type: 'application/javascript' })
-        ), { scope: './' }).then(() => {
-            console.log('✅ Service Worker registered');
-        });
-    }
-    
-    // PWA Install Prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        window.deferredPrompt = e;
-        elements.installButton.style.display = 'block';
-    });
-    
-    elements.installButton.addEventListener('click', async () => {
-        if (!window.deferredPrompt) return;
-        window.deferredPrompt.prompt();
-        const { outcome } = await window.deferredPrompt.userChoice;
-        console.log(`User ${outcome} the install`);
-        elements.installButton.style.display = 'none';
-        window.deferredPrompt = null;
-    });
-    
-    // Offline detection
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-}
-
-function updateOnlineStatus() {
-    const isOnline = navigator.onLine;
-    if (isOnline) {
-        elements.offlineIndicator.style.display = 'none';
-    } else {
-        elements.offlineIndicator.style.display = 'block';
-    }
-}
-
-// ===== PATIENT MANAGEMENT =====
-
-function generatePatientId() {
-    return `PT${state.nextPatientId.toString().padStart(3, '0')}`;
-}
-
-function showNewPatientModal() {
-    elements.newPatientId.value = generatePatientId();
-    elements.newPatientModal.classList.add('show');
-}
-
-function hideModal(modalId) {
-    document.getElementById(modalId).classList.remove('show');
-}
-
-function createNewPatient() {
-    const id = elements.newPatientId.value.trim().toUpperCase() || generatePatientId();
-    const transplantDate = elements.newTransplantDate.value;
-    
-    if (!transplantDate) {
-        alert('Please enter transplant date');
-        return;
-    }
-    
-    const patient = {
-        id: id,
-        transplantDate: transplantDate,
-        baselineFev1: null,
-        visits: [],
-        created: new Date().toISOString().split('T')[0]
-    };
-    
-    state.patients.set(id, patient);
-    state.currentPatient = id;
-    state.nextPatientId = Math.max(state.nextPatientId, parseInt(id.substring(2)) + 1);
-    
-    updatePatientDisplay();
-    hideModal('newPatientModal');
-    saveToStorage();
-    
-    // Switch to full mode
-    switchMode('full');
-    loadPatientData();
-}
-
-function selectPatient(patientId) {
-    state.currentPatient = patientId;
-    updatePatientDisplay();
-    
-    if (state.mode === 'full') {
-        loadPatientData();
-    }
-}
-
-function updatePatientDisplay() {
-    if (state.currentPatient && state.patients.has(state.currentPatient)) {
-        const patient = state.patients.get(state.currentPatient);
-        elements.currentPatientId.textContent = patient.id;
-        
-        if (patient.transplantDate) {
-            const days = daysBetween(patient.transplantDate, new Date().toISOString().split('T')[0]);
-            elements.timelineInfo.textContent = `${days} days post-Tx • ${patient.visits.length} visits`;
-        }
-    } else {
-        elements.currentPatientId.textContent = 'No Patient Selected';
-        elements.timelineInfo.textContent = '';
-    }
-    
-    updatePatientGrid();
-}
-
-function updatePatientGrid() {
-    elements.patientGrid.innerHTML = '';
-    
-    state.patients.forEach((patient, id) => {
-        const lastVisit = patient.visits.length > 0 ? patient.visits[patient.visits.length - 1] : null;
-        
-        const card = document.createElement('div');
-        card.className = `patient-card ${id === state.currentPatient ? 'active' : ''}`;
-        card.innerHTML = `
-            <div class="patient-id">${patient.id}</div>
-            <div class="patient-stats">${patient.transplantDate || 'No date'}</div>
-            <div class="patient-stats">${patient.visits.length} visits</div>
-            ${lastVisit ? `<div class="patient-stats">Last: ${lastVisit.fev1.toFixed(2)}L</div>` : ''}
-        `;
-        card.onclick = () => selectPatient(id);
-        elements.patientGrid.appendChild(card);
-    });
-}
-
-// ===== CALCULATIONS =====
-
-function calculateQuick() {
-    const fev1 = parseFloat(elements.quickFev1.value);
-    const fvc = parseFloat(elements.quickFvc.value);
-    
-    if (!fev1 || !fvc) {
-        alert('Please enter both FEV₁ and FVC values');
-        return;
-    }
-    
-    if (!state.currentPatient) {
-        alert('Please select a patient first');
-        return;
-    }
-    
-    const patient = state.patients.get(state.currentPatient);
-    const results = calculateAllValues(fev1, fvc, patient);
-    displayResults(results, patient, 'quickResults');
-}
-
-function calculateFull() {
-    const fev1 = parseFloat(elements.fullFev1.value);
-    const fvc = parseFloat(elements.fullFvc.value);
-    
-    if (!fev1 || !fvc) {
-        alert('Please enter both FEV₁ and FVC values');
-        return;
-    }
-    
-    if (!state.currentPatient) {
-        alert('Please select a patient first');
-        return;
-    }
-    
-    const patient = state.patients.get(state.currentPatient);
-    
-    // Update baseline if this is first visit
-    if (!patient.baselineFev1) {
-        patient.baselineFev1 = fev1;
-        elements.baselineFev1.value = fev1;
-    }
-    
-    // Save visit
-    patient.visits.push({
-        date: new Date().toISOString().split('T')[0],
-        fev1: fev1,
-        fvc: fvc,
-        savedAt: new Date().toISOString()
-    });
-    
-    const results = calculateAllValues(fev1, fvc, patient);
-    displayResults(results, patient, 'fullResults');
-    
-    // Update timeline
-    updateTimelineCalculations();
-    
-    // Save data
-    saveToStorage();
-    
-    alert('✓ Visit saved successfully');
-}
-
-function calculateAllValues(fev1, fvc, patient) {
-    const ratio = (fev1 / fvc * 100).toFixed(1);
-    const results = {
-        measurements: { fev1: fev1.toFixed(2), fvc: fvc.toFixed(2), ratio: ratio }
-    };
-    
-    // Baseline comparison
-    if (patient.baselineFev1) {
-        const change = ((fev1 - patient.baselineFev1) / patient.baselineFev1 * 100).toFixed(1);
-        results.baselineComparison = {
-            baseline: patient.baselineFev1.toFixed(2),
-            absoluteChange: (fev1 - patient.baselineFev1).toFixed(2),
-            percentChange: change
-        };
-    }
-    
-    // Last visit comparison
-    if (patient.visits.length > 0) {
-        const lastVisit = patient.visits[patient.visits.length - 1];
-        const daysSinceLast = daysBetween(lastVisit.date, new Date().toISOString().split('T')[0]);
-        const changeFromLast = ((fev1 - lastVisit.fev1) / lastVisit.fev1 * 100).toFixed(1);
-        const rate = daysSinceLast > 0 ? ((fev1 - lastVisit.fev1) / (daysSinceLast / 30.44)).toFixed(3) : 'N/A';
-        
-        results.lastVisitComparison = {
-            lastValue: lastVisit.fev1.toFixed(2),
-            daysSinceLast: daysSinceLast,
-            changeFromLast: changeFromLast,
-            ratePerMonth: rate
-        };
-    }
-    
-    // Timeline
-    if (patient.transplantDate) {
-        const daysSinceTx = daysBetween(patient.transplantDate, new Date().toISOString().split('T')[0]);
-        results.timeline = {
-            daysSinceTransplant: daysSinceTx,
-            yearsSinceTransplant: (daysSinceTx / 365.25).toFixed(1)
-        };
-    }
-    
-    return results;
-}
-
-function displayResults(results, patient, containerId) {
-    const container = document.getElementById(containerId);
-    
-    let html = `
-        <div class="measurement-card">
-            <h4>Current Measurements</h4>
-            <div class="timeline-row">
-                <span class="timeline-label">FEV₁</span>
-                <span class="timeline-value">${results.measurements.fev1} L</span>
+    <!-- New Patient Modal -->
+    <div class="modal-overlay" id="newPatientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create New Patient</div>
+                <button class="modal-close" id="closeNewPatientModal">&times;</button>
             </div>
-            <div class="timeline-row">
-                <span class="timeline-label">FVC</span>
-                <span class="timeline-value">${results.measurements.fvc} L</span>
+            <div class="modal-body">
+                <div class="input-group mb-4">
+                    <div class="input-label">Patient ID</div>
+                    <input type="text" 
+                           class="measurement-input" 
+                           id="newPatientId"
+                           placeholder="PT001"
+                           style="font-size: 1rem; padding: var(--space-3);">
+                </div>
+                <div class="input-group mb-4">
+                    <div class="input-label">Transplant Date</div>
+                    <input type="date" 
+                           class="date-input" 
+                           id="newTxDate"
+                           max="">
+                </div>
+                <div class="input-group">
+                    <div class="input-label">Description (Optional)</div>
+                    <input type="text" 
+                           class="measurement-input" 
+                           id="newPatientDesc"
+                           placeholder="e.g., Bilateral lung transplant"
+                           style="font-size: 1rem; padding: var(--space-3);">
+                </div>
             </div>
-            <div class="timeline-row">
-                <span class="timeline-label">FEV₁/FVC</span>
-                <span class="timeline-value">${results.measurements.ratio}%</span>
+            <div class="modal-footer">
+                <button class="action-btn secondary" id="cancelNewPatientBtn">
+                    Cancel
+                </button>
+                <button class="action-btn primary" id="createPatientBtn">
+                    Create Patient
+                </button>
             </div>
         </div>
-    `;
+    </div>
     
-    // Baseline comparison
-    if (results.baselineComparison) {
-        const change = parseFloat(results.baselineComparison.percentChange);
-        const changeClass = change < 0 ? 'value-negative' : change > 0 ? 'value-positive' : 'value-neutral';
-        
-        html += `
-            <div class="measurement-card">
-                <h4>vs Baseline (${results.baselineComparison.baseline} L)</h4>
-                <div class="timeline-row">
-                    <span class="timeline-label">Δ FEV₁</span>
-                    <span class="timeline-value ${changeClass}">${results.baselineComparison.absoluteChange} L</span>
-                </div>
-                <div class="timeline-row">
-                    <span class="timeline-label">% Change</span>
-                    <span class="timeline-value ${changeClass}">${results.baselineComparison.percentChange}%</span>
+    <!-- Patient List Modal -->
+    <div class="modal-overlay" id="patientListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Select Patient</div>
+                <button class="modal-close" id="closePatientListModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="visits-list" id="patientList">
+                    <!-- Patient list will be populated here -->
                 </div>
             </div>
-        `;
-    }
-    
-    // Last visit comparison
-    if (results.lastVisitComparison) {
-        const change = parseFloat(results.lastVisitComparison.changeFromLast);
-        const changeClass = change < 0 ? 'value-negative' : change > 0 ? 'value-positive' : 'value-neutral';
-        
-        html += `
-            <div class="measurement-card">
-                <h4>vs Last Visit (${results.lastVisitComparison.lastValue} L)</h4>
-                <div class="timeline-row">
-                    <span class="timeline-label">Days since last</span>
-                    <span class="timeline-value">${results.lastVisitComparison.daysSinceLast}</span>
-                </div>
-                <div class="timeline-row">
-                    <span class="timeline-label">% Change</span>
-                    <span class="timeline-value ${changeClass}">${results.lastVisitComparison.changeFromLast}%</span>
-                </div>
-                <div class="timeline-row">
-                    <span class="timeline-label">Rate of change</span>
-                    <span class="timeline-value ${changeClass}">${results.lastVisitComparison.ratePerMonth} L/month</span>
-                </div>
+            <div class="modal-footer">
+                <button class="action-btn primary" id="addNewPatientBtn">
+                    ＋ Add New Patient
+                </button>
             </div>
-        `;
-    }
-    
-    // Threshold info
-    const decline = results.baselineComparison ? Math.abs(parseFloat(results.baselineComparison.percentChange)) : 0;
-    let thresholdText = '';
-    
-    if (decline >= 50) thresholdText = '≥50% decline: Consider for urgent BOS evaluation';
-    else if (decline >= 35) thresholdText = '≥35% decline: Consider for moderate BOS evaluation';
-    else if (decline >= 20) thresholdText = '≥20% decline: Consider for possible BOS evaluation';
-    else if (decline >= 10) thresholdText = '≥10% decline: Consider for potential BOS evaluation';
-    else thresholdText = '<10% decline: Below threshold for BOS consideration';
-    
-    html += `
-        <div class="threshold-info">
-            <h4>ISHLT Reference Thresholds</h4>
-            <p><strong>${thresholdText}</strong></p>
-            <p style="margin-top: 0.5rem; font-size: 0.875rem;">
-                Note: Clinical correlation and sustained decline required for diagnosis.<br>
-                This tool provides objective measurements only.
-            </p>
         </div>
-    `;
+    </div>
     
-    container.innerHTML = html;
-    container.classList.add('show');
-    
-    // Scroll to results
-    setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-}
+    <!-- JavaScript -->
+    <script>
+    // ============================================
+    // PULMOMETRICS PROFESSIONAL
+    // Objective Lung Function Calculator
+    // ============================================
 
-function updateTimelineCalculations() {
-    if (!state.currentPatient) return;
-    
-    const patient = state.patients.get(state.currentPatient);
-    if (!patient.transplantDate) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const daysSinceTx = daysBetween(patient.transplantDate, today);
-    
-    let html = `
-        <div class="timeline-row">
-            <span class="timeline-label">Days since transplant</span>
-            <span class="timeline-value">${daysSinceTx}</span>
-        </div>
-        <div class="timeline-row">
-            <span class="timeline-label">Years since transplant</span>
-            <span class="timeline-value">${(daysSinceTx / 365.25).toFixed(1)}</span>
-        </div>
-    `;
-    
-    if (patient.visits.length > 0) {
-        const lastVisit = patient.visits[patient.visits.length - 1];
-        const daysSinceLast = daysBetween(lastVisit.date, today);
-        
-        html += `
-            <div class="timeline-row">
-                <span class="timeline-label">Last visit</span>
-                <span class="timeline-value">${formatDate(lastVisit.date)} (${daysSinceLast} days ago)</span>
-            </div>
-        `;
-    }
-    
-    elements.timelineAnalysis.innerHTML = html;
-}
-
-// ===== MODE MANAGEMENT =====
-
-function switchMode(mode) {
-    state.mode = mode;
-    
-    // Update buttons
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(
-            mode === 'quick' ? 'Quick' : mode === 'full' ? 'Full' : 'Review'
-        ));
-    });
-    
-    // Show/hide modes
-    elements.modeQuick.classList.toggle('hidden', mode !== 'quick');
-    elements.modeFull.classList.toggle('hidden', mode !== 'full');
-    elements.modeReview.classList.toggle('hidden', mode !== 'review');
-    
-    // Load data
-    if (mode === 'full' && state.currentPatient) {
-        loadPatientData();
-    } else if (mode === 'review') {
-        updateReviewMode();
-    }
-}
-
-function loadPatientData() {
-    if (!state.currentPatient) return;
-    
-    const patient = state.patients.get(state.currentPatient);
-    
-    if (patient.transplantDate) {
-        elements.transplantDate.value = patient.transplantDate;
-    }
-    
-    if (patient.baselineFev1) {
-        elements.baselineFev1.value = patient.baselineFev1;
-    }
-    
-    // Copy last values to inputs
-    if (patient.visits.length > 0) {
-        const last = patient.visits[patient.visits.length - 1];
-        elements.fullFev1.value = last.fev1;
-        elements.fullFvc.value = last.fvc;
-    }
-    
-    updateTimelineCalculations();
-}
-
-function updateReviewMode() {
-    let html = '<div class="patient-grid">';
-    
-    state.patients.forEach(patient => {
-        const lastVisit = patient.visits.length > 0 ? patient.visits[patient.visits.length - 1] : null;
-        
-        html += `
-            <div class="patient-card" onclick="selectPatient('${patient.id}'); switchMode('full')">
-                <div class="patient-id">${patient.id}</div>
-                <div class="patient-stats">${patient.transplantDate || 'No date'}</div>
-                <div class="patient-stats">${patient.visits.length} visits</div>
-                ${lastVisit ? `
-                    <div class="patient-stats">Last: ${formatDate(lastVisit.date)}</div>
-                    <div class="patient-stats">FEV₁: ${lastVisit.fev1.toFixed(2)}L</div>
-                ` : ''}
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    elements.allPatientsSummary.innerHTML = html;
-}
-
-// ===== UTILITIES =====
-
-function daysBetween(date1, date2) {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    const diff = Math.abs(d2 - d1);
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
-}
-
-function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-    });
-}
-
-function setTodayDates() {
-    const today = new Date().toISOString().split('T')[0];
-    elements.newTransplantDate.value = today;
-    elements.transplantDate.value = today;
-    elements.newTransplantDate.max = today;
-    elements.transplantDate.max = today;
-}
-
-function clearQuickInputs() {
-    elements.quickFev1.value = '';
-    elements.quickFvc.value = '';
-    elements.quickResults.classList.remove('show');
-    elements.quickFev1.focus();
-}
-
-// ===== STORAGE =====
-
-function saveToStorage() {
-    try {
-        const data = {
-            patients: Array.from(state.patients.entries()),
-            nextPatientId: state.nextPatientId,
-            currentPatient: state.currentPatient,
-            version: state.appVersion,
-            savedAt: new Date().toISOString()
-        };
-        localStorage.setItem('neumocalc', JSON.stringify(data));
-    } catch (e) {
-        console.warn('Failed to save:', e);
-    }
-}
-
-function loadFromStorage() {
-    try {
-        const saved = localStorage.getItem('neumocalc');
-        if (saved) {
-            const data = JSON.parse(saved);
+    class PulmoMetrics {
+        constructor() {
+            this.state = {
+                // App state
+                mode: 'quick',
+                protocol: {
+                    monitor: 10,
+                    review: 20,
+                    action: 35
+                },
+                
+                // Current patient
+                currentPatient: null,
+                
+                // Patients database
+                patients: new Map(),
+                
+                // Current session
+                session: {
+                    quick: {
+                        fev1: null,
+                        fvc: null,
+                        comparison: 'none',
+                        baseline: null,
+                        lastVisit: null
+                    },
+                    full: {
+                        txDate: null,
+                        baselineDate: null,
+                        fev1: null,
+                        baselineFev1: null,
+                        notes: ''
+                    }
+                }
+            };
             
-            if (data.patients) {
-                state.patients = new Map(data.patients);
+            this.dom = {};
+            this.init();
+        }
+        
+        // ===== INITIALIZATION =====
+        
+        init() {
+            this.cacheDOM();
+            this.setupEventListeners();
+            this.loadState();
+            this.updateUI();
+            
+            // Set max dates to today
+            const today = new Date().toISOString().split('T')[0];
+            ['txDate', 'baselineDate', 'newTxDate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.max = today;
+            });
+            
+            this.showToast('PulmoMetrics initialized', 'success');
+        }
+        
+        cacheDOM() {
+            // Header
+            this.dom.protocolSettingsBtn = document.getElementById('protocolSettingsBtn');
+            this.dom.exportBtn = document.getElementById('exportBtn');
+            
+            // Patient context
+            this.dom.patientAvatar = document.getElementById('patientAvatar');
+            this.dom.patientId = document.getElementById('patientId');
+            this.dom.txDateDisplay = document.getElementById('txDateDisplay');
+            this.dom.baselineDisplay = document.getElementById('baselineDisplay');
+            this.dom.visitsCount = document.getElementById('visitsCount');
+            this.dom.newPatientBtn = document.getElementById('newPatientBtn');
+            this.dom.patientListBtn = document.getElementById('patientListBtn');
+            
+            // Navigation
+            this.dom.navBtns = document.querySelectorAll('.nav-btn');
+            
+            // Quick mode
+            this.dom.modeQuick = document.getElementById('modeQuick');
+            this.dom.inputFev1 = document.getElementById('inputFev1');
+            this.dom.inputFvc = document.getElementById('inputFvc');
+            this.dom.optionNone = document.getElementById('optionNone');
+            this.dom.optionBaseline = document.getElementById('optionBaseline');
+            this.dom.optionLast = document.getElementById('optionLast');
+            this.dom.baselineInput = document.getElementById('baselineInput');
+            this.dom.lastVisitNote = document.getElementById('lastVisitNote');
+            
+            // Results
+            this.dom.resultsPanel = document.getElementById('resultsPanel');
+            this.dom.resultsTimestamp = document.getElementById('resultsTimestamp');
+            this.dom.resultFev1 = document.getElementById('resultFev1');
+            this.dom.resultFvc = document.getElementById('resultFvc');
+            this.dom.resultRatio = document.getElementById('resultRatio');
+            this.dom.comparisonResults = document.getElementById('comparisonResults');
+            this.dom.comparisonTitle = document.getElementById('comparisonTitle');
+            this.dom.comparisonSubtitle = document.getElementById('comparisonSubtitle');
+            this.dom.resultDelta = document.getElementById('resultDelta');
+            this.dom.resultPercent = document.getElementById('resultPercent');
+            this.dom.resultRate = document.getElementById('resultRate');
+            this.dom.rateItem = document.getElementById('rateItem');
+            this.dom.protocolContext = document.getElementById('protocolContext');
+            this.dom.thresholdMonitor = document.getElementById('thresholdMonitor');
+            this.dom.thresholdReview = document.getElementById('thresholdReview');
+            this.dom.thresholdAction = document.getElementById('thresholdAction');
+            this.dom.protocolNote = document.getElementById('protocolNote');
+            
+            // Quick actions
+            this.dom.clearQuickBtn = document.getElementById('clearQuickBtn');
+            this.dom.saveQuickBtn = document.getElementById('saveQuickBtn');
+            this.dom.copyResultsBtn = document.getElementById('copyResultsBtn');
+            
+            // Full mode
+            this.dom.modeFull = document.getElementById('modeFull');
+            this.dom.fullPatientBadge = document.getElementById('fullPatientBadge');
+            this.dom.txDate = document.getElementById('txDate');
+            this.dom.baselineDate = document.getElementById('baselineDate');
+            this.dom.timePostTx = document.getElementById('timePostTx');
+            this.dom.timeSinceBaseline = document.getElementById('timeSinceBaseline');
+            this.dom.stdFev1 = document.getElementById('stdFev1');
+            this.dom.stdBaselineFev1 = document.getElementById('stdBaselineFev1');
+            this.dom.clinicalNotes = document.getElementById('clinicalNotes');
+            this.dom.stdResultsPanel = document.getElementById('stdResultsPanel');
+            this.dom.stdResultsTimestamp = document.getElementById('stdResultsTimestamp');
+            this.dom.stdCurrentFev1 = document.getElementById('stdCurrentFev1');
+            this.dom.stdBaseline = document.getElementById('stdBaseline');
+            this.dom.stdTimePeriod = document.getElementById('stdTimePeriod');
+            this.dom.stdComparisonSubtitle = document.getElementById('stdComparisonSubtitle');
+            this.dom.stdCumulativeDelta = document.getElementById('stdCumulativeDelta');
+            this.dom.stdPercentDecline = document.getElementById('stdPercentDecline');
+            this.dom.stdMonthlyRate = document.getElementById('stdMonthlyRate');
+            this.dom.stdProtocolNote = document.getElementById('stdProtocolNote');
+            this.dom.clearStdBtn = document.getElementById('clearStdBtn');
+            this.dom.saveStudyBtn = document.getElementById('saveStudyBtn');
+            
+            // Review mode
+            this.dom.modeReview = document.getElementById('modeReview');
+            this.dom.reviewPatientBadge = document.getElementById('reviewPatientBadge');
+            this.dom.reviewTxDays = document.getElementById('reviewTxDays');
+            this.dom.reviewVisits = document.getElementById('reviewVisits');
+            this.dom.reviewLastFev1 = document.getElementById('reviewLastFev1');
+            this.dom.reviewBestFev1 = document.getElementById('reviewBestFev1');
+            this.dom.visitsList = document.getElementById('visitsList');
+            this.dom.exportPatientBtn = document.getElementById('exportPatientBtn');
+            this.dom.newAnalysisBtn = document.getElementById('newAnalysisBtn');
+            
+            // Modals
+            this.dom.protocolModal = document.getElementById('protocolModal');
+            this.dom.closeProtocolModal = document.getElementById('closeProtocolModal');
+            this.dom.monitorSlider = document.getElementById('monitorSlider');
+            this.dom.monitorInput = document.getElementById('monitorInput');
+            this.dom.monitorValue = document.getElementById('monitorValue');
+            this.dom.reviewSlider = document.getElementById('reviewSlider');
+            this.dom.reviewInput = document.getElementById('reviewInput');
+            this.dom.reviewValue = document.getElementById('reviewValue');
+            this.dom.actionSlider = document.getElementById('actionSlider');
+            this.dom.actionInput = document.getElementById('actionInput');
+            this.dom.actionValue = document.getElementById('actionValue');
+            this.dom.resetProtocolBtn = document.getElementById('resetProtocolBtn');
+            this.dom.saveProtocolBtn = document.getElementById('saveProtocolBtn');
+            
+            this.dom.newPatientModal = document.getElementById('newPatientModal');
+            this.dom.closeNewPatientModal = document.getElementById('closeNewPatientModal');
+            this.dom.newPatientId = document.getElementById('newPatientId');
+            this.dom.newTxDate = document.getElementById('newTxDate');
+            this.dom.newPatientDesc = document.getElementById('newPatientDesc');
+            this.dom.cancelNewPatientBtn = document.getElementById('cancelNewPatientBtn');
+            this.dom.createPatientBtn = document.getElementById('createPatientBtn');
+            
+            this.dom.patientListModal = document.getElementById('patientListModal');
+            this.dom.closePatientListModal = document.getElementById('closePatientListModal');
+            this.dom.patientList = document.getElementById('patientList');
+            this.dom.addNewPatientBtn = document.getElementById('addNewPatientBtn');
+            
+            // Toast container
+            this.dom.toastContainer = document.getElementById('toastContainer');
+        }
+        
+        setupEventListeners() {
+            // Navigation
+            this.dom.navBtns.forEach(btn => {
+                btn.addEventListener('click', () => this.switchMode(btn.dataset.mode));
+            });
+            
+            // Header actions
+            this.dom.protocolSettingsBtn.addEventListener('click', () => this.showModal('protocolModal'));
+            this.dom.exportBtn.addEventListener('click', () => this.exportAllData());
+            this.dom.newPatientBtn.addEventListener('click', () => this.showModal('newPatientModal'));
+            this.dom.patientListBtn.addEventListener('click', () => this.showPatientList());
+            
+            // Quick mode
+            this.dom.inputFev1.addEventListener('input', () => this.handleQuickInput());
+            this.dom.inputFvc.addEventListener('input', () => this.handleQuickInput());
+            this.dom.baselineInput.addEventListener('input', () => this.handleComparisonChange());
+            
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(option => {
+                option.addEventListener('click', (e) => this.handleComparisonSelection(e));
+            });
+            
+            // Quick actions
+            this.dom.clearQuickBtn.addEventListener('click', () => this.clearQuickCalc());
+            this.dom.saveQuickBtn.addEventListener('click', () => this.saveQuickVisit());
+            this.dom.copyResultsBtn.addEventListener('click', () => this.copyResults());
+            
+            // Full mode
+            this.dom.txDate.addEventListener('change', () => this.updateTimeline());
+            this.dom.baselineDate.addEventListener('change', () => this.updateTimeline());
+            this.dom.stdFev1.addEventListener('input', () => this.handleFullInput());
+            this.dom.stdBaselineFev1.addEventListener('input', () => this.handleFullInput());
+            this.dom.clearStdBtn.addEventListener('click', () => this.clearFullStudy());
+            this.dom.saveStudyBtn.addEventListener('click', () => this.saveFullStudy());
+            
+            // Review mode
+            this.dom.exportPatientBtn.addEventListener('click', () => this.exportPatientData());
+            this.dom.newAnalysisBtn.addEventListener('click', () => this.switchMode('quick'));
+            
+            // Protocol modal
+            this.dom.closeProtocolModal.addEventListener('click', () => this.hideModal('protocolModal'));
+            this.dom.resetProtocolBtn.addEventListener('click', () => this.resetProtocol());
+            this.dom.saveProtocolBtn.addEventListener('click', () => this.saveProtocol());
+            
+            // Protocol sliders and inputs
+            ['monitor', 'review', 'action'].forEach(type => {
+                const slider = document.getElementById(`${type}Slider`);
+                const input = document.getElementById(`${type}Input`);
+                const value = document.getElementById(`${type}Value`);
+                
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    value.textContent = `${slider.value}%`;
+                });
+                
+                input.addEventListener('input', () => {
+                    slider.value = input.value;
+                    value.textContent = `${input.value}%`;
+                });
+            });
+            
+            // New patient modal
+            this.dom.closeNewPatientModal.addEventListener('click', () => this.hideModal('newPatientModal'));
+            this.dom.cancelNewPatientBtn.addEventListener('click', () => this.hideModal('newPatientModal'));
+            this.dom.createPatientBtn.addEventListener('click', () => this.createPatient());
+            
+            // Patient list modal
+            this.dom.closePatientListModal.addEventListener('click', () => this.hideModal('patientListModal'));
+            this.dom.addNewPatientBtn.addEventListener('click', () => {
+                this.hideModal('patientListModal');
+                this.showModal('newPatientModal');
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+            
+            // Prevent modal close on click inside
+            [this.dom.protocolModal, this.dom.newPatientModal, this.dom.patientListModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) this.hideModal(modal.id);
+                });
+            });
+        }
+        
+        // ===== STATE MANAGEMENT =====
+        
+        loadState() {
+            try {
+                const saved = localStorage.getItem('pulmometrics_state');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    // Load protocol
+                    if (data.protocol) {
+                        this.state.protocol = data.protocol;
+                        this.updateProtocolUI();
+                    }
+                    
+                    // Load patients
+                    if (data.patients && Array.isArray(data.patients)) {
+                        data.patients.forEach(patient => {
+                            this.state.patients.set(patient.id, patient);
+                        });
+                    }
+                    
+                    // Load current patient
+                    if (data.currentPatient && this.state.patients.has(data.currentPatient)) {
+                        this.state.currentPatient = data.currentPatient;
+                        this.updatePatientContext();
+                    }
+                    
+                    this.showToast('App state loaded', 'success');
+                }
+            } catch (error) {
+                console.error('Failed to load state:', error);
+                this.showToast('Starting with fresh state', 'warning');
             }
-            if (data.nextPatientId) {
-                state.nextPatientId = data.nextPatientId;
+        }
+        
+        saveState() {
+            try {
+                const data = {
+                    protocol: this.state.protocol,
+                    patients: Array.from(this.state.patients.values()),
+                    currentPatient: this.state.currentPatient,
+                    version: '1.0.0',
+                    savedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('pulmometrics_state', JSON.stringify(data));
+            } catch (error) {
+                console.error('Failed to save state:', error);
+                this.showToast('Failed to save data', 'error');
             }
-            if (data.currentPatient && state.patients.has(data.currentPatient)) {
-                state.currentPatient = data.currentPatient;
+        }
+        
+        // ===== PATIENT MANAGEMENT =====
+        
+        createPatient() {
+            const id = this.dom.newPatientId.value.trim().toUpperCase();
+            const txDate = this.dom.newTxDate.value;
+            const description = this.dom.newPatientDesc.value.trim();
+            
+            if (!id) {
+                this.showToast('Please enter Patient ID', 'error');
+                return;
             }
             
-            console.log('📁 Loaded', state.patients.size, 'patients');
+            if (!txDate) {
+                this.showToast('Please enter transplant date', 'error');
+                return;
+            }
+            
+            if (this.state.patients.has(id)) {
+                this.showToast(`Patient ${id} already exists`, 'error');
+                return;
+            }
+            
+            const patient = {
+                id,
+                txDate,
+                description,
+                baselineFev1: null,
+                baselineDate: null,
+                visits: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.state.patients.set(id, patient);
+            this.state.currentPatient = id;
+            
+            this.updatePatientContext();
+            this.hideModal('newPatientModal');
+            this.saveState();
+            
+            this.showToast(`Patient ${id} created`, 'success');
+            
+            // Clear form
+            this.dom.newPatientId.value = '';
+            this.dom.newTxDate.value = '';
+            this.dom.newPatientDesc.value = '';
         }
-    } catch (e) {
-        console.warn('Failed to load:', e);
+        
+        updatePatientContext() {
+            if (!this.state.currentPatient) {
+                this.dom.patientAvatar.textContent = 'PT';
+                this.dom.patientId.textContent = 'Select Patient';
+                this.dom.txDateDisplay.textContent = '--';
+                this.dom.baselineDisplay.textContent = '-- L';
+                this.dom.visitsCount.textContent = '0';
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            // Update avatar with first two letters
+            this.dom.patientAvatar.textContent = patient.id.substring(0, 2);
+            
+            // Update patient info
+            this.dom.patientId.textContent = patient.id;
+            
+            if (patient.txDate) {
+                const txDate = new Date(patient.txDate);
+                this.dom.txDateDisplay.textContent = txDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            } else {
+                this.dom.txDateDisplay.textContent = '--';
+            }
+            
+            if (patient.baselineFev1) {
+                this.dom.baselineDisplay.textContent = `${patient.baselineFev1.toFixed(2)} L`;
+            } else {
+                this.dom.baselineDisplay.textContent = '-- L';
+            }
+            
+            this.dom.visitsCount.textContent = patient.visits.length;
+            
+            // Update mode-specific badges
+            this.dom.fullPatientBadge.textContent = patient.id;
+            this.dom.reviewPatientBadge.textContent = patient.id;
+            
+            // Update last visit note
+            if (patient.visits.length > 0) {
+                const lastVisit = patient.visits[patient.visits.length - 1];
+                const lastDate = new Date(lastVisit.date);
+                this.dom.lastVisitNote.textContent = 
+                    `${lastVisit.fev1.toFixed(2)} L on ${lastDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                    })}`;
+            } else {
+                this.dom.lastVisitNote.textContent = 'No previous visits';
+            }
+            
+            // Update baseline input
+            if (patient.baselineFev1) {
+                this.dom.baselineInput.value = patient.baselineFev1;
+            }
+            
+            // Update review mode
+            if (this.state.mode === 'review') {
+                this.updateReviewMode();
+            }
+        }
+        
+        showPatientList() {
+            this.dom.patientList.innerHTML = '';
+            
+            if (this.state.patients.size === 0) {
+                this.dom.patientList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No patients yet</p>
+                        <p class="notes-hint mt-2">Create your first patient to get started</p>
+                    </div>
+                `;
+            } else {
+                this.state.patients.forEach(patient => {
+                    const lastVisit = patient.visits.length > 0 
+                        ? patient.visits[patient.visits.length - 1] 
+                        : null;
+                    
+                    const card = document.createElement('div');
+                    card.className = `visit-card ${patient.id === this.state.currentPatient ? 'active' : ''}`;
+                    card.innerHTML = `
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary);">${patient.id}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                ${patient.txDate ? new Date(patient.txDate).toLocaleDateString() : 'No date'} • ${patient.visits.length} visits
+                            </div>
+                        </div>
+                        <div>
+                            ${lastVisit ? `<div style="font-weight: 600; color: var(--primary);">${lastVisit.fev1.toFixed(2)} L</div>` : ''}
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => {
+                        this.state.currentPatient = patient.id;
+                        this.updatePatientContext();
+                        this.hideModal('patientListModal');
+                        this.showToast(`Switched to ${patient.id}`, 'success');
+                    });
+                    
+                    this.dom.patientList.appendChild(card);
+                });
+            }
+            
+            this.showModal('patientListModal');
+        }
+        
+        // ===== QUICK CALC MODE =====
+        
+        handleQuickInput() {
+            const fev1 = parseFloat(this.dom.inputFev1.value);
+            const fvc = parseFloat(this.dom.inputFvc.value);
+            
+            if (!fev1 || !fvc || isNaN(fev1) || isNaN(fvc)) {
+                this.dom.resultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.quick.fev1 = fev1;
+            this.state.session.quick.fvc = fvc;
+            
+            this.calculateQuick();
+        }
+        
+        handleComparisonSelection(event) {
+            const option = event.currentTarget;
+            const radio = option.querySelector('.option-radio');
+            radio.checked = true;
+            
+            this.state.session.quick.comparison = radio.value;
+            
+            // Update UI
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
+                opt.classList.toggle('selected', opt.querySelector('.option-radio').checked);
+            });
+            
+            // Enable/disable baseline input
+            this.dom.baselineInput.disabled = radio.value !== 'baseline';
+            
+            if (radio.value === 'baseline') {
+                this.dom.baselineInput.focus();
+            }
+            
+            // Recalculate if we have values
+            if (this.state.session.quick.fev1 && this.state.session.quick.fvc) {
+                this.calculateQuick();
+            }
+        }
+        
+        handleComparisonChange() {
+            if (this.state.session.quick.comparison === 'baseline') {
+                this.state.session.quick.baseline = parseFloat(this.dom.baselineInput.value);
+                if (this.state.session.quick.fev1 && this.state.session.quick.fvc) {
+                    this.calculateQuick();
+                }
+            }
+        }
+        
+        calculateQuick() {
+            const fev1 = this.state.session.quick.fev1;
+            const fvc = this.state.session.quick.fvc;
+            
+            // Always show raw measurements
+            this.dom.resultFev1.textContent = fev1.toFixed(2);
+            this.dom.resultFvc.textContent = fvc.toFixed(2);
+            this.dom.resultRatio.textContent = (fev1 / fvc * 100).toFixed(1);
+            
+            // Update timestamp
+            this.dom.resultsTimestamp.textContent = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Handle comparisons
+            if (this.state.session.quick.comparison === 'none') {
+                this.dom.comparisonResults.classList.add('hidden');
+                this.dom.protocolContext.classList.add('hidden');
+            } else {
+                let comparisonValue = null;
+                let comparisonLabel = '';
+                let daysBetween = null;
+                
+                if (this.state.session.quick.comparison === 'baseline') {
+                    comparisonValue = this.state.session.quick.baseline;
+                    if (!comparisonValue || isNaN(comparisonValue)) {
+                        this.dom.comparisonResults.classList.add('hidden');
+                        this.dom.protocolContext.classList.add('hidden');
+                        return;
+                    }
+                    comparisonLabel = 'Established Baseline';
+                    
+                    // Get days from patient data
+                    if (this.state.currentPatient) {
+                        const patient = this.state.patients.get(this.state.currentPatient);
+                        if (patient && patient.baselineDate) {
+                            daysBetween = this.daysBetween(new Date(), new Date(patient.baselineDate));
+                        }
+                    }
+                } else if (this.state.session.quick.comparison === 'last') {
+                    if (!this.state.currentPatient) {
+                        this.dom.comparisonResults.classList.add('hidden');
+                        this.dom.protocolContext.classList.add('hidden');
+                        return;
+                    }
+                    
+                    const patient = this.state.patients.get(this.state.currentPatient);
+                    if (!patient || patient.visits.length === 0) {
+                        this.dom.comparisonResults.classList.add('hidden');
+                        this.dom.protocolContext.classList.add('hidden');
+                        return;
+                    }
+                    
+                    const lastVisit = patient.visits[patient.visits.length - 1];
+                    comparisonValue = lastVisit.fev1;
+                    comparisonLabel = 'Last Visit';
+                    daysBetween = this.daysBetween(new Date(), new Date(lastVisit.date));
+                }
+                
+                // Calculate comparisons
+                const absoluteChange = fev1 - comparisonValue;
+                const percentChange = (absoluteChange / comparisonValue * 100);
+                
+                // Update UI
+                this.dom.comparisonTitle.textContent = `vs ${comparisonLabel}`;
+                this.dom.comparisonSubtitle.textContent = `(${comparisonValue.toFixed(2)} L)`;
+                
+                // Update metric values with appropriate styling
+                this.updateMetricValue(this.dom.resultDelta, absoluteChange, 2, 'L');
+                this.updateMetricValue(this.dom.resultPercent, percentChange, 1, '%');
+                
+                // Calculate rate if we have days
+                if (daysBetween) {
+                    const months = daysBetween / 30.44;
+                    const rate = absoluteChange / months;
+                    this.updateMetricValue(this.dom.resultRate, rate, 3, 'L/month');
+                    this.dom.rateItem.style.display = 'flex';
+                } else {
+                    this.dom.rateItem.style.display = 'none';
+                }
+                
+                this.dom.comparisonResults.classList.remove('hidden');
+                this.dom.protocolContext.classList.remove('hidden');
+                
+                // Update protocol context
+                this.updateProtocolContext(percentChange);
+            }
+            
+            this.dom.resultsPanel.classList.add('visible');
+        }
+        
+        updateMetricValue(element, value, decimals, suffix = '') {
+            const absValue = Math.abs(value);
+            const formattedValue = absValue.toFixed(decimals);
+            
+            element.textContent = `${formattedValue}${suffix}`;
+            element.className = 'metric-value';
+            
+            if (value < 0) {
+                element.classList.add('negative');
+            } else if (value > 0) {
+                element.classList.add('positive');
+            } else {
+                element.classList.add('neutral');
+            }
+        }
+        
+        updateProtocolContext(percentChange) {
+            const decline = Math.abs(percentChange);
+            
+            // Update threshold badges
+            this.dom.thresholdMonitor.querySelector('span').textContent = this.state.protocol.monitor;
+            this.dom.thresholdReview.querySelector('span').textContent = this.state.protocol.review;
+            this.dom.thresholdAction.querySelector('span').textContent = this.state.protocol.action;
+            
+            // Update protocol note based on thresholds
+            let noteText = '';
+            
+            if (decline >= this.state.protocol.action) {
+                noteText = `<strong>Note:</strong> ${decline.toFixed(1)}% decline exceeds your Action threshold (≥${this.state.protocol.action}%). Consider for detailed clinical assessment.`;
+            } else if (decline >= this.state.protocol.review) {
+                noteText = `<strong>Note:</strong> ${decline.toFixed(1)}% decline exceeds your Review threshold (≥${this.state.protocol.review}%). Consider for clinical review.`;
+            } else if (decline >= this.state.protocol.monitor) {
+                noteText = `<strong>Note:</strong> ${decline.toFixed(1)}% decline exceeds your Monitor threshold (≥${this.state.protocol.monitor}%). Continue routine monitoring.`;
+            } else {
+                noteText = `<strong>Note:</strong> ${decline.toFixed(1)}% change is below your Monitor threshold (<${this.state.protocol.monitor}%). Continue routine follow-up.`;
+            }
+            
+            this.dom.protocolNote.innerHTML = noteText;
+        }
+        
+        clearQuickCalc() {
+            this.dom.inputFev1.value = '';
+            this.dom.inputFvc.value = '';
+            this.dom.baselineInput.value = '';
+            this.dom.resultsPanel.classList.remove('visible');
+            this.dom.inputFev1.focus();
+            
+            this.state.session.quick.fev1 = null;
+            this.state.session.quick.fvc = null;
+        }
+        
+        saveQuickVisit() {
+            if (!this.state.session.quick.fev1 || !this.state.session.quick.fvc) {
+                this.showToast('Enter values first', 'warning');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Select a patient first', 'warning');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            const visit = {
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                fev1: this.state.session.quick.fev1,
+                fvc: this.state.session.quick.fvc,
+                comparisonType: this.state.session.quick.comparison,
+                comparisonValue: this.state.session.quick.baseline,
+                calculatedAt: new Date().toISOString()
+            };
+            
+            patient.visits.push(visit);
+            patient.updatedAt = new Date().toISOString();
+            
+            // Update baseline if not set
+            if (!patient.baselineFev1 && this.state.session.quick.comparison === 'baseline') {
+                patient.baselineFev1 = this.state.session.quick.baseline;
+                patient.baselineDate = visit.date;
+            }
+            
+            this.saveState();
+            this.updatePatientContext();
+            
+            this.showToast('Visit saved successfully', 'success');
+        }
+        
+        // ===== FULL STUDY MODE =====
+        
+        updateTimeline() {
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            
+            if (txDate) {
+                this.state.session.full.txDate = txDate;
+                const daysPostTx = this.daysBetween(new Date(), new Date(txDate));
+                this.dom.timePostTx.textContent = `${daysPostTx} days`;
+            }
+            
+            if (baselineDate) {
+                this.state.session.full.baselineDate = baselineDate;
+                const daysSinceBaseline = this.daysBetween(new Date(), new Date(baselineDate));
+                this.dom.timeSinceBaseline.textContent = `${daysSinceBaseline} days`;
+            }
+        }
+        
+        handleFullInput() {
+            const fev1 = parseFloat(this.dom.stdFev1.value);
+            const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
+            
+            if (!fev1 || !baselineFev1 || isNaN(fev1) || isNaN(baselineFev1)) {
+                this.dom.stdResultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.full.fev1 = fev1;
+            this.state.session.full.baselineFev1 = baselineFev1;
+            this.state.session.full.notes = this.dom.clinicalNotes.value;
+            
+            this.calculateFull();
+        }
+        
+        calculateFull() {
+            const fev1 = this.state.session.full.fev1;
+            const baselineFev1 = this.state.session.full.baselineFev1;
+            
+            // Update timestamp
+            this.dom.stdResultsTimestamp.textContent = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Update measurements
+            this.dom.stdCurrentFev1.textContent = fev1.toFixed(2);
+            this.dom.stdBaseline.textContent = baselineFev1.toFixed(2);
+            
+            // Calculate days between
+            let daysBetween = null;
+            if (this.state.session.full.baselineDate) {
+                daysBetween = this.daysBetween(new Date(), new Date(this.state.session.full.baselineDate));
+                this.dom.stdTimePeriod.textContent = daysBetween;
+            } else {
+                this.dom.stdTimePeriod.textContent = '--';
+            }
+            
+            // Update comparison subtitle
+            this.dom.stdComparisonSubtitle.textContent = `Baseline: ${baselineFev1.toFixed(2)} L`;
+            
+            // Calculate changes
+            const delta = fev1 - baselineFev1;
+            const percent = (delta / baselineFev1 * 100);
+            
+            this.updateMetricValue(this.dom.stdCumulativeDelta, delta, 2, 'L');
+            this.updateMetricValue(this.dom.stdPercentDecline, percent, 1, '%');
+            
+            if (daysBetween) {
+                const months = daysBetween / 30.44;
+                const rate = delta / months;
+                this.updateMetricValue(this.dom.stdMonthlyRate, rate, 3, 'L/month');
+            } else {
+                this.dom.stdMonthlyRate.textContent = '--';
+                this.dom.stdMonthlyRate.className = 'metric-value neutral';
+            }
+            
+            // Update protocol note
+            const decline = Math.abs(percent);
+            let noteText = '';
+            
+            if (decline >= this.state.protocol.action) {
+                noteText = `<strong>Long-term Trend:</strong> ${decline.toFixed(1)}% cumulative decline exceeds Action threshold. Consider comprehensive assessment.`;
+            } else if (decline >= this.state.protocol.review) {
+                noteText = `<strong>Long-term Trend:</strong> ${decline.toFixed(1)}% cumulative decline exceeds Review threshold. Consider detailed evaluation.`;
+            } else if (decline >= this.state.protocol.monitor) {
+                noteText = `<strong>Long-term Trend:</strong> ${decline.toFixed(1)}% cumulative decline exceeds Monitor threshold. Continue surveillance.`;
+            } else {
+                noteText = `<strong>Long-term Trend:</strong> ${decline.toFixed(1)}% cumulative change within expected range. Maintain routine follow-up.`;
+            }
+            
+            this.dom.stdProtocolNote.innerHTML = noteText;
+            
+            this.dom.stdResultsPanel.classList.add('visible');
+        }
+        
+        clearFullStudy() {
+            this.dom.txDate.value = '';
+            this.dom.baselineDate.value = '';
+            this.dom.stdFev1.value = '';
+            this.dom.stdBaselineFev1.value = '';
+            this.dom.clinicalNotes.value = '';
+            this.dom.stdResultsPanel.classList.remove('visible');
+            
+            this.state.session.full.txDate = null;
+            this.state.session.full.baselineDate = null;
+            this.state.session.full.fev1 = null;
+            this.state.session.full.baselineFev1 = null;
+            this.state.session.full.notes = '';
+        }
+        
+        saveFullStudy() {
+            if (!this.state.session.full.fev1 || !this.state.session.full.baselineFev1) {
+                this.showToast('Enter values first', 'warning');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Select a patient first', 'warning');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            const study = {
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                fev1: this.state.session.full.fev1,
+                baselineFev1: this.state.session.full.baselineFev1,
+                txDate: this.state.session.full.txDate,
+                baselineDate: this.state.session.full.baselineDate,
+                clinicalNotes: this.state.session.full.notes,
+                calculatedAt: new Date().toISOString(),
+                type: 'full_study'
+            };
+            
+            patient.visits.push(study);
+            patient.updatedAt = new Date().toISOString();
+            
+            // Update patient timeline if provided
+            if (this.state.session.full.txDate) {
+                patient.txDate = this.state.session.full.txDate;
+            }
+            
+            if (this.state.session.full.baselineDate) {
+                patient.baselineDate = this.state.session.full.baselineDate;
+                patient.baselineFev1 = this.state.session.full.baselineFev1;
+            }
+            
+            this.saveState();
+            this.updatePatientContext();
+            
+            this.showToast('Full study saved successfully', 'success');
+            this.clearFullStudy();
+        }
+        
+        // ===== REVIEW MODE =====
+        
+        updateReviewMode() {
+            if (!this.state.currentPatient) {
+                this.dom.reviewPatientBadge.textContent = '--';
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            // Update summary
+            if (patient.txDate) {
+                const daysPostTx = this.daysBetween(new Date(), new Date(patient.txDate));
+                this.dom.reviewTxDays.textContent = daysPostTx;
+            } else {
+                this.dom.reviewTxDays.textContent = '--';
+            }
+            
+            this.dom.reviewVisits.textContent = patient.visits.length;
+            
+            if (patient.visits.length > 0) {
+                const lastVisit = patient.visits[patient.visits.length - 1];
+                this.dom.reviewLastFev1.textContent = lastVisit.fev1.toFixed(2);
+                
+                // Find best FEV1
+                const bestFev1 = Math.max(...patient.visits.map(v => v.fev1));
+                this.dom.reviewBestFev1.textContent = bestFev1.toFixed(2);
+            } else {
+                this.dom.reviewLastFev1.textContent = '--';
+                this.dom.reviewBestFev1.textContent = '--';
+            }
+            
+            // Update visit list
+            if (patient.visits.length === 0) {
+                this.dom.visitsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No visit history available</p>
+                        <p class="notes-hint mt-2">Start by entering measurements in Quick Calc mode</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            [...patient.visits].reverse().forEach(visit => {
+                const date = new Date(visit.date);
+                html += `
+                    <div class="visit-card">
+                        <div class="visit-date">
+                            ${date.toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                            })}
+                        </div>
+                        <div class="visit-values">
+                            <span class="visit-fev1">${visit.fev1.toFixed(2)} L</span>
+                            ${visit.fvc ? `<span style="color: var(--secondary);">${visit.fvc.toFixed(2)} L</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            this.dom.visitsList.innerHTML = html;
+        }
+        
+        // ===== PROTOCOL MANAGEMENT =====
+        
+        updateProtocolUI() {
+            // Update protocol inputs
+            ['monitor', 'review', 'action'].forEach(type => {
+                const slider = document.getElementById(`${type}Slider`);
+                const input = document.getElementById(`${type}Input`);
+                const value = document.getElementById(`${type}Value`);
+                
+                if (slider && input && value) {
+                    slider.value = this.state.protocol[type];
+                    input.value = this.state.protocol[type];
+                    value.textContent = `${this.state.protocol[type]}%`;
+                }
+            });
+            
+            // Update threshold badges
+            if (this.dom.thresholdMonitor) {
+                this.dom.thresholdMonitor.querySelector('span').textContent = this.state.protocol.monitor;
+                this.dom.thresholdReview.querySelector('span').textContent = this.state.protocol.review;
+                this.dom.thresholdAction.querySelector('span').textContent = this.state.protocol.action;
+            }
+        }
+        
+        resetProtocol() {
+            this.state.protocol = {
+                monitor: 10,
+                review: 20,
+                action: 35
+            };
+            
+            this.updateProtocolUI();
+            this.showToast('Protocol reset to defaults', 'success');
+        }
+        
+        saveProtocol() {
+            this.state.protocol.monitor = parseInt(this.dom.monitorInput.value);
+            this.state.protocol.review = parseInt(this.dom.reviewInput.value);
+            this.state.protocol.action = parseInt(this.dom.actionInput.value);
+            
+            this.saveState();
+            this.hideModal('protocolModal');
+            
+            this.showToast('Protocol saved successfully', 'success');
+            
+            // Recalculate if needed
+            if (this.state.mode === 'quick' && this.state.session.quick.fev1) {
+                this.calculateQuick();
+            }
+        }
+        
+        // ===== UTILITY FUNCTIONS =====
+        
+        switchMode(mode) {
+            this.state.mode = mode;
+            
+            // Update navigation
+            this.dom.navBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            // Show/hide modes
+            ['quick', 'full', 'review'].forEach(m => {
+                const el = document.getElementById(`mode${m.charAt(0).toUpperCase() + m.slice(1)}`);
+                el.classList.toggle('active', m === mode);
+            });
+            
+            // Load mode-specific data
+            if (mode === 'review') {
+                this.updateReviewMode();
+            } else if (mode === 'full' && this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    if (patient.txDate) this.dom.txDate.value = patient.txDate;
+                    if (patient.baselineDate) this.dom.baselineDate.value = patient.baselineDate;
+                    if (patient.baselineFev1) this.dom.stdBaselineFev1.value = patient.baselineFev1;
+                    this.updateTimeline();
+                }
+            }
+        }
+        
+        daysBetween(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            const diff = Math.abs(d2 - d1);
+            return Math.floor(diff / (1000 * 60 * 60 * 24));
+        }
+        
+        copyResults() {
+            if (!this.state.session.quick.fev1) {
+                this.showToast('Calculate results first', 'warning');
+                return;
+            }
+            
+            let text = `PulmoMetrics Results\n`;
+            text += `====================\n\n`;
+            text += `Patient: ${this.state.currentPatient || '--'}\n`;
+            text += `Date: ${new Date().toLocaleDateString()}\n`;
+            text += `Time: ${new Date().toLocaleTimeString()}\n\n`;
+            
+            text += `CURRENT MEASUREMENTS\n`;
+            text += `────────────────────\n`;
+            text += `FEV₁: ${this.state.session.quick.fev1.toFixed(2)} L\n`;
+            text += `FVC: ${this.state.session.quick.fvc.toFixed(2)} L\n`;
+            text += `FEV₁/FVC: ${(this.state.session.quick.fev1 / this.state.session.quick.fvc * 100).toFixed(1)}%\n\n`;
+            
+            if (this.state.session.quick.comparison !== 'none' && 
+                (this.state.session.quick.baseline || this.state.currentPatient)) {
+                
+                let comparisonValue, comparisonLabel;
+                
+                if (this.state.session.quick.comparison === 'baseline') {
+                    comparisonValue = this.state.session.quick.baseline;
+                    comparisonLabel = 'Baseline';
+                } else {
+                    const patient = this.state.patients.get(this.state.currentPatient);
+                    if (patient && patient.visits.length > 0) {
+                        comparisonValue = patient.visits[patient.visits.length - 1].fev1;
+                        comparisonLabel = 'Last Visit';
+                    }
+                }
+                
+                if (comparisonValue) {
+                    const delta = this.state.session.quick.fev1 - comparisonValue;
+                    const percent = (delta / comparisonValue * 100);
+                    
+                    text += `COMPARISON\n`;
+                    text += `──────────\n`;
+                    text += `Reference: ${comparisonLabel} (${comparisonValue.toFixed(2)} L)\n`;
+                    text += `Δ FEV₁: ${delta.toFixed(2)} L\n`;
+                    text += `% Change: ${percent.toFixed(1)}%\n\n`;
+                }
+            }
+            
+            text += `Protocol Thresholds: Monitor ≥${this.state.protocol.monitor}%, Review ≥${this.state.protocol.review}%, Action ≥${this.state.protocol.action}%\n`;
+            text += `\n---\nGenerated by PulmoMetrics Professional`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast('Results copied to clipboard', 'success');
+            }).catch(() => {
+                this.showToast('Failed to copy results', 'error');
+            });
+        }
+        
+        exportPatientData() {
+            if (!this.state.currentPatient) {
+                this.showToast('Select a patient first', 'warning');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            const data = {
+                patient: patient,
+                protocol: this.state.protocol,
+                exportedAt: new Date().toISOString(),
+                app: 'PulmoMetrics Professional'
+            };
+            
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pulmometrics-${patient.id}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('Patient data exported', 'success');
+        }
+        
+        exportAllData() {
+            const data = {
+                protocol: this.state.protocol,
+                patients: Array.from(this.state.patients.values()),
+                currentPatient: this.state.currentPatient,
+                exportedAt: new Date().toISOString(),
+                app: 'PulmoMetrics Professional',
+                version: '1.0.0'
+            };
+            
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pulmometrics-full-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('All data exported', 'success');
+        }
+        
+        showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : type === 'error' ? '❌' : 'ℹ️'}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            this.dom.toastContainer.appendChild(toast);
+            
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+        
+        updateUI() {
+            // Update protocol UI
+            this.updateProtocolUI();
+            
+            // Update patient context
+            this.updatePatientContext();
+            
+            // Set today's date for new patient
+            const today = new Date().toISOString().split('T')[0];
+            this.dom.newTxDate.value = today;
+            
+            // Auto-focus first input
+            setTimeout(() => this.dom.inputFev1.focus(), 100);
+        }
+        
+        handleKeyboardShortcuts(e) {
+            // Ctrl/Cmd + S to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (this.state.mode === 'quick') {
+                    this.saveQuickVisit();
+                } else if (this.state.mode === 'full') {
+                    this.saveFullStudy();
+                }
+            }
+            
+            // Escape to clear
+            if (e.key === 'Escape') {
+                if (this.state.mode === 'quick') {
+                    this.clearQuickCalc();
+                } else if (this.state.mode === 'full') {
+                    this.clearFullStudy();
+                }
+            }
+            
+            // Tab through comparison options
+            if (e.key === 'Tab' && this.state.mode === 'quick') {
+                if (document.activeElement === this.dom.inputFvc) {
+                    e.preventDefault();
+                    this.dom.optionBaseline.querySelector('.option-radio').focus();
+                }
+            }
+            
+            // Number shortcuts for modes
+            if (e.key === '1' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('quick');
+            } else if (e.key === '2' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('full');
+            } else if (e.key === '3' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('review');
+            }
+        }
     }
-}
-
-// ===== EXPORT =====
-
-function exportAllData() {
-    const data = {
-        app: 'NeumoCalc',
-        version: state.appVersion,
-        exportedAt: new Date().toISOString(),
-        patients: Object.fromEntries(state.patients),
-        settings: { nextPatientId: state.nextPatientId }
-    };
     
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `neumocalc-export-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-}
-
-// Add export button
-document.addEventListener('DOMContentLoaded', () => {
-    const exportBtn = document.createElement('button');
-    exportBtn.textContent = '💾 Export All';
-    exportBtn.className = 'btn-secondary';
-    exportBtn.style.cssText = 'position: fixed; bottom: 20px; left: 20px; z-index: 1000;';
-    exportBtn.onclick = exportAllData;
-    document.body.appendChild(exportBtn);
-});
-
-// Initialize
-initApp();
-</script>
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', () => {
+        window.app = new PulmoMetrics();
+        
+        // Fix iOS 100vh issue
+        function setVH() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+    });
+    </script>
 </body>
 </html>
