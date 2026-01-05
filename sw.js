@@ -1,107 +1,265 @@
-// PulmoMetrics Pro Service Worker
-const CACHE_NAME = 'pulmometrics-pro-v2.1';
-const APP_SHELL = [
+// PulmoMetrics Pro - Service Worker v3.0
+const CACHE_NAME = 'pulmometrics-pro-v3';
+const CACHE_VERSION = '3.0.0';
+const OFFLINE_URL = 'offline.html';
+
+// Assets to cache on install
+const PRECACHE_ASSETS = [
   './',
   './index.html',
+  './offline.html',
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   './icon.svg',
-  './offline.html'
+  'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js'
 ];
 
-const EXTERNAL_RESOURCES = [
-  'https://cdn.jsdelivr.net/npm/chart.js'
-];
-
-// Install event
+// Install event - precache assets
 self.addEventListener('install', (event) => {
-  console.log('📦 Installing PulmoMetrics Pro');
+  console.log('[Service Worker] Installing version', CACHE_VERSION);
   
   event.waitUntil(
-    Promise.all([
-      // Cache app shell
-      caches.open(CACHE_NAME)
-        .then(cache => cache.addAll(APP_SHELL)),
-      
-      // Skip waiting for immediate activation
-      self.skipWaiting()
-    ])
-  );
-});
-
-// Activate event
-self.addEventListener('activate', (event) => {
-  console.log('🚀 Activating PulmoMetrics Pro');
-  
-  event.waitUntil(
-    Promise.all([
-      // Clean old caches
-      caches.keys()
-        .then(keys => Promise.all(
-          keys.filter(key => key !== CACHE_NAME)
-              .map(key => caches.delete(key))
-        )),
-      
-      // Claim clients
-      self.clients.claim()
-    ])
-  );
-});
-
-// Fetch event - Network First strategy
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache successful responses
-        if (response.ok) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => cache.put(event.request, responseClone));
-        }
-        return response;
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('[Service Worker] Precaching app shell');
+        return cache.addAll(PRECACHE_ASSETS);
       })
-      .catch(() => {
-        // Network failed, try cache
-        return caches.match(event.request)
-          .then(cachedResponse => {
-            if (cachedResponse) {
-              return cachedResponse;
+      .then(() => {
+        console.log('[Service Worker] Skip waiting on install');
+        return self.skipWaiting();
+      })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activating version', CACHE_VERSION);
+  
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => {
+      console.log('[Service Worker] Claiming clients');
+      return self.clients.claim();
+    })
+  );
+});
+
+// Fetch event - network first with fallback to cache
+self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
+  // For HTML pages, try network first, then cache, then offline page
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match(event.request)
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              return caches.match(OFFLINE_URL);
+            });
+        })
+    );
+    return;
+  }
+  
+  // For API/data requests, try cache first, then network
+  if (event.request.url.includes('/api/') || event.request.url.includes('.json')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          
+          return fetch(event.request)
+            .then((response) => {
+              // Don't cache error responses
+              if (!response || response.status !== 200) {
+                return response;
+              }
+              
+              // Cache the successful response
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+              
+              return response;
+            })
+            .catch(() => {
+              // Return offline data if available
+              return new Response(
+                JSON.stringify({ 
+                  message: 'Offline mode - using cached data',
+                  timestamp: new Date().toISOString()
+                }), 
+                { 
+                  headers: { 'Content-Type': 'application/json' }
+                }
+              );
+            });
+        })
+    );
+    return;
+  }
+  
+  // For all other assets, cache-first strategy
+  event.respondWith(
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        return fetch(event.request)
+          .then((response) => {
+            // Don't cache if not a successful response
+            if (!response || response.status !== 200) {
+              return response;
             }
             
-            // If navigation request, show offline page
-            if (event.request.mode === 'navigate') {
-              return caches.match('./offline.html');
+            // Cache the response
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+            
+            return response;
+          })
+          .catch(() => {
+            // For CSS/JS, return empty response
+            if (event.request.destination === 'style' || 
+                event.request.destination === 'script') {
+              return new Response('', {
+                headers: { 'Content-Type': 'text/css' }
+              });
             }
             
-            // Return offline response
-            return new Response('Offline - Data not available', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain' }
+            return new Response('Offline', {
+              status: 408,
+              statusText: 'Network Offline'
             });
           });
       })
   );
 });
 
-// Background sync for data persistence
+// Background sync for offline data
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'backup-data') {
-    event.waitUntil(backupData());
+  if (event.tag === 'sync-visits') {
+    console.log('[Service Worker] Background sync for visits');
+    event.waitUntil(syncVisits());
   }
 });
 
-async function backupData() {
-  console.log('💾 Background backup');
-  // Backup logic can be added here
+// Function to sync visits when back online
+function syncVisits() {
+  // Get pending visits from IndexedDB or localStorage
+  return new Promise((resolve) => {
+    // This would sync with your backend if you had one
+    console.log('[Service Worker] Syncing visits...');
+    resolve();
+  });
 }
 
-// Handle app updates
-self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') {
-    self.skipWaiting();
+// Push notifications
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    return;
+  }
+  
+  const data = event.data.json();
+  const options = {
+    body: data.body || 'New update from PulmoMetrics Pro',
+    icon: './icon-192.png',
+    badge: './icon-96.png',
+    tag: 'pulmometrics-notification',
+    renotify: true,
+    actions: [
+      {
+        action: 'view',
+        title: 'View'
+      },
+      {
+        action: 'dismiss',
+        title: 'Dismiss'
+      }
+    ],
+    data: {
+      url: data.url || './'
+    }
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'PulmoMetrics Pro', options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  if (event.action === 'view') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' })
+        .then((clientList) => {
+          for (const client of clientList) {
+            if (client.url === event.notification.data.url && 'focus' in client) {
+              return client.focus();
+            }
+          }
+          
+          if (clients.openWindow) {
+            return clients.openWindow(event.notification.data.url);
+          }
+        })
+    );
   }
 });
 
-console.log('🫁 PulmoMetrics Pro Service Worker loaded');
+// Periodic sync for data updates (every 12 hours)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'update-cache') {
+    console.log('[Service Worker] Periodic sync for cache updates');
+    event.waitUntil(updateCache());
+  }
+});
+
+async function updateCache() {
+  const cache = await caches.open(CACHE_NAME);
+  const requests = await cache.keys();
+  
+  for (const request of requests) {
+    // Skip external resources
+    if (!request.url.startsWith(self.location.origin)) {
+      continue;
+    }
+    
+    try {
+      const response = await fetch(request);
+      if (response.status === 200) {
+        await cache.put(request, response);
+      }
+    } catch (error) {
+      console.log(`[Service Worker] Failed to update ${request.url}:`, error);
+    }
+  }
+}
