@@ -1,17 +1,25 @@
 {
   "name": "PulmoMetrics Pro",
   "short_name": "PulmoMetrics",
-  "description": "Professional Lung Transplant Monitoring Suite",
+  "description": "Professional Lung Transplant Monitoring & Analysis",
   "start_url": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
-  "background_color": "#F8FAFC",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#FFFFFF",
   "theme_color": "#1A5F7A",
-  "categories": ["medical", "health", "productivity"],
+  "orientation": "portrait-primary",
+  "scope": "/",
   "lang": "en-US",
   "dir": "ltr",
+  "categories": ["medical", "health", "productivity"],
+  
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
@@ -23,67 +31,39 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any maskable"
     }
   ],
+  
   "screenshots": [
     {
       "src": "/screenshot-mobile.png",
       "sizes": "375x812",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Mobile View"
-    },
-    {
-      "src": "/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Desktop View"
+      "label": "Mobile interface showing patient monitoring"
     }
   ],
+  
   "shortcuts": [
     {
       "name": "New Patient",
       "short_name": "New",
-      "description": "Create a new patient record",
-      "url": "/?action=new",
-      "icons": [{ "src": "/shortcut-new.png", "sizes": "96x96" }]
+      "description": "Create new patient record",
+      "url": "/?new"
     },
     {
-      "name": "Quick Calculation",
-      "short_name": "Calc",
-      "description": "Quick FEV₁ calculation",
-      "url": "/?mode=quick",
-      "icons": [{ "src": "/shortcut-calc.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Monitor Visits",
-      "short_name": "Monitor",
-      "description": "View patient monitoring data",
-      "url": "/?mode=monitor",
-      "icons": [{ "src": "/shortcut-monitor.png", "sizes": "96x96" }]
+      "name": "Quick Analysis",
+      "short_name": "Analyze",
+      "description": "Quick FEV₁/FVC calculation",
+      "url": "/?mode=quick"
     }
   ],
+  
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  
   "edge_side_panel": {
     "preferred_width": 400
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+pulmometrics",
-      "url": "/?patient=%s"
-    }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "id": "/",
-  "scope": "/",
-  "launch_handler": {
-    "client_mode": "auto"
   }
 }
