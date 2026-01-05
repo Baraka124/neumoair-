@@ -1,78 +1,129 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <!-- Elegant gradient -->
-    <radialGradient id="radialGradient" cx="50%" cy="50%" r="70%">
+    <!-- Premium gradient -->
+    <linearGradient id="premiumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0D4B63"/>
-      <stop offset="70%" stop-color="#1A5F7A"/>
-      <stop offset="100%" stop-color="#2D9596"/>
-    </radialGradient>
+      <stop offset="40%" stop-color="#1A5F7A"/>
+      <stop offset="70%" stop-color="#2D9596"/>
+      <stop offset="100%" stop-color="#57C5B6"/>
+    </linearGradient>
     
-    <!-- Modern shadow -->
-    <filter id="modernShadow">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0D4B63" flood-opacity="0.3"/>
+    <!-- Soft glow -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#FFFFFF" flood-opacity="0.15"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Inner shadow -->
+    <filter id="innerShadow">
+      <feOffset dx="2" dy="2"/>
+      <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feFlood flood-color="#000000" flood-opacity="0.15" result="color"/>
+      <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+      <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
     </filter>
   </defs>
   
-  <!-- Modern circular background -->
-  <circle cx="256" cy="256" r="240" fill="url(#radialGradient)" filter="url(#modernShadow)"/>
+  <!-- Premium background -->
+  <circle cx="256" cy="256" r="240" fill="url(#premiumGradient)" filter="url(#softGlow)"/>
   
-  <!-- Abstract lung representation - very modern -->
-  <g transform="translate(256 256)">
-    <!-- Left abstract lobe -->
-    <path d="M-80,-30 
-             Q-120,20 -100,80
-             Q-80,140 -50,100
-             Q-20,60 -40,20
-             Q-60,-20 -80,-30Z" 
-          fill="#FFFFFF" fill-opacity="0.95"/>
+  <!-- Sophisticated lung silhouette -->
+  <path d="M180 190 
+           Q150 220, 160 260
+           Q170 300, 165 340
+           Q160 380, 170 420
+           Q180 460, 195 445
+           Q210 430, 205 410
+           Q200 390, 205 370
+           Q210 350, 205 330
+           Q200 310, 205 290
+           Q210 270, 205 250
+           Q200 230, 205 210
+           Q210 190, 200 170
+           Q190 150, 180 170
+           Q170 190, 165 210
+           Q160 230, 165 250
+           Q170 270, 165 290
+           Q160 310, 165 330
+           Q170 350, 165 370
+           Q160 390, 165 410
+           Q170 430, 180 430
+           Z" 
+        fill="#FFFFFF" fill-opacity="0.98" stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.2"/>
+  
+  <path d="M332 190 
+           Q362 220, 352 260
+           Q342 300, 347 340
+           Q352 380, 342 420
+           Q332 460, 317 445
+           Q302 430, 307 410
+           Q312 390, 307 370
+           Q302 350, 307 330
+           Q312 310, 307 290
+           Q302 270, 307 250
+           Q312 230, 307 210
+           Q302 190, 312 170
+           Q322 150, 332 170
+           Q342 190, 347 210
+           Q352 230, 347 250
+           Q342 270, 347 290
+           Q352 310, 347 330
+           Q342 350, 347 370
+           Q352 390, 347 410
+           Q342 430, 332 430
+           Z" 
+        fill="#FFFFFF" fill-opacity="0.98" stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.2"/>
+  
+  <!-- Precision medical cross with depth -->
+  <g transform="translate(256 256)" filter="url(#innerShadow)">
+    <!-- Cross with 3D effect -->
+    <rect x="-20" y="-75" width="40" height="150" rx="6" fill="#FFFFFF"/>
+    <rect x="-75" y="-20" width="150" height="40" rx="6" fill="#FFFFFF"/>
     
-    <!-- Right abstract lobe -->
-    <path d="M80,-30 
-             Q120,20 100,80
-             Q80,140 50,100
-             Q20,60 40,20
-             Q60,-20 80,-30Z" 
-          fill="#FFFFFF" fill-opacity="0.95"/>
+    <!-- Cross highlights -->
+    <rect x="-20" y="-75" width="40" height="15" fill="#1A5F7A" fill-opacity="0.15"/>
+    <rect x="-20" y="60" width="40" height="15" fill="#1A5F7A" fill-opacity="0.15"/>
+    <rect x="-75" y="-20" width="15" height="40" fill="#1A5F7A" fill-opacity="0.15"/>
+    <rect x="60" y="-20" width="15" height="40" fill="#1A5F7A" fill-opacity="0.15"/>
     
-    <!-- Central medical symbol -->
-    <g>
-      <!-- Modern cross -->
-      <rect x="-18" y="-60" width="36" height="120" rx="8" fill="#FFFFFF"/>
-      <rect x="-60" y="-18" width="120" height="36" rx="8" fill="#FFFFFF"/>
-      
-      <!-- Cross accent -->
-      <rect x="-18" y="-60" width="36" height="24" fill="#1A5F7A" fill-opacity="0.2"/>
-      <rect x="-60" y="-18" width="24" height="36" fill="#1A5F7A" fill-opacity="0.2"/>
-    </g>
+    <!-- Cross center accent -->
+    <circle cx="0" cy="0" r="8" fill="#1A5F7A" fill-opacity="0.3"/>
   </g>
   
-  <!-- Data visualization arcs -->
+  <!-- Elegant data trend line -->
+  <path d="M120 380 
+           C160 340, 200 360, 240 320
+           C280 280, 320 300, 360 260
+           C400 220, 440 240, 480 220" 
+        fill="none" 
+        stroke="#FFFFFF" 
+        stroke-width="8" 
+        stroke-linecap="round"
+        stroke-dasharray="0 12"/>
+  
+  <!-- Data points with premium look -->
   <g>
-    <!-- Trend arc -->
-    <path d="M100,380 
-             A180,80 0 0,1 412,380" 
-          fill="none" 
-          stroke="#FFFFFF" 
-          stroke-width="6" 
-          stroke-linecap="round"
-          opacity="0.9"/>
-    
-    <!-- Data points on arc -->
-    <circle cx="150" cy="360" r="8" fill="#FFFFFF"/>
-    <circle cx="256" cy="340" r="8" fill="#FFFFFF"/>
-    <circle cx="362" cy="360" r="8" fill="#FFFFFF"/>
+    <circle cx="200" cy="360" r="10" fill="#FFFFFF" stroke="#1A5F7A" stroke-width="2"/>
+    <circle cx="280" cy="320" r="10" fill="#FFFFFF" stroke="#2D9596" stroke-width="2"/>
+    <circle cx="360" cy="280" r="10" fill="#FFFFFF" stroke="#57C5B6" stroke-width="2"/>
     
     <!-- Inner points -->
-    <circle cx="150" cy="360" r="3" fill="#1A5F7A"/>
-    <circle cx="256" cy="340" r="3" fill="#2D9596"/>
-    <circle cx="362" cy="360" r="3" fill="#57C5B6"/>
+    <circle cx="200" cy="360" r="4" fill="#1A5F7A"/>
+    <circle cx="280" cy="320" r="4" fill="#2D9596"/>
+    <circle cx="360" cy="280" r="4" fill="#57C5B6"/>
   </g>
   
-  <!-- Minimalist branding -->
-  <text x="256" y="120" text-anchor="middle" font-family="'SF Pro Display', -apple-system, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF" opacity="0.95">
-    🫁
+  <!-- Premium typography -->
+  <text x="256" y="100" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-size="42" font-weight="800" fill="#FFFFFF" opacity="0.95">
+    PM
   </text>
-  <text x="256" y="480" text-anchor="middle" font-family="'SF Pro Display', -apple-system, sans-serif" font-size="18" font-weight="600" fill="#FFFFFF" opacity="0.8" letter-spacing="1">
-    PulmoMetrics
+  <text x="256" y="140" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" opacity="0.8" letter-spacing="2">
+    PROFESSIONAL
   </text>
 </svg>
