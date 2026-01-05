@@ -1,151 +1,107 @@
-// Add this to your main script
-async function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
-        console.log('Service workers not supported');
-        return;
-    }
-    
-    try {
-        // Use relative path
-        const registration = await navigator.serviceWorker.register('./sw.js', {
-            scope: './'
-        });
-        
-        console.log('SW registered:', registration.scope);
-        
-        // Check for updates
-        registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            console.log('New SW found:', newWorker.state);
-            
-            newWorker.addEventListener('statechange', () => {
-                console.log('New SW state:', newWorker.state);
-            });
-        });
-        
-        return registration;
-    } catch (error) {
-        console.error('SW registration failed:', error);
-    }
-}
+// PulmoMetrics Pro Service Worker
+const CACHE_NAME = 'pulmometrics-pro-v2.1';
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.svg',
+  './offline.html'
+];
 
-// Register on load
-window.addEventListener('load', () => {
-    registerServiceWorker();
+const EXTERNAL_RESOURCES = [
+  'https://cdn.jsdelivr.net/npm/chart.js'
+];
+
+// Install event
+self.addEventListener('install', (event) => {
+  console.log('📦 Installing PulmoMetrics Pro');
+  
+  event.waitUntil(
+    Promise.all([
+      // Cache app shell
+      caches.open(CACHE_NAME)
+        .then(cache => cache.addAll(APP_SHELL)),
+      
+      // Skip waiting for immediate activation
+      self.skipWaiting()
+    ])
+  );
 });
 
-// Handle beforeinstallprompt
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('🎯 PWA Install Prompt Available!');
-    
-    // Prevent Chrome 67 and earlier from automatically showing prompt
-    e.preventDefault();
-    
-    // Stash the event so it can be triggered later
-    deferredPrompt = e;
-    
-    // Show your own install button
-    showCustomInstallButton();
-    
-    // Optional: Log the platforms available
-    console.log('Available platforms:', e.platforms);
+// Activate event
+self.addEventListener('activate', (event) => {
+  console.log('🚀 Activating PulmoMetrics Pro');
+  
+  event.waitUntil(
+    Promise.all([
+      // Clean old caches
+      caches.keys()
+        .then(keys => Promise.all(
+          keys.filter(key => key !== CACHE_NAME)
+              .map(key => caches.delete(key))
+        )),
+      
+      // Claim clients
+      self.clients.claim()
+    ])
+  );
 });
 
-function showCustomInstallButton() {
-    // Remove existing button if any
-    const existingBtn = document.getElementById('pwa-install-btn');
-    if (existingBtn) existingBtn.remove();
-    
-    // Create install button
-    const installBtn = document.createElement('button');
-    installBtn.id = 'pwa-install-btn';
-    installBtn.innerHTML = `
-        <span style="font-size: 1.2em; margin-right: 8px;">📱</span>
-        Install PulmoMetrics Pro
-    `;
-    
-    // Style the button professionally
-    installBtn.style.cssText = `
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        background: linear-gradient(135deg, #1A5F7A, #2D9596);
-        color: white;
-        border: none;
-        padding: 14px 24px;
-        border-radius: 30px;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 6px 20px rgba(26, 95, 122, 0.4);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        transition: all 0.3s ease;
-        animation: pulse 2s infinite;
-    `;
-    
-    // Add hover effects
-    installBtn.onmouseenter = () => {
-        installBtn.style.transform = 'translateY(-2px)';
-        installBtn.style.boxShadow = '0 8px 25px rgba(26, 95, 122, 0.5)';
-    };
-    
-    installBtn.onmouseleave = () => {
-        installBtn.style.transform = 'translateY(0)';
-        installBtn.style.boxShadow = '0 6px 20px rgba(26, 95, 122, 0.4)';
-    };
-    
-    // Handle click
-    installBtn.onclick = async () => {
-        if (!deferredPrompt) return;
-        
-        // Show the install prompt
-        deferredPrompt.prompt();
-        
-        // Wait for the user to respond
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        console.log(`User response: ${outcome}`);
-        
-        // Clear the saved prompt
-        deferredPrompt = null;
-        
-        // Hide the button
-        installBtn.style.display = 'none';
-    };
-    
-    // Add to page
-    document.body.appendChild(installBtn);
-    
-    // Add pulse animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulse {
-            0% { box-shadow: 0 6px 20px rgba(26, 95, 122, 0.4); }
-            50% { box-shadow: 0 6px 30px rgba(26, 95, 122, 0.6); }
-            100% { box-shadow: 0 6px 20px rgba(26, 95, 122, 0.4); }
+// Fetch event - Network First strategy
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Cache successful responses
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(event.request, responseClone));
         }
-    `;
-    document.head.appendChild(style);
-}
-
-// Check if already installed
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    console.log('Already installed as PWA');
-}
-
-// Listen for app installed event
-window.addEventListener('appinstalled', (evt) => {
-    console.log('PWA was installed successfully!');
-    
-    // Hide install button
-    const installBtn = document.getElementById('pwa-install-btn');
-    if (installBtn) installBtn.style.display = 'none';
-    
-    // Send analytics or show welcome message
-    showToast('PulmoMetrics Pro installed successfully!', 'success');
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            
+            // If navigation request, show offline page
+            if (event.request.mode === 'navigate') {
+              return caches.match('./offline.html');
+            }
+            
+            // Return offline response
+            return new Response('Offline - Data not available', {
+              status: 503,
+              headers: { 'Content-Type': 'text/plain' }
+            });
+          });
+      })
+  );
 });
+
+// Background sync for data persistence
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'backup-data') {
+    event.waitUntil(backupData());
+  }
+});
+
+async function backupData() {
+  console.log('💾 Background backup');
+  // Backup logic can be added here
+}
+
+// Handle app updates
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+console.log('🫁 PulmoMetrics Pro Service Worker loaded');
