@@ -15,7 +15,7 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Professional App Icons -->
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/svg+xml" href="icon2.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -440,6 +440,12 @@
             margin-right: var(--space-2);
         }
         
+        .visual-toggle-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
         .visual-toggle {
             position: relative;
             width: 44px;
@@ -483,12 +489,6 @@
         
         .visual-toggle input:checked + .visual-toggle-slider:before {
             transform: translateX(20px);
-        }
-        
-        .visual-toggle-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            white-space: nowrap;
         }
         
         .header-btn {
@@ -601,7 +601,7 @@
             color: var(--success);
         }
         
-        .stability-indicator.unstable {
+        .stability-indicator.monitoring {
             background: var(--warning-light);
             color: var(--warning);
         }
@@ -610,11 +610,6 @@
             background: var(--info);
             color: white;
             animation: pulse-gentle 2s infinite;
-        }
-        
-        @keyframes pulse-gentle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
         }
         
         .baseline-ready {
@@ -629,6 +624,11 @@
             font-weight: 600;
             animation: pulse-gentle 2s infinite;
             margin-left: var(--space-2);
+        }
+        
+        @keyframes pulse-gentle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
         
         /* ===== NAVIGATION ===== */
@@ -868,7 +868,14 @@
         /* Color coding OFF state */
         .color-coding-off .percent-display.good,
         .color-coding-off .percent-display.warning,
-        .color-coding-off .percent-display.alert {
+        .color-coding-off .percent-display.alert,
+        .color-coding-off .visit-change.positive,
+        .color-coding-off .visit-change.negative,
+        .color-coding-off .baseline-percent.good,
+        .color-coding-off .baseline-percent.warning,
+        .color-coding-off .baseline-percent.alert,
+        .color-coding-off .trend-arrow.up,
+        .color-coding-off .trend-arrow.down {
             background: var(--border) !important;
             color: var(--text-secondary) !important;
         }
@@ -888,13 +895,6 @@
         
         .trend-arrow.neutral {
             color: var(--text-tertiary);
-        }
-        
-        /* Color coding OFF for arrows */
-        .color-coding-off .trend-arrow.up,
-        .color-coding-off .trend-arrow.down,
-        .color-coding-off .trend-arrow.neutral {
-            color: var(--text-tertiary) !important;
         }
         
         /* ===== QUICK CALC MODE ===== */
@@ -1136,16 +1136,45 @@
             font-size: 1rem;
         }
         
-        .color-coding-on .metric-value.positive {
+        .visit-change {
+            transition: all var(--transition-fast);
+        }
+        
+        .visit-change.positive {
             color: var(--success);
         }
         
-        .color-coding-on .metric-value.negative {
+        .visit-change.negative {
             color: var(--alert);
         }
         
-        .metric-value.neutral {
-            color: var(--text-primary);
+        .visit-change.neutral {
+            color: var(--text-tertiary);
+        }
+        
+        .baseline-percent {
+            transition: all var(--transition-fast);
+        }
+        
+        .baseline-percent.good {
+            background: var(--success-light);
+            color: var(--success);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .baseline-percent.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .baseline-percent.alert {
+            background: var(--alert-light);
+            color: var(--alert);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
         }
         
         .metric-unit {
@@ -1345,6 +1374,10 @@
             display: flex;
             align-items: center;
             gap: 4px;
+        }
+        
+        .date-warning.error {
+            color: var(--alert);
         }
         
         .bulk-textarea {
@@ -1915,6 +1948,152 @@
             color: var(--text-tertiary);
             font-weight: 500;
         }
+        
+        /* ===== TIMELINE VISUALIZATION ===== */
+        .timeline-visualization {
+            height: 40px;
+            position: relative;
+            margin-top: var(--space-2);
+            background: var(--background);
+            border-radius: var(--radius-md);
+            padding: var(--space-2);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--surface);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+        
+        .timeline-optimal {
+            position: absolute;
+            top: 50%;
+            height: 4px;
+            background: var(--success-light);
+            border-radius: 2px;
+            z-index: 0;
+        }
+        
+        /* ===== PROTOCOL SETTINGS MODAL STYLES ===== */
+        .protocol-settings {
+            padding: var(--space-1);
+        }
+        
+        .threshold-setting {
+            margin-bottom: var(--space-4);
+            padding: var(--space-3);
+            background: var(--background);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+        
+        .threshold-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+        
+        .threshold-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .threshold-level {
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+        
+        .threshold-level.monitor {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .threshold-level.review {
+            background: var(--alert-light);
+            color: var(--alert);
+        }
+        
+        .threshold-value {
+            font-family: var(--font-family-mono);
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .threshold-input-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+        
+        .threshold-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border);
+            border-radius: var(--radius-full);
+            outline: none;
+        }
+        
+        .threshold-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--surface);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .threshold-input {
+            width: 60px;
+            padding: var(--space-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family-mono);
+            font-size: 0.875rem;
+            text-align: center;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        
+        .threshold-percent {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .threshold-description {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -1936,7 +2115,7 @@
                 </div>
             </div>
             
-            <div class="loading-text" id="loadingText">PulmoMetrics Pro v4.0</div>
+            <div class="loading-text" id="loadingText">PulmoMetrics Pro v5.0</div>
             <div class="loading-subtext" id="loadingSubtext">Professional Lung Transplant Monitoring Suite</div>
         </div>
     </div>
@@ -2143,7 +2322,7 @@
                                 <span class="measurement-unit">Liters</span>
                             </div>
                             <div class="measurement-card">
-                                <span class="measurement-label">FEV₁/FVC</span>
+                                <span class="measurement-label">FEV₁/FVC Ratio</span>
                                 <div class="primary-value" id="resultRatio">--</div>
                                 <span class="measurement-unit">Percentage</span>
                             </div>
@@ -2163,7 +2342,7 @@
                                     <span class="trend-arrow" id="visitTrendArrow">→</span>
                                     Δ from Last Visit
                                 </span>
-                                <span class="metric-value neutral" id="resultVisitDelta">--</span>
+                                <span class="metric-value visit-change neutral" id="resultVisitDelta">--</span>
                                 <span class="metric-unit" id="resultVisitPercent">--%</span>
                             </div>
                             <div class="metric-item">
@@ -2171,12 +2350,12 @@
                                     <span class="trend-arrow" id="baselineTrendArrow">→</span>
                                     % of Personal Best
                                 </span>
-                                <span class="metric-value neutral" id="resultBaselinePercent">--%</span>
+                                <span class="metric-value baseline-percent neutral" id="resultBaselinePercent">--%</span>
                                 <span class="metric-unit" id="resultBaselineDelta">-- L</span>
                             </div>
                             <div class="metric-item" id="rateItem">
                                 <span class="metric-label">Monthly Rate</span>
-                                <span class="metric-value neutral" id="resultRate">--</span>
+                                <span class="metric-value visit-change neutral" id="resultRate">--</span>
                                 <span class="metric-unit">L/mo <span id="resultRateArrow">→</span></span>
                             </div>
                         </div>
@@ -2195,7 +2374,7 @@
                         </div>
                         
                         <div class="protocol-note" id="protocolNote">
-                            <strong>Note:</strong> Objective measurements shown. Clinical interpretation required based on your protocol thresholds.
+                            <strong>Note:</strong> Visit-to-visit changes (Δ) show direction only. Baseline comparisons use 95%/80% thresholds.
                         </div>
                     </div>
                 </div>
@@ -2223,7 +2402,7 @@
                     <div class="section-title">
                         <span>First Year Monitoring</span>
                         <span class="badge" id="monitorPatientBadge">--</span>
-                        <span id="baselineReadyBadge" class="baseline-ready hidden" title="Baseline ready for acceptance">📐 Baseline Ready</span>
+                        <span id="baselineReadyBadge" class="baseline-ready hidden">📐 Baseline Ready</span>
                     </div>
                     
                     <!-- Visit Entry -->
@@ -2303,7 +2482,6 @@ Example:
                                     </tr>
                                 </thead>
                                 <tbody id="visitsTableBody">
-                                    <!-- Dynamic content -->
                                     <tr>
                                         <td colspan="11" class="text-center" style="padding: var(--space-6); color: var(--text-tertiary);">
                                             No visits yet. Add visits using the form above.
@@ -2324,8 +2502,7 @@ Example:
                         <!-- Timeline spacing indicator -->
                         <div class="threshold-config mb-4">
                             <div class="input-label">Measurement Timeline</div>
-                            <div id="timelineVisualization" style="height: 40px; position: relative; margin-top: var(--space-2); 
-                                 background: var(--background); border-radius: var(--radius-md); padding: var(--space-2);">
+                            <div class="timeline-visualization" id="timelineVisualization">
                                 <!-- Dynamic timeline dots will be added here -->
                                 <div style="text-align: center; color: var(--text-tertiary); font-size: 0.75rem; line-height: 40px;">
                                     Add visits to see timeline visualization
@@ -2483,17 +2660,17 @@ Example:
                         <div class="metric-list">
                             <div class="metric-item">
                                 <span class="metric-label">Cumulative Change</span>
-                                <span class="metric-value neutral" id="stdCumulativeDelta">--</span>
+                                <span class="metric-value visit-change neutral" id="stdCumulativeDelta">--</span>
                                 <span class="metric-unit">L</span>
                             </div>
                             <div class="metric-item">
                                 <span class="metric-label">Percentage Change</span>
-                                <span class="metric-value neutral" id="stdPercentDecline">--</span>
+                                <span class="metric-value baseline-percent neutral" id="stdPercentDecline">--</span>
                                 <span class="metric-unit">%</span>
                             </div>
                             <div class="metric-item">
                                 <span class="metric-label">Monthly Rate</span>
-                                <span class="metric-value neutral" id="stdMonthlyRate">--</span>
+                                <span class="metric-value visit-change neutral" id="stdMonthlyRate">--</span>
                                 <span class="metric-unit">L/month <span id="stdRateArrow">→</span></span>
                             </div>
                         </div>
@@ -2507,7 +2684,7 @@ Example:
                         </div>
                         
                         <div class="protocol-note" id="stdProtocolNote">
-                            <strong>Note:</strong> Long-term trend analysis. Compare with your established protocol thresholds for clinical context.
+                            <strong>Note:</strong> Visit-to-visit changes use direction-based colors. Baseline percentages use 95%/80% thresholds.
                         </div>
                     </div>
                 </div>
@@ -2606,7 +2783,7 @@ Example:
                 <div class="protocol-settings">
                     <p style="color: var(--text-secondary); margin-bottom: var(--space-4); font-size: 0.875rem;">
                         Set custom decline thresholds for your clinical protocol. 
-                        The system will display when these thresholds are reached.
+                        Visit-to-visit changes use direction-based colors. Baseline percentages use these thresholds.
                     </p>
                     
                     <div class="threshold-setting">
@@ -2635,7 +2812,7 @@ Example:
                             <span class="threshold-percent">%</span>
                         </div>
                         <div class="threshold-description">
-                            Initial threshold for monitoring changes from baseline
+                            Show monitor alert at this decline from baseline
                         </div>
                     </div>
                     
@@ -2665,7 +2842,7 @@ Example:
                             <span class="threshold-percent">%</span>
                         </div>
                         <div class="threshold-description">
-                            Threshold for detailed review and assessment
+                            Show review alert at this decline from baseline
                         </div>
                     </div>
                     
@@ -2817,12 +2994,13 @@ Example:
                             <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">
                                 <div id="stabilityCriteria"></div>
                                 <div id="stabilityVariation" class="mt-2"></div>
+                                <div id="stabilityRate" class="mt-2"></div>
                                 <div id="baselineRecommendation" class="mt-2" style="color: var(--success); font-weight: 600;"></div>
                             </div>
                         </div>
                         
                         <div class="threshold-description mt-3">
-                            This is calculated from stable period measurements. You can modify this value if needed.
+                            This is calculated from stable period measurements. You must explicitly accept this baseline.
                         </div>
                     </div>
                 </div>
@@ -2903,7 +3081,7 @@ Example:
     <!-- JavaScript -->
     <script>
     // ============================================
-    // PULMOMETRICS PRO v4.0 - Enhanced Edition
+    // PULMOMETRICS PRO v5.0 - COMPLETE EDITION
     // Lung Transplant Monitoring Suite
     // ============================================
 
@@ -2978,7 +3156,7 @@ Example:
                         this.updateLoading('Finalizing setup...', 90);
                         setTimeout(() => {
                             this.hideLoading();
-                            this.showToast('PulmoMetrics Pro v4.0 ready', 'success');
+                            this.showToast('PulmoMetrics Pro v5.0 ready', 'success');
                         }, 800);
                     }, 600);
                 }, 500);
@@ -3193,6 +3371,7 @@ Example:
             this.dom.baselineAuditTrail = document.getElementById('baselineAuditTrail');
             this.dom.stabilityCriteria = document.getElementById('stabilityCriteria');
             this.dom.stabilityVariation = document.getElementById('stabilityVariation');
+            this.dom.stabilityRate = document.getElementById('stabilityRate');
             this.dom.baselineRecommendation = document.getElementById('baselineRecommendation');
             this.dom.cancelBaselineBtn = document.getElementById('cancelBaselineBtn');
             this.dom.acceptBaselineBtn = document.getElementById('acceptBaselineBtn');
@@ -3347,7 +3526,7 @@ Example:
         
         async loadState() {
             try {
-                const saved = localStorage.getItem('pulmometrics_pro_state_v4');
+                const saved = localStorage.getItem('pulmometrics_pro_state_v5');
                 if (saved) {
                     const data = JSON.parse(saved);
                     
@@ -3388,11 +3567,11 @@ Example:
                     patients: Array.from(this.state.patients.values()),
                     currentPatient: this.state.currentPatient,
                     colorCoding: this.state.colorCoding,
-                    version: '4.0.0',
+                    version: '5.0.0',
                     savedAt: new Date().toISOString()
                 };
                 
-                localStorage.setItem('pulmometrics_pro_state_v4', JSON.stringify(data));
+                localStorage.setItem('pulmometrics_pro_state_v5', JSON.stringify(data));
             } catch (error) {
                 console.error('Failed to save state:', error);
                 this.showToast('Failed to save data', 'error');
@@ -3406,6 +3585,8 @@ Example:
             const today = new Date().toISOString().split('T')[0];
             this.dom.newTxDate.value = today;
             this.dom.visitDate.value = today;
+            this.dom.visitDate.min = '2000-01-01';
+            this.dom.visitDate.max = today;
             
             this.dom.monitorThreshold.value = this.state.session.monitor.customThresholds.monitor;
             this.dom.reviewThreshold.value = this.state.session.monitor.customThresholds.review;
@@ -3431,11 +3612,15 @@ Example:
             if (this.state.mode === 'quick' && this.state.session.quick.fev1) {
                 this.calculateQuick();
             }
+            if (this.state.mode === 'full' && this.state.session.full.fev1) {
+                this.calculateFullStudy();
+            }
             if (this.state.mode === 'review') {
                 this.updateReviewMode();
             }
             
             this.showToast(`Color coding ${this.state.colorCoding ? 'enabled' : 'disabled'}`, 'success');
+            this.saveState();
         }
         
         togglePercentageView() {
@@ -3577,8 +3762,6 @@ Example:
         
         handleKeyboardShortcuts(e) {
             if (!e.target || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-    return;
-}
                 return;
             }
             
@@ -3726,6 +3909,7 @@ Example:
                 baselineFev1: null,
                 baselineDate: null,
                 visits: [],
+                baselineHistory: [],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -3837,7 +4021,6 @@ Example:
             this.dom.inputFvc.value = '';
             this.dom.baselineInput.value = '';
             this.dom.resultsPanel.classList.remove('visible');
-            this.dom.fev1PercentDisplay.innerHTML = '';
             
             this.state.session.quick.fev1 = null;
             this.state.session.quick.fvc = null;
@@ -3938,7 +4121,14 @@ Example:
         
         checkStability(visits) {
             if (visits.length < this.state.protocol.stabilityVisits) {
-                return { stable: false, reason: `Need ${this.state.protocol.stabilityVisits} visits, have ${visits.length}` };
+                return { 
+                    stable: false, 
+                    reason: `Need ${this.state.protocol.stabilityVisits} visits, have ${visits.length}`,
+                    variation: null,
+                    monthlyRate: null,
+                    visits: visits.length,
+                    fev1Values: []
+                };
             }
             
             const lastVisits = visits.slice(-this.state.protocol.stabilityVisits);
@@ -3973,1622 +4163,1711 @@ Example:
                 dates: lastVisits.map(v => v.date)
             };
         }
+        
         updateStabilityIndicator() {
-    if (!this.state.currentPatient) {
-        this.dom.stabilityIndicator.innerHTML = '';
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient || patient.visits.length === 0) {
-        this.dom.stabilityIndicator.innerHTML = '';
-        return;
-    }
-    
-    const stability = this.checkStability(patient.visits);
-    
-    if (stability.stable) {
-        this.dom.stabilityIndicator.innerHTML = 
-            `<span class="stability-indicator stable">✓ Stable</span>`;
-    } else {
-        this.dom.stabilityIndicator.innerHTML = 
-            `<span class="stability-indicator unstable">⚠ Monitoring</span>`;
-    }
-}
-
-// ===== QUICK CALCULATION MODE =====
-
-handleQuickInput() {
-    const fev1 = parseFloat(this.dom.inputFev1.value);
-    const fvc = this.dom.inputFvc.value ? parseFloat(this.dom.inputFvc.value) : null;
-    
-    if (isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
-        this.state.session.quick.fev1 = null;
-        this.state.session.quick.fvc = null;
-        this.dom.resultsPanel.classList.remove('visible');
-        return;
-    }
-    
-    this.state.session.quick.fev1 = fev1;
-    this.state.session.quick.fvc = fvc;
-    
-    this.calculateQuick();
-}
-
-handleComparisonSelection(e) {
-    const radio = e.currentTarget.querySelector('.option-radio');
-    radio.checked = true;
-    
-    [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    e.currentTarget.classList.add('selected');
-    
-    this.state.session.quick.comparison = radio.value;
-    this.dom.baselineInput.disabled = radio.value !== 'baseline';
-    
-    if (radio.value === 'baseline') {
-        this.dom.baselineInput.focus();
-    }
-    
-    this.handleComparisonChange();
-}
-
-handleComparisonChange() {
-    if (this.state.session.quick.comparison === 'baseline') {
-        const baseline = parseFloat(this.dom.baselineInput.value);
-        if (baseline && baseline > 0) {
-            this.state.session.quick.baseline = baseline;
-        } else {
-            this.state.session.quick.baseline = null;
-        }
-    } else {
-        this.state.session.quick.baseline = null;
-    }
-    
-    if (this.state.session.quick.fev1) {
-        this.calculateQuick();
-    }
-}
-
-calculateQuick() {
-    if (!this.state.session.quick.fev1) {
-        this.dom.resultsPanel.classList.remove('visible');
-        return;
-    }
-    
-    const fev1 = this.state.session.quick.fev1;
-    const fvc = this.state.session.quick.fvc;
-    const comparison = this.state.session.quick.comparison;
-    
-    // Update basic results
-    this.dom.resultFev1Liters.textContent = fev1.toFixed(2);
-    this.dom.resultFvc.textContent = fvc ? fvc.toFixed(2) : '--';
-    
-    // Calculate ratio if FVC is provided
-    let ratio = '--';
-    if (fvc && fvc > 0) {
-        const ratioValue = (fev1 / fvc) * 100;
-        ratio = ratioValue.toFixed(1);
-    }
-    this.dom.resultRatio.textContent = ratio;
-    
-    // Get comparison data
-    let baselineValue = null;
-    let lastVisitValue = null;
-    let comparisonTitle = 'Current Measurements';
-    let comparisonSubtitle = '';
-    
-    if (this.state.currentPatient) {
-        const patient = this.state.patients.get(this.state.currentPatient);
-        if (patient) {
-            if (comparison === 'baseline' && patient.baselineFev1) {
-                baselineValue = patient.baselineFev1;
-                comparisonTitle = 'vs Established Baseline';
-                comparisonSubtitle = `${patient.baselineFev1.toFixed(2)} L`;
-            } else if (comparison === 'last' && patient.visits.length > 0) {
-                const lastVisit = patient.visits[patient.visits.length - 1];
-                lastVisitValue = lastVisit.fev1;
-                const lastDate = new Date(lastVisit.date);
-                comparisonTitle = 'vs Last Visit';
-                comparisonSubtitle = `${lastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${lastVisit.fev1.toFixed(2)} L`;
+            if (!this.state.currentPatient) {
+                this.dom.stabilityIndicator.innerHTML = '';
+                return;
             }
-        }
-    }
-    
-    // Calculate percentages and changes
-    let fev1Percent = null;
-    let baselinePercent = null;
-    let baselineDelta = null;
-    let visitDelta = null;
-    let visitPercent = null;
-    let monthlyRate = null;
-    
-    if (baselineValue) {
-        baselinePercent = (fev1 / baselineValue) * 100;
-        baselineDelta = fev1 - baselineValue;
-    }
-    
-    if (lastVisitValue) {
-        visitDelta = fev1 - lastVisitValue;
-        visitPercent = lastVisitValue > 0 ? ((fev1 - lastVisitValue) / lastVisitValue) * 100 : 0;
-    }
-    
-    // Determine FEV1 percentage category
-    let fev1Category = 'neutral';
-    if (baselinePercent !== null) {
-        if (baselinePercent >= 90) fev1Category = 'good';
-        else if (baselinePercent >= 80) fev1Category = 'warning';
-        else fev1Category = 'alert';
-    }
-    
-    // Apply color coding if enabled
-    if (!this.state.colorCoding) {
-        fev1Category = 'neutral';
-    }
-    
-    // Update FEV1 percentage display
-    this.dom.resultFev1Percent.textContent = baselinePercent ? `${baselinePercent.toFixed(0)}%` : '--%';
-    this.dom.resultFev1Percent.className = `percent-display ${fev1Category}`;
-    
-    // Update comparison results
-    if (comparison !== 'none' && (baselineValue || lastVisitValue)) {
-        this.dom.comparisonResults.classList.remove('hidden');
-        this.dom.comparisonTitle.textContent = comparisonTitle;
-        this.dom.comparisonSubtitle.textContent = comparisonSubtitle;
-        
-        // Update visit comparison
-        if (lastVisitValue !== null) {
-            const arrow = visitDelta > 0 ? '↗' : (visitDelta < 0 ? '↘' : '→');
-            const arrowClass = visitDelta > 0 ? 'up' : (visitDelta < 0 ? 'down' : 'neutral');
             
-            this.dom.visitTrendArrow.textContent = arrow;
-            this.dom.visitTrendArrow.className = `trend-arrow ${arrowClass}`;
-            this.dom.resultVisitDelta.textContent = `${visitDelta >= 0 ? '+' : ''}${visitDelta.toFixed(2)}`;
-            this.dom.resultVisitDelta.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (visitDelta >= 0 ? 'positive' : 'negative')}`;
-            this.dom.resultVisitPercent.textContent = `${visitPercent >= 0 ? '+' : ''}${visitPercent.toFixed(1)}%`;
-        } else {
-            this.dom.visitTrendArrow.textContent = '→';
-            this.dom.visitTrendArrow.className = 'trend-arrow neutral';
-            this.dom.resultVisitDelta.textContent = '--';
-            this.dom.resultVisitDelta.className = 'metric-value neutral';
-            this.dom.resultVisitPercent.textContent = '--%';
-        }
-        
-        // Update baseline comparison
-        if (baselineValue !== null) {
-            const arrow = baselineDelta > 0 ? '↗' : (baselineDelta < 0 ? '↘' : '→');
-            const arrowClass = baselineDelta > 0 ? 'up' : (baselineDelta < 0 ? 'down' : 'neutral');
-            
-            this.dom.baselineTrendArrow.textContent = arrow;
-            this.dom.baselineTrendArrow.className = `trend-arrow ${arrowClass}`;
-            this.dom.resultBaselinePercent.textContent = `${baselinePercent.toFixed(1)}%`;
-            this.dom.resultBaselinePercent.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (baselinePercent >= 100 ? 'positive' : (baselinePercent >= 80 ? 'neutral' : 'negative'))}`;
-            this.dom.resultBaselineDelta.textContent = `${baselineDelta >= 0 ? '+' : ''}${baselineDelta.toFixed(2)} L`;
-        } else {
-            this.dom.baselineTrendArrow.textContent = '→';
-            this.dom.baselineTrendArrow.className = 'trend-arrow neutral';
-            this.dom.resultBaselinePercent.textContent = '--%';
-            this.dom.resultBaselinePercent.className = 'metric-value neutral';
-            this.dom.resultBaselineDelta.textContent = '-- L';
-        }
-        
-        // Show protocol context
-        this.dom.protocolContext.classList.remove('hidden');
-        this.dom.thresholdMonitor.querySelector('span').textContent = `${this.state.protocol.monitor}%`;
-        this.dom.thresholdReview.querySelector('span').textContent = `${this.state.protocol.review}%`;
-        
-        // Update protocol note based on decline
-        if (baselinePercent !== null) {
-            let note = '<strong>Note:</strong> ';
-            if (baselinePercent >= 90) {
-                note += 'FEV₁ is within normal range (>90% of baseline).';
-            } else if (baselinePercent >= 80) {
-                note += 'FEV₁ shows mild decline (80-89% of baseline). Monitor closely.';
-            } else if (baselinePercent >= 70) {
-                note += 'FEV₁ shows moderate decline (70-79% of baseline). Consider clinical review.';
-            } else {
-                note += 'FEV₁ shows significant decline (<70% of baseline). Urgent review recommended.';
-            }
-            this.dom.protocolNote.innerHTML = note;
-        }
-        
-        // Show rate item if there's a date context
-        if (this.state.currentPatient) {
             const patient = this.state.patients.get(this.state.currentPatient);
-            if (patient && patient.baselineDate) {
-                const baselineDate = new Date(patient.baselineDate);
-                const currentDate = new Date();
-                const months = (currentDate - baselineDate) / (1000 * 60 * 60 * 24 * 30.44);
-                
-                if (months > 0 && baselineValue) {
-                    const rate = baselineDelta / months;
-                    this.dom.resultRate.textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(3)}`;
-                    this.dom.resultRate.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (rate >= 0 ? 'positive' : 'negative')}`;
-                    this.dom.resultRateArrow.textContent = rate > 0 ? '↗' : (rate < 0 ? '↘' : '→');
-                    this.dom.rateItem.style.display = 'flex';
+            if (!patient || patient.visits.length === 0) {
+                this.dom.stabilityIndicator.innerHTML = '';
+                return;
+            }
+            
+            const stability = this.checkStability(patient.visits);
+            
+            if (stability.stable) {
+                this.dom.stabilityIndicator.innerHTML = 
+                    `<span class="stability-indicator stable">✓ Stable</span>`;
+            } else {
+                this.dom.stabilityIndicator.innerHTML = 
+                    `<span class="stability-indicator monitoring">⚠ Monitoring</span>`;
+            }
+        }
+        
+        // ===== QUICK CALCULATION MODE =====
+        
+        handleQuickInput() {
+            const fev1 = parseFloat(this.dom.inputFev1.value);
+            const fvc = this.dom.inputFvc.value ? parseFloat(this.dom.inputFvc.value) : null;
+            
+            if (isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
+                this.state.session.quick.fev1 = null;
+                this.state.session.quick.fvc = null;
+                this.dom.resultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.quick.fev1 = fev1;
+            this.state.session.quick.fvc = fvc;
+            
+            this.calculateQuick();
+        }
+        
+        handleComparisonSelection(e) {
+            const radio = e.currentTarget.querySelector('.option-radio');
+            radio.checked = true;
+            
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            e.currentTarget.classList.add('selected');
+            
+            this.state.session.quick.comparison = radio.value;
+            this.dom.baselineInput.disabled = radio.value !== 'baseline';
+            
+            if (radio.value === 'baseline') {
+                this.dom.baselineInput.focus();
+            }
+            
+            this.handleComparisonChange();
+        }
+        
+        handleComparisonChange() {
+            if (this.state.session.quick.comparison === 'baseline') {
+                const baseline = parseFloat(this.dom.baselineInput.value);
+                if (baseline && baseline > 0) {
+                    this.state.session.quick.baseline = baseline;
+                } else {
+                    this.state.session.quick.baseline = null;
+                }
+            } else {
+                this.state.session.quick.baseline = null;
+            }
+            
+            if (this.state.session.quick.fev1) {
+                this.calculateQuick();
+            }
+        }
+        
+        calculateQuick() {
+            if (!this.state.session.quick.fev1) {
+                this.dom.resultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            const fev1 = this.state.session.quick.fev1;
+            const fvc = this.state.session.quick.fvc;
+            const comparison = this.state.session.quick.comparison;
+            
+            // Update basic results
+            this.dom.resultFev1Liters.textContent = fev1.toFixed(2);
+            this.dom.resultFvc.textContent = fvc ? fvc.toFixed(2) : '--';
+            
+            // Calculate ratio if FVC is provided
+            let ratio = '--';
+            if (fvc && fvc > 0) {
+                const ratioValue = (fev1 / fvc) * 100;
+                ratio = ratioValue.toFixed(1) + '%';
+            }
+            this.dom.resultRatio.textContent = ratio;
+            
+            // Get comparison data
+            let baselineValue = null;
+            let lastVisitValue = null;
+            let comparisonTitle = 'Current Measurements';
+            let comparisonSubtitle = '';
+            
+            if (this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    if (comparison === 'baseline' && patient.baselineFev1) {
+                        baselineValue = patient.baselineFev1;
+                        comparisonTitle = 'vs Established Baseline';
+                        comparisonSubtitle = `${patient.baselineFev1.toFixed(2)} L`;
+                    } else if (comparison === 'last' && patient.visits.length > 0) {
+                        const lastVisit = patient.visits[patient.visits.length - 1];
+                        lastVisitValue = lastVisit.fev1;
+                        const lastDate = new Date(lastVisit.date);
+                        comparisonTitle = 'vs Last Visit';
+                        comparisonSubtitle = `${lastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${lastVisit.fev1.toFixed(2)} L`;
+                    }
                 }
             }
+            
+            // Calculate percentages and changes
+            let fev1Percent = null;
+            let baselinePercent = null;
+            let baselineDelta = null;
+            let visitDelta = null;
+            let visitPercent = null;
+            let monthlyRate = null;
+            
+            if (baselineValue) {
+                baselinePercent = (fev1 / baselineValue) * 100;
+                baselineDelta = fev1 - baselineValue;
+            }
+            
+            if (lastVisitValue) {
+                visitDelta = fev1 - lastVisitValue;
+                visitPercent = lastVisitValue > 0 ? ((fev1 - lastVisitValue) / lastVisitValue) * 100 : 0;
+            }
+            
+            // Determine FEV1 percentage category (for baseline comparison)
+            let baselineCategory = 'neutral';
+            if (baselinePercent !== null) {
+                if (baselinePercent >= 95) baselineCategory = 'good';
+                else if (baselinePercent >= 80) baselineCategory = 'warning';
+                else baselineCategory = 'alert';
+            }
+            
+            // Apply color coding if enabled
+            if (!this.state.colorCoding) {
+                baselineCategory = 'neutral';
+            }
+            
+            // Update FEV1 percentage display
+            this.dom.resultFev1Percent.textContent = baselinePercent ? `${baselinePercent.toFixed(0)}%` : '--%';
+            this.dom.resultFev1Percent.className = `percent-display ${baselineCategory}`;
+            
+            // Update comparison results
+            if (comparison !== 'none' && (baselineValue || lastVisitValue)) {
+                this.dom.comparisonResults.classList.remove('hidden');
+                this.dom.comparisonTitle.textContent = comparisonTitle;
+                this.dom.comparisonSubtitle.textContent = comparisonSubtitle;
+                
+                // Update visit comparison (direction-based coloring)
+                if (lastVisitValue !== null) {
+                    const arrow = visitDelta > 0 ? '↗' : (visitDelta < 0 ? '↘' : '→');
+                    const arrowClass = visitDelta > 0 ? 'up' : (visitDelta < 0 ? 'down' : 'neutral');
+                    const changeClass = visitDelta > 0 ? 'positive' : (visitDelta < 0 ? 'negative' : 'neutral');
+                    
+                    this.dom.visitTrendArrow.textContent = arrow;
+                    this.dom.visitTrendArrow.className = `trend-arrow ${arrowClass}`;
+                    this.dom.resultVisitDelta.textContent = `${visitDelta >= 0 ? '+' : ''}${visitDelta.toFixed(2)}`;
+                    this.dom.resultVisitDelta.className = `metric-value visit-change ${changeClass}`;
+                    this.dom.resultVisitPercent.textContent = `${visitPercent >= 0 ? '+' : ''}${visitPercent.toFixed(1)}%`;
+                } else {
+                    this.dom.visitTrendArrow.textContent = '→';
+                    this.dom.visitTrendArrow.className = 'trend-arrow neutral';
+                    this.dom.resultVisitDelta.textContent = '--';
+                    this.dom.resultVisitDelta.className = 'metric-value visit-change neutral';
+                    this.dom.resultVisitPercent.textContent = '--%';
+                }
+                
+                // Update baseline comparison (threshold-based coloring)
+                if (baselineValue !== null) {
+                    const arrow = baselineDelta > 0 ? '↗' : (baselineDelta < 0 ? '↘' : '→');
+                    const arrowClass = baselineDelta > 0 ? 'up' : (baselineDelta < 0 ? 'down' : 'neutral');
+                    
+                    this.dom.baselineTrendArrow.textContent = arrow;
+                    this.dom.baselineTrendArrow.className = `trend-arrow ${arrowClass}`;
+                    this.dom.resultBaselinePercent.textContent = `${baselinePercent.toFixed(1)}%`;
+                    this.dom.resultBaselinePercent.className = `metric-value baseline-percent ${baselineCategory}`;
+                    this.dom.resultBaselineDelta.textContent = `${baselineDelta >= 0 ? '+' : ''}${baselineDelta.toFixed(2)} L`;
+                } else {
+                    this.dom.baselineTrendArrow.textContent = '→';
+                    this.dom.baselineTrendArrow.className = 'trend-arrow neutral';
+                    this.dom.resultBaselinePercent.textContent = '--%';
+                    this.dom.resultBaselinePercent.className = 'metric-value baseline-percent neutral';
+                    this.dom.resultBaselineDelta.textContent = '-- L';
+                }
+                
+                // Show protocol context
+                this.dom.protocolContext.classList.remove('hidden');
+                this.dom.thresholdMonitor.querySelector('span').textContent = `${this.state.protocol.monitor}%`;
+                this.dom.thresholdReview.querySelector('span').textContent = `${this.state.protocol.review}%`;
+                
+                // Update protocol note
+                let note = '<strong>Note:</strong> ';
+                if (baselinePercent !== null) {
+                    if (baselinePercent >= 95) {
+                        note += 'FEV₁ is within normal range (>95% of baseline).';
+                    } else if (baselinePercent >= 80) {
+                        note += 'FEV₁ shows mild decline (80-94% of baseline). Monitor closely.';
+                    } else {
+                        note += 'FEV₁ shows significant decline (<80% of baseline). Review recommended.';
+                    }
+                } else {
+                    note += 'Visit-to-visit changes show direction only. Baseline comparisons use 95%/80% thresholds.';
+                }
+                this.dom.protocolNote.innerHTML = note;
+                
+                // Show rate item if there's a date context
+                if (this.state.currentPatient) {
+                    const patient = this.state.patients.get(this.state.currentPatient);
+                    if (patient && patient.baselineDate) {
+                        const baselineDate = new Date(patient.baselineDate);
+                        const currentDate = new Date();
+                        const months = (currentDate - baselineDate) / (1000 * 60 * 60 * 24 * 30.44);
+                        
+                        if (months > 0 && baselineValue) {
+                            const rate = baselineDelta / months;
+                            const rateClass = rate > 0 ? 'positive' : (rate < 0 ? 'negative' : 'neutral');
+                            const rateArrow = rate > 0 ? '↗' : (rate < 0 ? '↘' : '→');
+                            
+                            this.dom.resultRate.textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(3)}`;
+                            this.dom.resultRate.className = `metric-value visit-change ${rateClass}`;
+                            this.dom.resultRateArrow.textContent = rateArrow;
+                            this.dom.rateItem.style.display = 'flex';
+                        }
+                    }
+                }
+            } else {
+                this.dom.comparisonResults.classList.add('hidden');
+                this.dom.protocolContext.classList.add('hidden');
+                this.dom.rateItem.style.display = 'none';
+            }
+            
+            // Update timestamp
+            const now = new Date();
+            this.dom.resultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            this.dom.resultsPanel.classList.add('visible');
         }
-    } else {
-        this.dom.comparisonResults.classList.add('hidden');
-        this.dom.protocolContext.classList.add('hidden');
-        this.dom.rateItem.style.display = 'none';
-    }
-    
-    // Update timestamp
-    const now = new Date();
-    this.dom.resultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    
-    this.dom.resultsPanel.classList.add('visible');
-}
-
-clearQuickCalc() {
-    this.dom.inputFev1.value = '';
-    this.dom.inputFvc.value = '';
-    this.dom.baselineInput.value = '';
-    this.dom.resultsPanel.classList.remove('visible');
-    this.dom.optionNone.querySelector('.option-radio').checked = true;
-    [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    this.dom.optionNone.classList.add('selected');
-    this.dom.baselineInput.disabled = true;
-    
-    this.state.session.quick.fev1 = null;
-    this.state.session.quick.fvc = null;
-    this.state.session.quick.comparison = 'none';
-    this.state.session.quick.baseline = null;
-    this.state.session.quick.lastVisit = null;
-    
-    this.dom.inputFev1.focus();
-    this.showToast('Quick calculation cleared', 'info');
-}
-
-saveQuickVisit() {
-    if (!this.state.session.quick.fev1) {
-        this.showToast('Please enter FEV₁ measurement first', 'error');
-        return;
-    }
-    
-    if (!this.state.currentPatient) {
-        this.showToast('Please select a patient first', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) {
-        this.showToast('Patient not found', 'error');
-        return;
-    }
-    
-    const today = new Date().toISOString().split('T')[0];
-    const fev1 = this.state.session.quick.fev1;
-    const fvc = this.state.session.quick.fvc;
-    
-    // Check for duplicate date
-    const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
-    
-    if (existingVisitIndex !== -1) {
-        // Show duplicate date modal
-        this.state.session.duplicateDateData = {
-            date: today,
-            existingVisit: patient.visits[existingVisitIndex],
-            newVisit: { fev1, fvc, notes: '' }
-        };
-        this.showDuplicateDateModal();
-        return;
-    }
-    
-    // Add new visit
-    const visit = {
-        date: today,
-        fev1,
-        fvc,
-        notes: '',
-        recordedAt: new Date().toISOString()
-    };
-    
-    patient.visits.push(visit);
-    patient.updatedAt = new Date().toISOString();
-    
-    this.state.patients.set(patient.id, patient);
-    this.saveState();
-    
-    this.updatePatientContext();
-    this.showToast(`Visit saved for ${patient.id}: ${fev1.toFixed(2)} L`, 'success');
-    
-    // Clear quick calc after saving
-    this.clearQuickCalc();
-}
-
-copyResults() {
-    if (!this.state.session.quick.fev1) {
-        this.showToast('No results to copy', 'error');
-        return;
-    }
-    
-    let text = `PulmoMetrics Pro Results\n`;
-    text += `=======================\n\n`;
-    text += `FEV₁: ${this.state.session.quick.fev1.toFixed(2)} L\n`;
-    
-    if (this.state.session.quick.fvc) {
-        text += `FVC: ${this.state.session.quick.fvc.toFixed(2)} L\n`;
-        const ratio = (this.state.session.quick.fev1 / this.state.session.quick.fvc) * 100;
-        text += `FEV₁/FVC Ratio: ${ratio.toFixed(1)}%\n`;
-    }
-    
-    if (this.state.session.quick.baseline) {
-        const percent = (this.state.session.quick.fev1 / this.state.session.quick.baseline) * 100;
-        text += `\nBaseline Comparison:\n`;
-        text += `Baseline: ${this.state.session.quick.baseline.toFixed(2)} L\n`;
-        text += `Current: ${percent.toFixed(1)}% of baseline\n`;
-        text += `Change: ${(this.state.session.quick.fev1 - this.state.session.quick.baseline).toFixed(2)} L\n`;
-    }
-    
-    text += `\nGenerated: ${new Date().toLocaleString()}`;
-    
-    navigator.clipboard.writeText(text)
-        .then(() => this.showToast('Results copied to clipboard', 'success'))
-        .catch(() => this.showToast('Failed to copy results', 'error'));
-}
-
-// ===== MONITOR MODE =====
-
-checkDateInterval() {
-    const selectedDate = new Date(this.dom.visitDate.value);
-    const today = new Date();
-    
-    if (selectedDate > today) {
-        this.dom.dateIntervalWarning.textContent = '⚠️ Future date selected';
-        this.dom.dateIntervalWarning.classList.remove('hidden');
-        this.dom.dateInput.classList.add('invalid');
-        return false;
-    }
-    
-    if (this.state.currentPatient) {
-        const patient = this.state.patients.get(this.state.currentPatient);
-        if (patient && patient.visits.length > 0) {
+        
+        clearQuickCalc() {
+            this.dom.inputFev1.value = '';
+            this.dom.inputFvc.value = '';
+            this.dom.baselineInput.value = '';
+            this.dom.resultsPanel.classList.remove('visible');
+            this.dom.optionNone.querySelector('.option-radio').checked = true;
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.dom.optionNone.classList.add('selected');
+            this.dom.baselineInput.disabled = true;
+            
+            this.state.session.quick.fev1 = null;
+            this.state.session.quick.fvc = null;
+            this.state.session.quick.comparison = 'none';
+            this.state.session.quick.baseline = null;
+            this.state.session.quick.lastVisit = null;
+            
+            this.dom.inputFev1.focus();
+            this.showToast('Quick calculation cleared', 'info');
+        }
+        
+        saveQuickVisit() {
+            if (!this.state.session.quick.fev1) {
+                this.showToast('Please enter FEV₁ measurement first', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const fev1 = this.state.session.quick.fev1;
+            const fvc = this.state.session.quick.fvc;
+            
+            // Check for duplicate date
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
+            
+            if (existingVisitIndex !== -1) {
+                // Show duplicate date modal
+                this.state.session.duplicateDateData = {
+                    date: today,
+                    existingVisit: patient.visits[existingVisitIndex],
+                    newVisit: { fev1, fvc, notes: '' }
+                };
+                this.showDuplicateDateModal();
+                return;
+            }
+            
+            // Add new visit
+            const visit = {
+                date: today,
+                fev1,
+                fvc,
+                notes: '',
+                recordedAt: new Date().toISOString()
+            };
+            
+            patient.visits.push(visit);
+            patient.updatedAt = new Date().toISOString();
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            this.updatePatientContext();
+            this.showToast(`Visit saved for ${patient.id}: ${fev1.toFixed(2)} L`, 'success');
+            
+            // Clear quick calc after saving
+            this.clearQuickCalc();
+        }
+        
+        copyResults() {
+            if (!this.state.session.quick.fev1) {
+                this.showToast('No results to copy', 'error');
+                return;
+            }
+            
+            let text = `PulmoMetrics Pro Results\n`;
+            text += `=======================\n\n`;
+            text += `FEV₁: ${this.state.session.quick.fev1.toFixed(2)} L\n`;
+            
+            if (this.state.session.quick.fvc) {
+                text += `FVC: ${this.state.session.quick.fvc.toFixed(2)} L\n`;
+                const ratio = (this.state.session.quick.fev1 / this.state.session.quick.fvc) * 100;
+                text += `FEV₁/FVC Ratio: ${ratio.toFixed(1)}%\n`;
+            }
+            
+            if (this.state.session.quick.baseline) {
+                const percent = (this.state.session.quick.fev1 / this.state.session.quick.baseline) * 100;
+                text += `\nBaseline Comparison:\n`;
+                text += `Baseline: ${this.state.session.quick.baseline.toFixed(2)} L\n`;
+                text += `Current: ${percent.toFixed(1)}% of baseline\n`;
+                text += `Change: ${(this.state.session.quick.fev1 - this.state.session.quick.baseline).toFixed(2)} L\n`;
+            }
+            
+            text += `\nGenerated: ${new Date().toLocaleString()}`;
+            
+            navigator.clipboard.writeText(text)
+                .then(() => this.showToast('Results copied to clipboard', 'success'))
+                .catch(() => this.showToast('Failed to copy results', 'error'));
+        }
+        
+        // ===== MONITOR MODE =====
+        
+        checkDateInterval() {
+            const selectedDate = new Date(this.dom.visitDate.value);
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            if (selectedDate > today) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Future date selected';
+                this.dom.dateIntervalWarning.className = 'date-warning error';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return false;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.dom.dateIntervalWarning.classList.add('hidden');
+                this.dom.visitDate.classList.remove('invalid');
+                return true;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || patient.visits.length === 0) {
+                this.dom.dateIntervalWarning.classList.add('hidden');
+                this.dom.visitDate.classList.remove('invalid');
+                return true;
+            }
+            
             const lastVisit = patient.visits[patient.visits.length - 1];
             const lastDate = new Date(lastVisit.date);
             const daysDiff = Math.floor((selectedDate - lastDate) / (1000 * 60 * 60 * 24));
             
             if (daysDiff < 0) {
                 this.dom.dateIntervalWarning.textContent = `⚠️ Date is before last visit (${lastDate.toLocaleDateString()})`;
+                this.dom.dateIntervalWarning.className = 'date-warning error';
                 this.dom.dateIntervalWarning.classList.remove('hidden');
-                this.dom.dateInput.classList.add('invalid');
+                this.dom.visitDate.classList.add('invalid');
+                return false;
+            } else if (daysDiff === 0) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Duplicate date (same as last visit)';
+                this.dom.dateIntervalWarning.className = 'date-warning error';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
                 return false;
             } else if (daysDiff < 7) {
                 this.dom.dateIntervalWarning.textContent = '⚠️ Short interval (<7 days)';
+                this.dom.dateIntervalWarning.className = 'date-warning';
                 this.dom.dateIntervalWarning.classList.remove('hidden');
-                this.dom.dateInput.classList.add('invalid');
+                this.dom.visitDate.classList.add('invalid');
                 return true; // Still valid, just warning
-            } else if (daysDiff > 180) {
-                this.dom.dateIntervalWarning.textContent = '⚠️ Long interval (>6 months)';
+            } else if (daysDiff > 90) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Long interval (>90 days)';
+                this.dom.dateIntervalWarning.className = 'date-warning';
                 this.dom.dateIntervalWarning.classList.remove('hidden');
-                this.dom.dateInput.classList.add('invalid');
+                this.dom.visitDate.classList.add('invalid');
                 return true; // Still valid, just warning
             }
-        }
-    }
-    
-    this.dom.dateIntervalWarning.classList.add('hidden');
-    this.dom.dateInput.classList.remove('invalid');
-    return true;
-}
-
-addVisit() {
-    if (!this.checkDateInterval()) {
-        this.showToast('Please check date selection', 'error');
-        return;
-    }
-    
-    const date = this.dom.visitDate.value;
-    const fev1 = parseFloat(this.dom.visitFev1.value);
-    const fvc = this.dom.visitFvc.value ? parseFloat(this.dom.visitFvc.value) : null;
-    const notes = this.dom.visitNotes.value.trim();
-    
-    if (!date || !fev1 || isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
-        this.showToast('Please enter valid date and FEV₁ measurement', 'error');
-        return;
-    }
-    
-    if (fvc && (isNaN(fvc) || fvc < 0.5 || fvc > 10.0)) {
-        this.showToast('Please enter valid FVC measurement', 'error');
-        return;
-    }
-    
-    if (!this.state.currentPatient) {
-        this.showToast('Please select a patient first', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) {
-        this.showToast('Patient not found', 'error');
-        return;
-    }
-    
-    // Check for duplicate date
-    const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
-    
-    if (existingVisitIndex !== -1) {
-        this.state.session.duplicateDateData = {
-            date,
-            existingVisit: patient.visits[existingVisitIndex],
-            newVisit: { fev1, fvc, notes }
-        };
-        this.showDuplicateDateModal();
-        return;
-    }
-    
-    // Add visit to monitor session
-    const visit = {
-        date,
-        fev1,
-        fvc,
-        notes,
-        recordedAt: new Date().toISOString()
-    };
-    
-    this.state.session.monitor.visits.push(visit);
-    this.updateVisitsTable();
-    this.updateCalculateButton();
-    
-    // Clear form
-    this.dom.visitFev1.value = '';
-    this.dom.visitFvc.value = '';
-    this.dom.visitNotes.value = '';
-    this.dom.visitFev1.focus();
-    
-    this.showToast(`Visit added: ${date} - ${fev1.toFixed(2)} L`, 'success');
-    
-    // Update patient's visits if in patient context
-    if (this.state.currentPatient === patient.id) {
-        patient.visits.push(visit);
-        patient.updatedAt = new Date().toISOString();
-        this.state.patients.set(patient.id, patient);
-        this.saveState();
-        this.updatePatientContext();
-    }
-}
-
-importBulkVisits() {
-    const text = this.dom.bulkImport.value.trim();
-    if (!text) {
-        this.showToast('Please paste visit data', 'error');
-        return;
-    }
-    
-    if (!this.state.currentPatient) {
-        this.showToast('Please select a patient first', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) {
-        this.showToast('Patient not found', 'error');
-        return;
-    }
-    
-    const lines = text.split('\n');
-    let added = 0;
-    let skipped = 0;
-    let errors = [];
-    
-    lines.forEach((line, index) => {
-        line = line.trim();
-        if (!line || line.startsWith('#')) return;
-        
-        const parts = line.split(',').map(p => p.trim());
-        if (parts.length < 2) {
-            errors.push(`Line ${index + 1}: Invalid format`);
-            return;
-        }
-        
-        const date = parts[0];
-        const fev1 = parseFloat(parts[1]);
-        const fvc = parts.length > 2 ? parseFloat(parts[2]) : null;
-        const notes = parts.length > 3 ? parts.slice(3).join(', ') : '';
-        
-        // Validate date
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            errors.push(`Line ${index + 1}: Invalid date format (YYYY-MM-DD)`);
-            return;
-        }
-        
-        // Validate FEV1
-        if (isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
-            errors.push(`Line ${index + 1}: Invalid FEV₁ value`);
-            return;
-        }
-        
-        // Validate FVC if provided
-        if (fvc !== null && (isNaN(fvc) || fvc < 0.5 || fvc > 10.0)) {
-            errors.push(`Line ${index + 1}: Invalid FVC value`);
-            return;
-        }
-        
-        // Check for duplicate
-        const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
-        if (existingVisitIndex !== -1) {
-            skipped++;
-            return;
-        }
-        
-        // Add visit
-        const visit = {
-            date,
-            fev1,
-            fvc,
-            notes,
-            recordedAt: new Date().toISOString()
-        };
-        
-        this.state.session.monitor.visits.push(visit);
-        patient.visits.push(visit);
-        added++;
-    });
-    
-    if (added > 0) {
-        patient.updatedAt = new Date().toISOString();
-        this.state.patients.set(patient.id, patient);
-        this.saveState();
-        
-        this.updateVisitsTable();
-        this.updateCalculateButton();
-        this.updatePatientContext();
-        
-        let message = `Imported ${added} visit${added !== 1 ? 's' : ''}`;
-        if (skipped > 0) message += `, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`;
-        if (errors.length > 0) message += `, ${errors.length} error${errors.length !== 1 ? 's' : ''}`;
-        
-        this.showToast(message, added > 0 ? 'success' : 'warning');
-        
-        if (errors.length > 0) {
-            console.warn('Import errors:', errors);
-        }
-    } else {
-        this.showToast('No valid visits imported', 'warning');
-    }
-    
-    this.dom.bulkImport.value = '';
-}
-
-updateVisitsTable() {
-    const visits = this.state.session.monitor.visits;
-    const tbody = this.dom.visitsTableBody;
-    
-    if (visits.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="11" class="text-center" style="padding: var(--space-6); color: var(--text-tertiary);">
-                    No visits yet. Add visits using the form above.
-                </td>
-            </tr>
-        `;
-        this.dom.timelineVisualization.innerHTML = `
-            <div style="text-align: center; color: var(--text-tertiary); font-size: 0.75rem; line-height: 40px;">
-                Add visits to see timeline visualization
-            </div>
-        `;
-        return;
-    }
-    
-    // Sort visits by date
-    const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Get baseline if available
-    let baseline = null;
-    if (this.state.currentPatient) {
-        const patient = this.state.patients.get(this.state.currentPatient);
-        if (patient) {
-            baseline = patient.baselineFev1;
-        }
-    }
-    
-    // Generate table rows
-    tbody.innerHTML = '';
-    
-    sortedVisits.forEach((visit, index) => {
-        const date = new Date(visit.date);
-        const daysFromTx = this.calculateDaysFromTx(visit.date);
-        const prevVisit = index > 0 ? sortedVisits[index - 1] : null;
-        
-        // Calculate metrics
-        const ratio = visit.fvc ? (visit.fev1 / visit.fvc * 100).toFixed(1) : '--';
-        const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1).toFixed(2) : '--';
-        const baselineDelta = baseline ? (visit.fev1 - baseline).toFixed(2) : '--';
-        const baselinePercent = baseline ? ((visit.fev1 / baseline) * 100).toFixed(1) : '--';
-        
-        // Calculate monthly rate if applicable
-        let monthlyRate = '--';
-        if (prevVisit && baseline) {
-            const daysBetween = (new Date(visit.date) - new Date(prevVisit.date)) / (1000 * 60 * 60 * 24);
-            const monthsBetween = daysBetween / 30.44;
-            if (monthsBetween > 0) {
-                const rate = (visit.fev1 - baseline) / monthsBetween;
-                monthlyRate = rate.toFixed(3);
-            }
-        }
-        
-        // Determine alert level
-        let alertLevel = 'none';
-        if (baselinePercent !== '--') {
-            const percent = parseFloat(baselinePercent);
-            const monitorThreshold = this.state.session.monitor.customThresholds.monitor;
-            const reviewThreshold = this.state.session.monitor.customThresholds.review;
             
-            if (percent <= (100 - reviewThreshold)) {
-                alertLevel = 'review';
-            } else if (percent <= (100 - monitorThreshold)) {
-                alertLevel = 'monitor';
+            this.dom.dateIntervalWarning.classList.add('hidden');
+            this.dom.visitDate.classList.remove('invalid');
+            return true;
+        }
+        
+        addVisit() {
+            if (!this.checkDateInterval()) {
+                this.showToast('Please check date selection', 'error');
+                return;
+            }
+            
+            const date = this.dom.visitDate.value;
+            const fev1 = parseFloat(this.dom.visitFev1.value);
+            const fvc = this.dom.visitFvc.value ? parseFloat(this.dom.visitFvc.value) : null;
+            const notes = this.dom.visitNotes.value.trim();
+            
+            if (!date || !fev1 || isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
+                this.showToast('Please enter valid date and FEV₁ measurement', 'error');
+                return;
+            }
+            
+            if (fvc && (isNaN(fvc) || fvc < 0.5 || fvc > 10.0)) {
+                this.showToast('Please enter valid FVC measurement', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            // Check for duplicate date
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
+            
+            if (existingVisitIndex !== -1) {
+                this.state.session.duplicateDateData = {
+                    date,
+                    existingVisit: patient.visits[existingVisitIndex],
+                    newVisit: { fev1, fvc, notes }
+                };
+                this.showDuplicateDateModal();
+                return;
+            }
+            
+            // Add visit to monitor session
+            const visit = {
+                date,
+                fev1,
+                fvc,
+                notes,
+                recordedAt: new Date().toISOString()
+            };
+            
+            this.state.session.monitor.visits.push(visit);
+            this.updateVisitsTable();
+            this.updateCalculateButton();
+            
+            // Clear form
+            this.dom.visitFev1.value = '';
+            this.dom.visitFvc.value = '';
+            this.dom.visitNotes.value = '';
+            this.dom.visitFev1.focus();
+            
+            this.showToast(`Visit added: ${date} - ${fev1.toFixed(2)} L`, 'success');
+            
+            // Update patient's visits if in patient context
+            if (this.state.currentPatient === patient.id) {
+                patient.visits.push(visit);
+                patient.updatedAt = new Date().toISOString();
+                this.state.patients.set(patient.id, patient);
+                this.saveState();
+                this.updatePatientContext();
             }
         }
         
-        // Create row
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-            <td>${daysFromTx !== null ? daysFromTx : '--'}</td>
-            <td>${visit.fev1.toFixed(2)}</td>
-            <td>${this.state.percentageView ? baselinePercent : baselineDelta} ${this.state.percentageView ? '%' : 'L'}</td>
-            <td>${visit.fvc ? visit.fvc.toFixed(2) : '--'}</td>
-            <td>${ratio}</td>
-            <td>${visitDelta}</td>
-            <td>${baselineDelta}</td>
-            <td>${monthlyRate}</td>
-            <td class="alert-cell">
-                <div class="alert-indicator ${alertLevel}" title="${alertLevel === 'review' ? 'Review required' : alertLevel === 'monitor' ? 'Monitor closely' : 'Within range'}"></div>
-            </td>
-            <td title="${visit.notes || 'No notes'}">
-                ${visit.notes ? '📝' : ''}
-            </td>
-        `;
+        importBulkVisits() {
+            const text = this.dom.bulkImport.value.trim();
+            if (!text) {
+                this.showToast('Please paste visit data', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            const lines = text.split('\n');
+            let added = 0;
+            let skipped = 0;
+            let errors = [];
+            
+            lines.forEach((line, index) => {
+                line = line.trim();
+                if (!line || line.startsWith('#')) return;
+                
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length < 2) {
+                    errors.push(`Line ${index + 1}: Invalid format`);
+                    return;
+                }
+                
+                const date = parts[0];
+                const fev1 = parseFloat(parts[1]);
+                const fvc = parts.length > 2 ? parseFloat(parts[2]) : null;
+                const notes = parts.length > 3 ? parts.slice(3).join(', ') : '';
+                
+                // Validate date
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    errors.push(`Line ${index + 1}: Invalid date format (YYYY-MM-DD)`);
+                    return;
+                }
+                
+                // Validate FEV1
+                if (isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
+                    errors.push(`Line ${index + 1}: Invalid FEV₁ value`);
+                    return;
+                }
+                
+                // Validate FVC if provided
+                if (fvc !== null && (isNaN(fvc) || fvc < 0.5 || fvc > 10.0)) {
+                    errors.push(`Line ${index + 1}: Invalid FVC value`);
+                    return;
+                }
+                
+                // Check for duplicate
+                const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
+                if (existingVisitIndex !== -1) {
+                    skipped++;
+                    return;
+                }
+                
+                // Add visit
+                const visit = {
+                    date,
+                    fev1,
+                    fvc,
+                    notes,
+                    recordedAt: new Date().toISOString()
+                };
+                
+                this.state.session.monitor.visits.push(visit);
+                patient.visits.push(visit);
+                added++;
+            });
+            
+            if (added > 0) {
+                patient.updatedAt = new Date().toISOString();
+                this.state.patients.set(patient.id, patient);
+                this.saveState();
+                
+                this.updateVisitsTable();
+                this.updateCalculateButton();
+                this.updatePatientContext();
+                
+                let message = `Imported ${added} visit${added !== 1 ? 's' : ''}`;
+                if (skipped > 0) message += `, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`;
+                if (errors.length > 0) message += `, ${errors.length} error${errors.length !== 1 ? 's' : ''}`;
+                
+                this.showToast(message, added > 0 ? 'success' : 'warning');
+                
+                if (errors.length > 0) {
+                    console.warn('Import errors:', errors);
+                }
+            } else {
+                this.showToast('No valid visits imported', 'warning');
+            }
+            
+            this.dom.bulkImport.value = '';
+        }
         
-        // Add click handler to show notes tooltip
-        if (visit.notes) {
-            row.addEventListener('click', () => {
-                this.showToast(visit.notes, 'info', 5000);
+        updateVisitsTable() {
+            const visits = this.state.session.monitor.visits;
+            const tbody = this.dom.visitsTableBody;
+            
+            if (visits.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center" style="padding: var(--space-6); color: var(--text-tertiary);">
+                            No visits yet. Add visits using the form above.
+                        </td>
+                    </tr>
+                `;
+                this.updateTimelineVisualization([]);
+                return;
+            }
+            
+            // Sort visits by date
+            const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Get baseline if available
+            let baseline = null;
+            if (this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    baseline = patient.baselineFev1;
+                }
+            }
+            
+            // Generate table rows
+            tbody.innerHTML = '';
+            
+            sortedVisits.forEach((visit, index) => {
+                const date = new Date(visit.date);
+                const daysFromTx = this.calculateDaysFromTx(visit.date);
+                const prevVisit = index > 0 ? sortedVisits[index - 1] : null;
+                
+                // Calculate metrics
+                const ratio = visit.fvc ? (visit.fev1 / visit.fvc * 100).toFixed(1) + '%' : '--';
+                const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1) : 0;
+                const visitDeltaStr = prevVisit ? `${visitDelta >= 0 ? '+' : ''}${visitDelta.toFixed(2)}` : '--';
+                
+                const baselineDelta = baseline ? (visit.fev1 - baseline) : 0;
+                const baselineDeltaStr = baseline ? `${baselineDelta >= 0 ? '+' : ''}${baselineDelta.toFixed(2)}` : '--';
+                const baselinePercent = baseline ? ((visit.fev1 / baseline) * 100) : null;
+                const baselinePercentStr = baselinePercent ? baselinePercent.toFixed(1) + '%' : '--';
+                
+                // Calculate monthly rate if applicable
+                let monthlyRate = '--';
+                let rateArrow = '→';
+                if (prevVisit && baseline) {
+                    const daysBetween = (new Date(visit.date) - new Date(prevVisit.date)) / (1000 * 60 * 60 * 24);
+                    const monthsBetween = daysBetween / 30.44;
+                    if (monthsBetween > 0) {
+                        const rate = baselineDelta / monthsBetween;
+                        monthlyRate = `${rate >= 0 ? '+' : ''}${rate.toFixed(3)}`;
+                        rateArrow = rate > 0 ? '↗' : (rate < 0 ? '↘' : '→');
+                    }
+                }
+                
+                // Determine alert level for baseline comparison
+                let alertLevel = 'none';
+                if (baselinePercent !== null) {
+                    const percent = baselinePercent;
+                    const monitorThreshold = this.state.session.monitor.customThresholds.monitor;
+                    const reviewThreshold = this.state.session.monitor.customThresholds.review;
+                    
+                    if (percent <= (100 - reviewThreshold)) {
+                        alertLevel = 'review';
+                    } else if (percent <= (100 - monitorThreshold)) {
+                        alertLevel = 'monitor';
+                    }
+                }
+                
+                // Determine color classes
+                const visitDeltaClass = visitDelta > 0 ? 'positive' : (visitDelta < 0 ? 'negative' : 'neutral');
+                const baselinePercentClass = this.getBaselinePercentClass(baselinePercent);
+                
+                // Create row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td>${daysFromTx !== null ? daysFromTx : '--'}</td>
+                    <td>${visit.fev1.toFixed(2)}</td>
+                    <td>
+                        ${this.state.percentageView ? baselinePercentStr : baselineDeltaStr} 
+                        ${!this.state.colorCoding ? '' : 
+                            baselinePercentClass !== 'neutral' ? 
+                            `<span class="baseline-percent ${baselinePercentClass}" style="margin-left: 4px;">●</span>` : ''
+                        }
+                    </td>
+                    <td>${visit.fvc ? visit.fvc.toFixed(2) : '--'}</td>
+                    <td>${ratio}</td>
+                    <td class="${!this.state.colorCoding ? '' : `visit-change ${visitDeltaClass}`}">
+                        ${visitDeltaStr}
+                        ${!this.state.colorCoding ? '' : 
+                            visitDeltaClass !== 'neutral' ? 
+                            `<span class="trend-arrow ${visitDelta > 0 ? 'up' : 'down'}" style="margin-left: 4px;">${visitDelta > 0 ? '↗' : '↘'}</span>` : ''
+                        }
+                    </td>
+                    <td>${baselineDeltaStr}</td>
+                    <td>
+                        ${monthlyRate}
+                        ${rateArrow !== '→' ? `<span class="trend-arrow ${rateArrow === '↗' ? 'up' : 'down'}" style="margin-left: 4px;">${rateArrow}</span>` : ''}
+                    </td>
+                    <td class="alert-cell">
+                        <div class="alert-indicator ${alertLevel}" title="${alertLevel === 'review' ? 'Review required' : alertLevel === 'monitor' ? 'Monitor closely' : 'Within range'}"></div>
+                    </td>
+                    <td title="${visit.notes || 'No notes'}">
+                        ${visit.notes ? '📝' : ''}
+                    </td>
+                `;
+                
+                // Add click handler to show notes tooltip
+                if (visit.notes) {
+                    row.addEventListener('click', () => {
+                        this.showToast(visit.notes, 'info', 5000);
+                    });
+                }
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update timeline visualization
+            this.updateTimelineVisualization(sortedVisits);
+            
+            // Update chart if visible
+            if (this.dom.visualizationSection.classList.contains('visible')) {
+                this.updateChart();
+            }
+        }
+        
+        getBaselinePercentClass(percent) {
+            if (!this.state.colorCoding || percent === null) return 'neutral';
+            if (percent >= 95) return 'good';
+            if (percent >= 80) return 'warning';
+            return 'alert';
+        }
+        
+        calculateDaysFromTx(date) {
+            if (!this.state.currentPatient) return null;
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || !patient.txDate) return null;
+            
+            const txDate = new Date(patient.txDate);
+            const visitDate = new Date(date);
+            const diffTime = Math.abs(visitDate - txDate);
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+        
+        updateTimelineVisualization(visits) {
+            const container = this.dom.timelineVisualization;
+            container.innerHTML = '';
+            
+            if (visits.length < 2) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-tertiary); font-size: 0.75rem; line-height: 40px;">
+                        Add visits to see timeline visualization
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort visits by date
+            const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Calculate date range
+            const firstDate = new Date(sortedVisits[0].date);
+            const lastDate = new Date(sortedVisits[sortedVisits.length - 1].date);
+            const totalDays = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
+            
+            // Create optimal range indicator (30-90 days)
+            if (sortedVisits.length >= 2) {
+                const optimalRange = document.createElement('div');
+                optimalRange.className = 'timeline-optimal';
+                optimalRange.style.left = '10%';
+                optimalRange.style.width = '80%';
+                container.appendChild(optimalRange);
+            }
+            
+            // Create timeline dots and lines
+            sortedVisits.forEach((visit, index) => {
+                const visitDate = new Date(visit.date);
+                const daysFromFirst = Math.floor((visitDate - firstDate) / (1000 * 60 * 60 * 24));
+                const position = totalDays > 0 ? (daysFromFirst / totalDays) * 80 + 10 : 50;
+                
+                // Add connecting line between dots
+                if (index > 0) {
+                    const prevVisit = sortedVisits[index - 1];
+                    const prevDate = new Date(prevVisit.date);
+                    const prevDaysFromFirst = Math.floor((prevDate - firstDate) / (1000 * 60 * 60 * 24));
+                    const prevPosition = totalDays > 0 ? (prevDaysFromFirst / totalDays) * 80 + 10 : 50;
+                    
+                    const line = document.createElement('div');
+                    line.className = 'timeline-line';
+                    line.style.left = `${prevPosition}%`;
+                    line.style.width = `${position - prevPosition}%`;
+                    container.appendChild(line);
+                }
+                
+                // Add dot
+                const dot = document.createElement('div');
+                dot.className = 'timeline-dot';
+                dot.style.left = `${position}%`;
+                dot.title = `${visit.date}: ${visit.fev1.toFixed(2)} L`;
+                container.appendChild(dot);
+            });
+            
+            // Add interval warnings
+            for (let i = 1; i < sortedVisits.length; i++) {
+                const prevDate = new Date(sortedVisits[i - 1].date);
+                const currDate = new Date(sortedVisits[i].date);
+                const daysBetween = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysBetween < 7 || daysBetween > 90) {
+                    const prevDaysFromFirst = Math.floor((prevDate - firstDate) / (1000 * 60 * 60 * 24));
+                    const currDaysFromFirst = Math.floor((currDate - firstDate) / (1000 * 60 * 60 * 24));
+                    const prevPosition = totalDays > 0 ? (prevDaysFromFirst / totalDays) * 80 + 10 : 50;
+                    const currPosition = totalDays > 0 ? (currDaysFromFirst / totalDays) * 80 + 10 : 50;
+                    
+                    const warning = document.createElement('div');
+                    warning.className = 'timeline-line';
+                    warning.style.left = `${prevPosition}%`;
+                    warning.style.width = `${currPosition - prevPosition}%`;
+                    warning.style.backgroundColor = daysBetween < 7 ? 'var(--alert)' : 'var(--warning)';
+                    warning.style.height = '3px';
+                    warning.title = `${daysBetween} days between visits (${daysBetween < 7 ? 'too short' : 'too long'})`;
+                    container.appendChild(warning);
+                }
+            }
+        }
+        
+        updateCalculateButton() {
+            const visits = this.state.session.monitor.visits;
+            const stability = this.checkStability(visits);
+            
+            this.dom.calculateBaselineBtn.disabled = !stability.stable;
+            this.dom.calculateBaselineBtn.title = stability.stable 
+                ? 'Calculate baseline from stable period' 
+                : `Need ${this.state.protocol.stabilityVisits} stable visits`;
+            
+            // Update baseline ready badge
+            if (stability.stable) {
+                this.dom.baselineReadyBadge.classList.remove('hidden');
+            } else {
+                this.dom.baselineReadyBadge.classList.add('hidden');
+            }
+        }
+        
+        calculateBaseline() {
+            const visits = this.state.session.monitor.visits;
+            const stability = this.checkStability(visits);
+            
+            if (!stability.stable) {
+                this.showToast(`Need ${this.state.protocol.stabilityVisits} stable visits`, 'error');
+                return;
+            }
+            
+            // Get the stable period visits
+            const lastVisits = visits.slice(-this.state.protocol.stabilityVisits);
+            const fev1Values = lastVisits.map(v => v.fev1);
+            
+            // Calculate suggested baseline (average of highest 2 values)
+            const sortedValues = [...fev1Values].sort((a, b) => b - a);
+            const topValues = sortedValues.slice(0, 2);
+            const suggestedBaseline = topValues.reduce((a, b) => a + b) / topValues.length;
+            
+            // Update modal content
+            this.dom.highestValuesList.innerHTML = topValues.map((value, index) => 
+                `<div>${index + 1}. ${value.toFixed(2)} L</div>`
+            ).join('');
+            
+            this.dom.calculatedBaseline.value = suggestedBaseline.toFixed(2);
+            
+            // Update audit trail
+            this.dom.stabilityCriteria.innerHTML = `
+                ✅ Stability criteria met: Last ${stability.visits} visits (±${this.state.protocol.stabilityThreshold}% variation)
+            `;
+            this.dom.stabilityVariation.innerHTML = `
+                📊 Actual variation: ${stability.variation}%
+            `;
+            this.dom.stabilityRate.innerHTML = `
+                📈 Monthly rate: ${stability.monthlyRate ? `${stability.monthlyRate} L/mo` : 'N/A'}
+            `;
+            this.dom.baselineRecommendation.innerHTML = `
+                💡 Recommended baseline: ${suggestedBaseline.toFixed(2)} L (average of highest 2 values)
+            `;
+            
+            this.showModal('baselineModal');
+        }
+        
+        acceptBaseline() {
+            const baselineValue = parseFloat(this.dom.calculatedBaseline.value);
+            
+            if (!baselineValue || isNaN(baselineValue) || baselineValue < 0.5 || baselineValue > 8.0) {
+                this.showToast('Please enter a valid baseline value', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('No patient selected', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            // Update patient baseline with audit trail
+            patient.baselineFev1 = baselineValue;
+            patient.baselineDate = new Date().toISOString().split('T')[0];
+            patient.baselineHistory.push({
+                value: baselineValue,
+                date: patient.baselineDate,
+                method: 'calculated_from_stable_period',
+                visitsUsed: this.state.protocol.stabilityVisits,
+                recordedAt: new Date().toISOString()
+            });
+            patient.updatedAt = new Date().toISOString();
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            this.hideModal('baselineModal');
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            
+            this.showToast(`Baseline set to ${baselineValue.toFixed(2)} L for ${patient.id}`, 'success');
+        }
+        
+        toggleVisualization() {
+            const isVisible = this.dom.visualizationSection.classList.toggle('visible');
+            
+            if (isVisible) {
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📉</span><span>Hide Charts</span>`;
+                this.updateChart();
+                this.updateTimelineVisualization(this.state.session.monitor.visits);
+            } else {
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📈</span><span>Show Charts</span>`;
+            }
+        }
+        
+        clearMonitorData() {
+            if (this.state.session.monitor.visits.length === 0) {
+                this.showToast('No data to clear', 'info');
+                return;
+            }
+            
+            if (confirm('Clear all visits from the monitor table? This will not delete saved patient visits.')) {
+                this.state.session.monitor.visits = [];
+                this.updateVisitsTable();
+                this.updateCalculateButton();
+                this.dom.visualizationSection.classList.remove('visible');
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📈</span><span>Show Charts</span>`;
+                this.showToast('Monitor data cleared', 'success');
+            }
+        }
+        
+        // ===== FULL STUDY MODE =====
+        
+        updateTimeline() {
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            
+            if (txDate && baselineDate) {
+                const tx = new Date(txDate);
+                const baseline = new Date(baselineDate);
+                
+                if (baseline < tx) {
+                    this.showToast('Baseline date cannot be before transplant date', 'error');
+                    this.dom.baselineDate.value = '';
+                    return;
+                }
+                
+                const daysDiff = Math.floor((baseline - tx) / (1000 * 60 * 60 * 24));
+                if (daysDiff > 0) {
+                    this.dom.stdTimePeriod.textContent = daysDiff;
+                }
+            }
+        }
+        
+        handleFullInput() {
+            const fev1 = parseFloat(this.dom.stdFev1.value);
+            const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
+            
+            if (isNaN(fev1) || isNaN(baselineFev1)) {
+                this.dom.stdResultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.full.fev1 = fev1;
+            this.state.session.full.baselineFev1 = baselineFev1;
+            
+            this.calculateFullStudy();
+        }
+        
+        calculateFullStudy() {
+            const fev1 = this.state.session.full.fev1;
+            const baselineFev1 = this.state.session.full.baselineFev1;
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            
+            if (!fev1 || !baselineFev1 || !txDate || !baselineDate) {
+                this.dom.stdResultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            // Calculate time period
+            const tx = new Date(txDate);
+            const baseline = new Date(baselineDate);
+            const currentDate = new Date();
+            
+            const daysFromTx = Math.floor((currentDate - tx) / (1000 * 60 * 60 * 24));
+            const daysFromBaseline = Math.floor((currentDate - baseline) / (1000 * 60 * 60 * 24));
+            const monthsFromBaseline = daysFromBaseline / 30.44;
+            
+            // Calculate metrics
+            const delta = fev1 - baselineFev1;
+            const percentDecline = ((baselineFev1 - fev1) / baselineFev1) * 100;
+            const monthlyRate = monthsFromBaseline > 0 ? (fev1 - baselineFev1) / monthsFromBaseline : 0;
+            const currentPercent = (fev1 / baselineFev1) * 100;
+            
+            // Update UI
+            this.dom.stdCurrentFev1.textContent = fev1.toFixed(2);
+            this.dom.stdCurrentPercent.textContent = `${currentPercent.toFixed(1)}%`;
+            this.dom.stdCurrentPercent.className = `percent-display ${this.getBaselinePercentClass(currentPercent)}`;
+            this.dom.stdBaseline.textContent = baselineFev1.toFixed(2);
+            this.dom.stdTimePeriod.textContent = daysFromBaseline;
+            
+            this.dom.stdComparisonSubtitle.textContent = 
+                `${baseline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            
+            // Visit-to-visit comparison (direction-based)
+            const deltaClass = delta > 0 ? 'positive' : (delta < 0 ? 'negative' : 'neutral');
+            this.dom.stdCumulativeDelta.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)}`;
+            this.dom.stdCumulativeDelta.className = `metric-value visit-change ${deltaClass}`;
+            
+            // Baseline comparison (threshold-based)
+            const percentClass = this.getBaselinePercentClass(currentPercent);
+            this.dom.stdPercentDecline.textContent = `${percentDecline.toFixed(1)}%`;
+            this.dom.stdPercentDecline.className = `metric-value baseline-percent ${percentClass}`;
+            
+            // Monthly rate (direction-based)
+            const rateClass = monthlyRate > 0 ? 'positive' : (monthlyRate < 0 ? 'negative' : 'neutral');
+            const rateArrow = monthlyRate > 0 ? '↗' : (monthlyRate < 0 ? '↘' : '→');
+            this.dom.stdMonthlyRate.textContent = `${monthlyRate >= 0 ? '+' : ''}${monthlyRate.toFixed(3)}`;
+            this.dom.stdMonthlyRate.className = `metric-value visit-change ${rateClass}`;
+            this.dom.stdRateArrow.textContent = rateArrow;
+            
+            // Update protocol note
+            let note = '<strong>Note:</strong> ';
+            if (percentDecline <= 5) {
+                note += 'Minimal decline (<5% from baseline). Continue routine monitoring.';
+            } else if (percentDecline <= 20) {
+                note += 'Moderate decline (5-20% from baseline). Consider additional testing.';
+            } else {
+                note += 'Significant decline (>20% from baseline). Urgent clinical review recommended.';
+            }
+            this.dom.stdProtocolNote.innerHTML = note;
+            
+            // Update timestamp
+            const now = new Date();
+            this.dom.stdResultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            this.dom.stdResultsPanel.classList.add('visible');
+        }
+        
+        clearFullStudy() {
+            this.dom.txDate.value = '';
+            this.dom.baselineDate.value = '';
+            this.dom.stdFev1.value = '';
+            this.dom.stdBaselineFev1.value = '';
+            this.dom.clinicalNotes.value = '';
+            this.dom.stdResultsPanel.classList.remove('visible');
+            
+            this.state.session.full.txDate = null;
+            this.state.session.full.baselineDate = null;
+            this.state.session.full.fev1 = null;
+            this.state.session.full.baselineFev1 = null;
+            this.state.session.full.notes = '';
+            
+            this.showToast('Full study cleared', 'info');
+        }
+        
+        saveFullStudy() {
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            const fev1 = parseFloat(this.dom.stdFev1.value);
+            const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
+            const notes = this.dom.clinicalNotes.value.trim();
+            
+            if (!txDate || !baselineDate || !fev1 || !baselineFev1) {
+                this.showToast('Please complete all required fields', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            // Update patient information
+            patient.txDate = txDate;
+            patient.baselineDate = baselineDate;
+            patient.baselineFev1 = baselineFev1;
+            patient.updatedAt = new Date().toISOString();
+            
+            // Add as a visit if not already present
+            const today = new Date().toISOString().split('T')[0];
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
+            
+            if (existingVisitIndex === -1) {
+                patient.visits.push({
+                    date: today,
+                    fev1,
+                    fvc: null,
+                    notes,
+                    recordedAt: new Date().toISOString()
+                });
+            }
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            this.updatePatientContext();
+            this.showToast(`Full study saved for ${patient.id}`, 'success');
+        }
+        
+        // ===== REVIEW MODE =====
+        
+        updateReviewMode() {
+            if (!this.state.currentPatient) {
+                this.showNoDataState();
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || patient.visits.length === 0) {
+                this.showNoDataState();
+                return;
+            }
+            
+            // Update patient status
+            this.updatePatientStatus(patient);
+            
+            // Update summary metrics
+            this.updateReviewSummary(patient);
+            
+            // Update visits list
+            this.updateReviewVisitsList(patient);
+        }
+        
+        showNoDataState() {
+            this.dom.patientStatusDot.className = 'patient-status-dot';
+            this.dom.patientStatusText.textContent = 'No data';
+            this.dom.reviewStabilityIndicator.innerHTML = '';
+            this.dom.lastUpdatedDate.textContent = '--';
+            
+            this.dom.reviewTxDays.textContent = '--';
+            this.dom.reviewVisits.textContent = '--';
+            this.dom.reviewLastFev1.textContent = '--';
+            this.dom.reviewBestFev1.textContent = '--';
+            
+            this.dom.visitsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>No visit history available</p>
+                    <p class="notes-hint mt-2">Start by entering measurements in Quick Calc mode</p>
+                </div>
+            `;
+        }
+        
+        updatePatientStatus(patient) {
+            const lastVisit = patient.visits[patient.visits.length - 1];
+            const stability = this.checkStability(patient.visits);
+            
+            let status = 'unknown';
+            let statusText = 'No baseline';
+            let statusClass = '';
+            
+            if (patient.baselineFev1) {
+                const percent = (lastVisit.fev1 / patient.baselineFev1) * 100;
+                
+                if (percent >= 95) {
+                    status = 'good';
+                    statusText = 'Good function';
+                    statusClass = 'good';
+                } else if (percent >= 80) {
+                    status = 'warning';
+                    statusText = 'Monitor closely';
+                    statusClass = 'warning';
+                } else {
+                    status = 'alert';
+                    statusText = 'Review needed';
+                    statusClass = 'alert';
+                }
+                
+                if (stability.stable) {
+                    status = 'stable';
+                    statusText = 'Stable function';
+                    statusClass = 'stable';
+                }
+            }
+            
+            this.dom.patientStatusDot.className = `patient-status-dot ${statusClass}`;
+            this.dom.patientStatusText.textContent = statusText;
+            
+            if (stability.stable) {
+                this.dom.reviewStabilityIndicator.innerHTML = `<span class="stability-indicator stable">✓ Stable</span>`;
+            } else if (patient.visits.length >= this.state.protocol.stabilityVisits) {
+                this.dom.reviewStabilityIndicator.innerHTML = `<span class="stability-indicator monitoring">⚠ Monitoring</span>`;
+            } else {
+                this.dom.reviewStabilityIndicator.innerHTML = '';
+            }
+            
+            // Update last updated date
+            const lastDate = new Date(lastVisit.date);
+            this.dom.lastUpdatedDate.textContent = lastDate.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                year: 'numeric'
             });
         }
         
-        tbody.appendChild(row);
-    });
-    
-    // Update timeline visualization
-    this.updateTimelineVisualization(sortedVisits);
-    
-    // Update chart if visible
-    if (this.dom.visualizationSection.classList.contains('visible')) {
-        this.updateChart();
-    }
-}
-
-calculateDaysFromTx(date) {
-    if (!this.state.currentPatient) return null;
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient || !patient.txDate) return null;
-    
-    const txDate = new Date(patient.txDate);
-    const visitDate = new Date(date);
-    const diffTime = Math.abs(visitDate - txDate);
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-}
-
-updateTimelineVisualization(visits) {
-    const container = this.dom.timelineVisualization;
-    container.innerHTML = '';
-    
-    if (visits.length < 2) return;
-    
-    // Sort visits by date
-    const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Calculate date range
-    const firstDate = new Date(sortedVisits[0].date);
-    const lastDate = new Date(sortedVisits[sortedVisits.length - 1].date);
-    const totalDays = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
-    
-    // Create timeline
-    sortedVisits.forEach((visit, index) => {
-        const visitDate = new Date(visit.date);
-        const daysFromFirst = Math.floor((visitDate - firstDate) / (1000 * 60 * 60 * 24));
-        const position = (daysFromFirst / totalDays) * 100;
+        updateReviewSummary(patient) {
+            // Calculate days post-transplant
+            let txDays = '--';
+            if (patient.txDate) {
+                const tx = new Date(patient.txDate);
+                const today = new Date();
+                txDays = Math.floor((today - tx) / (1000 * 60 * 60 * 24));
+            }
+            
+            // Get last and best FEV1
+            const lastFev1 = patient.visits[patient.visits.length - 1].fev1;
+            const bestFev1 = Math.max(...patient.visits.map(v => v.fev1));
+            
+            this.dom.reviewTxDays.textContent = txDays;
+            this.dom.reviewVisits.textContent = patient.visits.length;
+            this.dom.reviewLastFev1.textContent = lastFev1.toFixed(2);
+            this.dom.reviewBestFev1.textContent = bestFev1.toFixed(2);
+        }
         
-        const dot = document.createElement('div');
-        dot.style.position = 'absolute';
-        dot.style.left = `${position}%`;
-        dot.style.top = '50%';
-        dot.style.transform = 'translate(-50%, -50%)';
-        dot.style.width = '12px';
-        dot.style.height = '12px';
-        dot.style.borderRadius = '50%';
-        dot.style.backgroundColor = 'var(--primary)';
-        dot.style.border = '2px solid var(--surface)';
-        dot.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        dot.style.cursor = 'pointer';
-        dot.title = `${visit.date}: ${visit.fev1.toFixed(2)} L`;
+        updateReviewVisitsList(patient) {
+            const visitsList = this.dom.visitsList;
+            visitsList.innerHTML = '';
+            
+            // Sort visits by date (newest first)
+            const sortedVisits = [...patient.visits].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedVisits.forEach(visit => {
+                const date = new Date(visit.date);
+                const card = document.createElement('div');
+                card.className = 'visit-card';
+                
+                let baselineInfo = '';
+                if (patient.baselineFev1) {
+                    const percent = (visit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                    const percentClass = this.getBaselinePercentClass(percent);
+                    const percentDisplay = !this.state.colorCoding ? percent : 
+                        `<span class="baseline-percent ${percentClass}">${percent}%</span>`;
+                    baselineInfo = `<div style="font-size: 0.75rem; color: var(--text-tertiary);">${percentDisplay} of baseline</div>`;
+                }
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="visit-date">${date.toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: 'numeric'
+                        })}</div>
+                        ${baselineInfo}
+                        ${visit.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${visit.notes}</div>` : ''}
+                    </div>
+                    <div class="visit-values">
+                        <div class="visit-fev1">${visit.fev1.toFixed(2)} L</div>
+                        ${visit.fvc ? `<div class="visit-fvc">${visit.fvc.toFixed(2)} L</div>` : ''}
+                    </div>
+                `;
+                
+                visitsList.appendChild(card);
+            });
+        }
         
-        // Add connecting lines between dots
-        if (index > 0) {
-            const prevDot = container.lastChild;
-            if (prevDot) {
-                const line = document.createElement('div');
-                line.style.position = 'absolute';
-                line.style.left = `${prevDot.style.left}`;
-                line.style.top = '50%';
-                line.style.width = `${position - parseFloat(prevDot.style.left)}%`;
-                line.style.height = '2px';
-                line.style.backgroundColor = 'var(--border)';
-                line.style.zIndex = '0';
-                container.appendChild(line);
+        // ===== PROTOCOL MANAGEMENT =====
+        
+        updateProtocolUI() {
+            this.dom.monitorSlider.value = this.state.protocol.monitor;
+            this.dom.monitorInput.value = this.state.protocol.monitor;
+            this.dom.monitorValue.textContent = `${this.state.protocol.monitor}%`;
+            
+            this.dom.reviewSlider.value = this.state.protocol.review;
+            this.dom.reviewInput.value = this.state.protocol.review;
+            this.dom.reviewValue.textContent = `${this.state.protocol.review}%`;
+            
+            this.dom.stabilityVisits.value = this.state.protocol.stabilityVisits;
+            this.dom.stabilityThreshold.value = this.state.protocol.stabilityThreshold;
+        }
+        
+        resetProtocol() {
+            this.state.protocol = {
+                monitor: 10,
+                review: 20,
+                stabilityVisits: 4,
+                stabilityThreshold: 5
+            };
+            
+            this.updateProtocolUI();
+            this.showToast('Protocol reset to defaults', 'info');
+        }
+        
+        saveProtocol() {
+            this.state.protocol.monitor = parseInt(this.dom.monitorInput.value) || 10;
+            this.state.protocol.review = parseInt(this.dom.reviewInput.value) || 20;
+            this.state.protocol.stabilityVisits = parseInt(this.dom.stabilityVisits.value) || 4;
+            this.state.protocol.stabilityThreshold = parseInt(this.dom.stabilityThreshold.value) || 5;
+            
+            this.saveState();
+            this.hideModal('protocolModal');
+            
+            this.updateVisitsTable();
+            this.updateCalculateButton();
+            
+            this.showToast('Protocol settings saved', 'success');
+        }
+        
+        // ===== DUPLICATE DATE HANDLING =====
+        
+        showDuplicateDateModal() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            const existing = data.existingVisit;
+            const newVisit = data.newVisit;
+            
+            this.dom.duplicateDateMessage.textContent = 
+                `A visit already exists for ${data.date}.`;
+            this.dom.existingFev1.textContent = `${existing.fev1.toFixed(2)} L`;
+            this.dom.existingFvc.textContent = existing.fvc ? `${existing.fvc.toFixed(2)} L` : '--';
+            this.dom.newFev1.textContent = `${newVisit.fev1.toFixed(2)} L`;
+            this.dom.newFvc.textContent = newVisit.fvc ? `${newVisit.fvc.toFixed(2)} L` : '--';
+            
+            this.showModal('duplicateDateModal');
+        }
+        
+        handleDuplicateAddAsNew() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            // Add with modified date (add 1 day)
+            const originalDate = new Date(data.date);
+            originalDate.setDate(originalDate.getDate() + 1);
+            const newDate = originalDate.toISOString().split('T')[0];
+            
+            this.addVisitWithDate(newDate, data.newVisit);
+            this.hideModal('duplicateDateModal');
+        }
+        
+        handleDuplicateReplace() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            // Replace existing visit
+            this.addVisitWithDate(data.date, data.newVisit, true);
+            this.hideModal('duplicateDateModal');
+        }
+        
+        addVisitWithDate(date, visitData, replace = false) {
+            if (!this.state.currentPatient) return;
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            const visit = {
+                date,
+                fev1: visitData.fev1,
+                fvc: visitData.fvc,
+                notes: visitData.notes || '',
+                recordedAt: new Date().toISOString()
+            };
+            
+            if (replace) {
+                // Replace existing visit
+                const existingIndex = patient.visits.findIndex(v => v.date === date);
+                if (existingIndex !== -1) {
+                    patient.visits[existingIndex] = visit;
+                    this.showToast(`Visit replaced for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
+                }
+            } else {
+                // Add as new visit
+                patient.visits.push(visit);
+                this.showToast(`Visit added for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
+            }
+            
+            patient.updatedAt = new Date().toISOString();
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            // Update monitor session if active
+            const monitorIndex = this.state.session.monitor.visits.findIndex(v => v.date === date);
+            if (replace && monitorIndex !== -1) {
+                this.state.session.monitor.visits[monitorIndex] = visit;
+            } else if (!replace) {
+                this.state.session.monitor.visits.push(visit);
+            }
+            
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            this.updateCalculateButton();
+        }
+        
+        // ===== MODAL MANAGEMENT =====
+        
+        showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
         }
         
-        container.appendChild(dot);
-    });
-}
-
-updateCalculateButton() {
-    const visits = this.state.session.monitor.visits;
-    const stability = this.checkStability(visits);
-    
-    this.dom.calculateBaselineBtn.disabled = !stability.stable;
-    this.dom.calculateBaselineBtn.title = stability.stable 
-        ? 'Calculate baseline from stable period' 
-        : `Need ${this.state.protocol.stabilityVisits} stable visits`;
-    
-    // Update baseline ready badge
-    if (stability.stable) {
-        this.dom.baselineReadyBadge.classList.remove('hidden');
-    } else {
-        this.dom.baselineReadyBadge.classList.add('hidden');
-    }
-}
-
-calculateBaseline() {
-    const visits = this.state.session.monitor.visits;
-    const stability = this.checkStability(visits);
-    
-    if (!stability.stable) {
-        this.showToast(`Need ${this.state.protocol.stabilityVisits} stable visits`, 'error');
-        return;
-    }
-    
-    // Get the stable period visits
-    const lastVisits = visits.slice(-this.state.protocol.stabilityVisits);
-    const fev1Values = lastVisits.map(v => v.fev1);
-    
-    // Calculate suggested baseline (average of highest 2 values)
-    const sortedValues = [...fev1Values].sort((a, b) => b - a);
-    const topValues = sortedValues.slice(0, 2);
-    const suggestedBaseline = topValues.reduce((a, b) => a + b) / topValues.length;
-    
-    // Update modal content
-    this.dom.highestValuesList.innerHTML = topValues.map((value, index) => 
-        `<div>${index + 1}. ${value.toFixed(2)} L</div>`
-    ).join('');
-    
-    this.dom.calculatedBaseline.value = suggestedBaseline.toFixed(2);
-    
-    // Update audit trail
-    this.dom.stabilityCriteria.innerHTML = `
-        ✅ Stability criteria met: Last ${stability.visits} visits
-    `;
-    this.dom.stabilityVariation.innerHTML = `
-        📊 Variation: ${stability.variation}% (threshold: ${this.state.protocol.stabilityThreshold}%)
-    `;
-    this.dom.baselineRecommendation.innerHTML = `
-        💡 Recommended baseline: ${suggestedBaseline.toFixed(2)} L (average of highest 2 values)
-    `;
-    
-    this.showModal('baselineModal');
-}
-
-acceptBaseline() {
-    const baselineValue = parseFloat(this.dom.calculatedBaseline.value);
-    
-    if (!baselineValue || isNaN(baselineValue) || baselineValue < 0.5 || baselineValue > 8.0) {
-        this.showToast('Please enter a valid baseline value', 'error');
-        return;
-    }
-    
-    if (!this.state.currentPatient) {
-        this.showToast('No patient selected', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) {
-        this.showToast('Patient not found', 'error');
-        return;
-    }
-    
-    // Update patient baseline
-    patient.baselineFev1 = baselineValue;
-    patient.baselineDate = new Date().toISOString().split('T')[0];
-    patient.updatedAt = new Date().toISOString();
-    
-    this.state.patients.set(patient.id, patient);
-    this.saveState();
-    
-    this.hideModal('baselineModal');
-    this.updatePatientContext();
-    this.updateVisitsTable();
-    
-    this.showToast(`Baseline set to ${baselineValue.toFixed(2)} L for ${patient.id}`, 'success');
-}
-
-toggleVisualization() {
-    const isVisible = this.dom.visualizationSection.classList.toggle('visible');
-    
-    if (isVisible) {
-        this.dom.toggleVisualizationBtn.innerHTML = `<span>📉</span><span>Hide Charts</span>`;
-        this.updateChart();
-        this.updateTimelineVisualization(this.state.session.monitor.visits);
-    } else {
-        this.dom.toggleVisualizationBtn.innerHTML = `<span>📈</span><span>Show Charts</span>`;
-    }
-}
-
-clearMonitorData() {
-    if (this.state.session.monitor.visits.length === 0) {
-        this.showToast('No data to clear', 'info');
-        return;
-    }
-    
-    if (confirm('Clear all visits from the monitor table? This will not delete saved patient visits.')) {
-        this.state.session.monitor.visits = [];
-        this.updateVisitsTable();
-        this.updateCalculateButton();
-        this.dom.visualizationSection.classList.remove('visible');
-        this.dom.toggleVisualizationBtn.innerHTML = `<span>📈</span><span>Show Charts</span>`;
-        this.showToast('Monitor data cleared', 'success');
-    }
-}
-
-// ===== FULL STUDY MODE =====
-
-updateTimeline() {
-    const txDate = this.dom.txDate.value;
-    const baselineDate = this.dom.baselineDate.value;
-    
-    if (txDate && baselineDate) {
-        const tx = new Date(txDate);
-        const baseline = new Date(baselineDate);
-        
-        if (baseline < tx) {
-            this.showToast('Baseline date cannot be before transplant date', 'error');
-            this.dom.baselineDate.value = '';
-            return;
+        hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         }
         
-        const daysDiff = Math.floor((baseline - tx) / (1000 * 60 * 60 * 24));
-        if (daysDiff > 0) {
-            this.dom.stdTimePeriod.textContent = daysDiff;
+        // ===== EXPORT FUNCTIONS =====
+        
+        exportAllData() {
+            if (this.state.patients.size === 0) {
+                this.showToast('No patient data to export', 'warning');
+                return;
+            }
+            
+            const data = {
+                version: 'PulmoMetrics Pro v5.0',
+                exportedAt: new Date().toISOString(),
+                patients: Array.from(this.state.patients.values()),
+                protocol: this.state.protocol,
+                settings: {
+                    colorCoding: this.state.colorCoding,
+                    percentageView: this.state.percentageView
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pulmometrics_pro_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('All data exported as JSON', 'success');
+        }
+        
+        exportMonitorPDF() {
+            if (this.state.session.monitor.visits.length === 0) {
+                this.showToast('No visits to export', 'warning');
+                return;
+            }
+            
+            // Create PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const patientId = this.state.currentPatient || 'Unknown';
+            const patient = this.state.patients.get(this.state.currentPatient);
+            
+            // Add header
+            doc.setFontSize(20);
+            doc.text('PulmoMetrics Pro Report', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Patient: ${patientId}`, 20, 30);
+            if (patient && patient.txDate) {
+                doc.text(`Transplant Date: ${new Date(patient.txDate).toLocaleDateString()}`, 20, 37);
+            }
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 44);
+            
+            // Add visits table
+            const visits = [...this.state.session.monitor.visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const tableData = visits.map((visit, index) => {
+                const prevVisit = index > 0 ? visits[index - 1] : null;
+                const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1).toFixed(2) : '--';
+                const baselineDelta = patient && patient.baselineFev1 ? (visit.fev1 - patient.baselineFev1).toFixed(2) : '--';
+                const baselinePercent = patient && patient.baselineFev1 ? ((visit.fev1 / patient.baselineFev1) * 100).toFixed(1) : '--';
+                
+                return [
+                    new Date(visit.date).toLocaleDateString(),
+                    visit.fev1.toFixed(2),
+                    baselinePercent + '%',
+                    visit.fvc ? visit.fvc.toFixed(2) : '--',
+                    visit.fvc ? ((visit.fev1 / visit.fvc) * 100).toFixed(1) + '%' : '--',
+                    visitDelta,
+                    baselineDelta,
+                    visit.notes || ''
+                ];
+            });
+            
+            doc.autoTable({
+                head: [['Date', 'FEV₁ (L)', '% of PB', 'FVC', 'Ratio', 'Δ Visit', 'Δ Baseline', 'Notes']],
+                body: tableData,
+                startY: 50,
+                theme: 'grid',
+                headStyles: { fillColor: [26, 95, 122] },
+                alternateRowStyles: { fillColor: [240, 240, 240] }
+            });
+            
+            // Save the PDF
+            doc.save(`pulmometrics_${patientId}_${new Date().toISOString().split('T')[0]}.pdf`);
+            this.showToast('PDF exported successfully', 'success');
+        }
+        
+        exportPatientPDF() {
+            if (!this.state.currentPatient) {
+                this.showToast('No patient selected', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || patient.visits.length === 0) {
+                this.showToast('No patient data to export', 'warning');
+                return;
+            }
+            
+            // Create PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add header
+            doc.setFontSize(20);
+            doc.text('PulmoMetrics Pro Patient Report', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Patient ID: ${patient.id}`, 20, 30);
+            if (patient.description) {
+                doc.text(`Description: ${patient.description}`, 20, 37);
+            }
+            if (patient.txDate) {
+                doc.text(`Transplant Date: ${new Date(patient.txDate).toLocaleDateString()}`, 20, 44);
+            }
+            if (patient.baselineFev1) {
+                doc.text(`Baseline FEV₁: ${patient.baselineFev1.toFixed(2)} L`, 20, 51);
+            }
+            doc.text(`Total Visits: ${patient.visits.length}`, 20, 58);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 65);
+            
+            // Add summary statistics
+            const lastVisit = patient.visits[patient.visits.length - 1];
+            const bestFev1 = Math.max(...patient.visits.map(v => v.fev1));
+            const stability = this.checkStability(patient.visits);
+            
+            let startY = 75;
+            doc.text('Summary Statistics:', 20, startY);
+            startY += 7;
+            doc.text(`Last FEV₁: ${lastVisit.fev1.toFixed(2)} L`, 25, startY);
+            startY += 7;
+            doc.text(`Best FEV₁: ${bestFev1.toFixed(2)} L`, 25, startY);
+            startY += 7;
+            if (patient.baselineFev1) {
+                const currentPercent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                doc.text(`Current % of Baseline: ${currentPercent}%`, 25, startY);
+                startY += 7;
+            }
+            doc.text(`Stability: ${stability.stable ? 'Stable' : 'Monitoring'}`, 25, startY);
+            startY += 10;
+            
+            // Add visits table
+            const sortedVisits = [...patient.visits].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+            const tableData = sortedVisits.map(visit => {
+                const baselinePercent = patient.baselineFev1 ? ((visit.fev1 / patient.baselineFev1) * 100).toFixed(1) : '--';
+                return [
+                    new Date(visit.date).toLocaleDateString(),
+                    visit.fev1.toFixed(2),
+                    baselinePercent + '%',
+                    visit.fvc ? visit.fvc.toFixed(2) : '--',
+                    visit.notes.substring(0, 30) + (visit.notes.length > 30 ? '...' : '')
+                ];
+            });
+            
+            doc.autoTable({
+                head: [['Date', 'FEV₁ (L)', '% of PB', 'FVC', 'Notes']],
+                body: tableData,
+                startY: startY,
+                theme: 'grid',
+                headStyles: { fillColor: [26, 95, 122] },
+                alternateRowStyles: { fillColor: [240, 240, 240] }
+            });
+            
+            // Save the PDF
+            doc.save(`patient_${patient.id}_report_${new Date().toISOString().split('T')[0]}.pdf`);
+            this.showToast('Patient PDF exported successfully', 'success');
+        }
+        
+        // ===== TOAST NOTIFICATIONS =====
+        
+        showToast(message, type = 'info', duration = 3000) {
+            const toastContainer = this.dom.toastContainer;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${type === 'success' ? '✓' : type === 'error' ? '✗' : type === 'warning' ? '⚠' : 'ℹ'}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Remove toast after duration
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+        
+        // ===== UTILITY FUNCTIONS =====
+        
+        getBaselinePercentClass(percent) {
+            if (!this.state.colorCoding || percent === null) return 'neutral';
+            if (percent >= 95) return 'good';
+            if (percent >= 80) return 'warning';
+            return 'alert';
         }
     }
-}
-
-handleFullInput() {
-    const fev1 = parseFloat(this.dom.stdFev1.value);
-    const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
     
-    if (isNaN(fev1) || isNaN(baselineFev1)) {
-        this.dom.stdResultsPanel.classList.remove('visible');
-        return;
-    }
-    
-    this.state.session.full.fev1 = fev1;
-    this.state.session.full.baselineFev1 = baselineFev1;
-    
-    this.calculateFullStudy();
-}
-
-calculateFullStudy() {
-    const fev1 = this.state.session.full.fev1;
-    const baselineFev1 = this.state.session.full.baselineFev1;
-    const txDate = this.dom.txDate.value;
-    const baselineDate = this.dom.baselineDate.value;
-    
-    if (!fev1 || !baselineFev1 || !txDate || !baselineDate) {
-        this.dom.stdResultsPanel.classList.remove('visible');
-        return;
-    }
-    
-    // Calculate time period
-    const tx = new Date(txDate);
-    const baseline = new Date(baselineDate);
-    const currentDate = new Date();
-    
-    const daysFromTx = Math.floor((currentDate - tx) / (1000 * 60 * 60 * 24));
-    const daysFromBaseline = Math.floor((currentDate - baseline) / (1000 * 60 * 60 * 24));
-    const monthsFromBaseline = daysFromBaseline / 30.44;
-    
-    // Calculate metrics
-    const delta = fev1 - baselineFev1;
-    const percentDecline = ((baselineFev1 - fev1) / baselineFev1) * 100;
-    const monthlyRate = monthsFromBaseline > 0 ? (fev1 - baselineFev1) / monthsFromBaseline : 0;
-    
-    // Update UI
-    this.dom.stdCurrentFev1.textContent = fev1.toFixed(2);
-    this.dom.stdCurrentPercent.textContent = `${(fev1 / baselineFev1 * 100).toFixed(1)}%`;
-    this.dom.stdCurrentPercent.className = `percent-display ${this.getPercentCategory(fev1 / baselineFev1 * 100)}`;
-    this.dom.stdBaseline.textContent = baselineFev1.toFixed(2);
-    this.dom.stdTimePeriod.textContent = daysFromBaseline;
-    
-    this.dom.stdComparisonSubtitle.textContent = 
-        `${baseline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-    
-    this.dom.stdCumulativeDelta.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)}`;
-    this.dom.stdCumulativeDelta.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (delta >= 0 ? 'positive' : 'negative')}`;
-    
-    this.dom.stdPercentDecline.textContent = `${percentDecline.toFixed(1)}%`;
-    this.dom.stdPercentDecline.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (percentDecline <= 10 ? 'positive' : (percentDecline <= 20 ? 'neutral' : 'negative'))}`;
-    
-    this.dom.stdMonthlyRate.textContent = `${monthlyRate >= 0 ? '+' : ''}${monthlyRate.toFixed(3)}`;
-    this.dom.stdMonthlyRate.className = `metric-value ${!this.state.colorCoding ? 'neutral' : (monthlyRate >= 0 ? 'positive' : 'negative')}`;
-    this.dom.stdRateArrow.textContent = monthlyRate > 0 ? '↗' : (monthlyRate < 0 ? '↘' : '→');
-    
-    // Update protocol note
-    let note = '<strong>Note:</strong> ';
-    if (percentDecline <= 10) {
-        note += 'Minimal decline (<10%). Continue routine monitoring.';
-    } else if (percentDecline <= 20) {
-        note += 'Moderate decline (10-20%). Consider additional testing.';
-    } else {
-        note += 'Significant decline (>20%). Urgent clinical review recommended.';
-    }
-    this.dom.stdProtocolNote.innerHTML = note;
-    
-    // Update timestamp
-    const now = new Date();
-    this.dom.stdResultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
+    // Initialize the application when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        // Create and initialize the app
+        window.pulmoMetricsApp = new PulmoMetricsPro();
+        
+        // Set current date as default for date inputs
+        const today = new Date().toISOString().split('T')[0];
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            if (!input.value) {
+                input.value = today;
+                input.max = today;
+            }
+        });
     });
     
-    this.dom.stdResultsPanel.classList.add('visible');
-}
-
-getPercentCategory(percent) {
-    if (!this.state.colorCoding) return 'neutral';
-    if (percent >= 90) return 'good';
-    if (percent >= 80) return 'warning';
-    return 'alert';
-}
-
-clearFullStudy() {
-    this.dom.txDate.value = '';
-    this.dom.baselineDate.value = '';
-    this.dom.stdFev1.value = '';
-    this.dom.stdBaselineFev1.value = '';
-    this.dom.clinicalNotes.value = '';
-    this.dom.stdResultsPanel.classList.remove('visible');
-    
-    this.state.session.full.txDate = null;
-    this.state.session.full.baselineDate = null;
-    this.state.session.full.fev1 = null;
-    this.state.session.full.baselineFev1 = null;
-    this.state.session.full.notes = '';
-    
-    this.showToast('Full study cleared', 'info');
-}
-
-saveFullStudy() {
-    const txDate = this.dom.txDate.value;
-    const baselineDate = this.dom.baselineDate.value;
-    const fev1 = parseFloat(this.dom.stdFev1.value);
-    const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
-    const notes = this.dom.clinicalNotes.value.trim();
-    
-    if (!txDate || !baselineDate || !fev1 || !baselineFev1) {
-        this.showToast('Please complete all required fields', 'error');
-        return;
-    }
-    
-    if (!this.state.currentPatient) {
-        this.showToast('Please select a patient first', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) {
-        this.showToast('Patient not found', 'error');
-        return;
-    }
-    
-    // Update patient information
-    patient.txDate = txDate;
-    patient.baselineDate = baselineDate;
-    patient.baselineFev1 = baselineFev1;
-    patient.updatedAt = new Date().toISOString();
-    
-    // Add as a visit if not already present
-    const today = new Date().toISOString().split('T')[0];
-    const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
-    
-    if (existingVisitIndex === -1) {
-        patient.visits.push({
-            date: today,
-            fev1,
-            fvc: null,
-            notes,
-            recordedAt: new Date().toISOString()
+    // Handle service worker registration for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(registration => {
+                console.log('ServiceWorker registration successful');
+            }).catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
         });
     }
     
-    this.state.patients.set(patient.id, patient);
-    this.saveState();
-    
-    this.updatePatientContext();
-    this.showToast(`Full study saved for ${patient.id}`, 'success');
-}
-
-// ===== REVIEW MODE =====
-
-updateReviewMode() {
-    if (!this.state.currentPatient) {
-        this.showNoDataState();
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient || patient.visits.length === 0) {
-        this.showNoDataState();
-        return;
-    }
-    
-    // Update patient status
-    this.updatePatientStatus(patient);
-    
-    // Update summary metrics
-    this.updateReviewSummary(patient);
-    
-    // Update visits list
-    this.updateReviewVisitsList(patient);
-}
-
-showNoDataState() {
-    this.dom.patientStatusDot.className = 'patient-status-dot';
-    this.dom.patientStatusText.textContent = 'No data';
-    this.dom.reviewStabilityIndicator.innerHTML = '';
-    this.dom.lastUpdatedDate.textContent = '--';
-    
-    this.dom.reviewTxDays.textContent = '--';
-    this.dom.reviewVisits.textContent = '--';
-    this.dom.reviewLastFev1.textContent = '--';
-    this.dom.reviewBestFev1.textContent = '--';
-    
-    this.dom.visitsList.innerHTML = `
-        <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
-            <p>No visit history available</p>
-            <p class="notes-hint mt-2">Start by entering measurements in Quick Calc mode</p>
-        </div>
-    `;
-}
-
-updatePatientStatus(patient) {
-    const lastVisit = patient.visits[patient.visits.length - 1];
-    const stability = this.checkStability(patient.visits);
-    
-    let status = 'unknown';
-    let statusText = 'No baseline';
-    let statusClass = '';
-    
-    if (patient.baselineFev1) {
-        const percent = (lastVisit.fev1 / patient.baselineFev1) * 100;
+    // Handle beforeunload to warn about unsaved data
+    window.addEventListener('beforeunload', (e) => {
+        const hasUnsavedData = window.pulmoMetricsApp && 
+            (window.pulmoMetricsApp.state.session.monitor.visits.length > 0 ||
+             window.pulmoMetricsApp.state.session.quick.fev1 !== null ||
+             window.pulmoMetricsApp.state.session.full.fev1 !== null);
         
-        if (percent >= 90) {
-            status = 'good';
-            statusText = 'Good function';
-            statusClass = 'good';
-        } else if (percent >= 80) {
-            status = 'warning';
-            statusText = 'Monitor closely';
-            statusClass = 'warning';
-        } else {
-            status = 'alert';
-            statusText = 'Review needed';
-            statusClass = 'alert';
-        }
-        
-        if (stability.stable) {
-            status = 'stable';
-            statusText = 'Stable function';
-            statusClass = 'stable';
-        }
-    }
-    
-    this.dom.patientStatusDot.className = `patient-status-dot ${statusClass}`;
-    this.dom.patientStatusText.textContent = statusText;
-    
-    if (stability.stable) {
-        this.dom.reviewStabilityIndicator.innerHTML = `<span class="stability-indicator stable">✓ Stable</span>`;
-    } else {
-        this.dom.reviewStabilityIndicator.innerHTML = '';
-    }
-    
-    // Update last updated date
-    const lastDate = new Date(lastVisit.date);
-    this.dom.lastUpdatedDate.textContent = lastDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-    });
-}
-
-updateReviewSummary(patient) {
-    // Calculate days post-transplant
-    let txDays = '--';
-    if (patient.txDate) {
-        const tx = new Date(patient.txDate);
-        const today = new Date();
-        txDays = Math.floor((today - tx) / (1000 * 60 * 60 * 24));
-    }
-    
-    // Get last and best FEV1
-    const lastFev1 = patient.visits[patient.visits.length - 1].fev1;
-    const bestFev1 = Math.max(...patient.visits.map(v => v.fev1));
-    
-    this.dom.reviewTxDays.textContent = txDays;
-    this.dom.reviewVisits.textContent = patient.visits.length;
-    this.dom.reviewLastFev1.textContent = lastFev1.toFixed(2);
-    this.dom.reviewBestFev1.textContent = bestFev1.toFixed(2);
-}
-
-updateReviewVisitsList(patient) {
-    const visitsList = this.dom.visitsList;
-    visitsList.innerHTML = '';
-    
-    // Sort visits by date (newest first)
-    const sortedVisits = [...patient.visits].sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    sortedVisits.forEach(visit => {
-        const date = new Date(visit.date);
-        const card = document.createElement('div');
-        card.className = 'visit-card';
-        
-        let baselineInfo = '';
-        if (patient.baselineFev1) {
-            const percent = (visit.fev1 / patient.baselineFev1 * 100).toFixed(1);
-            baselineInfo = `<div style="font-size: 0.75rem; color: var(--text-tertiary);">${percent}% of baseline</div>`;
-        }
-        
-        card.innerHTML = `
-            <div>
-                <div class="visit-date">${date.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                })}</div>
-                ${baselineInfo}
-                ${visit.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${visit.notes}</div>` : ''}
-            </div>
-            <div class="visit-values">
-                <div class="visit-fev1">${visit.fev1.toFixed(2)} L</div>
-                ${visit.fvc ? `<div class="visit-fvc">${visit.fvc.toFixed(2)} L</div>` : ''}
-            </div>
-        `;
-        
-        visitsList.appendChild(card);
-    });
-}
-
-// ===== PROTOCOL MANAGEMENT =====
-
-updateProtocolUI() {
-    this.dom.monitorSlider.value = this.state.protocol.monitor;
-    this.dom.monitorInput.value = this.state.protocol.monitor;
-    this.dom.monitorValue.textContent = `${this.state.protocol.monitor}%`;
-    
-    this.dom.reviewSlider.value = this.state.protocol.review;
-    this.dom.reviewInput.value = this.state.protocol.review;
-    this.dom.reviewValue.textContent = `${this.state.protocol.review}%`;
-    
-    this.dom.stabilityVisits.value = this.state.protocol.stabilityVisits;
-    this.dom.stabilityThreshold.value = this.state.protocol.stabilityThreshold;
-}
-
-resetProtocol() {
-    this.state.protocol = {
-        monitor: 10,
-        review: 20,
-        stabilityVisits: 4,
-        stabilityThreshold: 5
-    };
-    
-    this.updateProtocolUI();
-    this.showToast('Protocol reset to defaults', 'info');
-}
-
-saveProtocol() {
-    this.state.protocol.monitor = parseInt(this.dom.monitorInput.value) || 10;
-    this.state.protocol.review = parseInt(this.dom.reviewInput.value) || 20;
-    this.state.protocol.stabilityVisits = parseInt(this.dom.stabilityVisits.value) || 4;
-    this.state.protocol.stabilityThreshold = parseInt(this.dom.stabilityThreshold.value) || 5;
-    
-    this.saveState();
-    this.hideModal('protocolModal');
-    
-    this.updateVisitsTable();
-    this.updateCalculateButton();
-    
-    this.showToast('Protocol settings saved', 'success');
-}
-
-// ===== DUPLICATE DATE HANDLING =====
-
-showDuplicateDateModal() {
-    const data = this.state.session.duplicateDateData;
-    if (!data) return;
-    
-    const existing = data.existingVisit;
-    const newVisit = data.newVisit;
-    
-    this.dom.duplicateDateMessage.textContent = 
-        `A visit already exists for ${data.date}.`;
-    this.dom.existingFev1.textContent = `${existing.fev1.toFixed(2)} L`;
-    this.dom.existingFvc.textContent = existing.fvc ? `${existing.fvc.toFixed(2)} L` : '--';
-    this.dom.newFev1.textContent = `${newVisit.fev1.toFixed(2)} L`;
-    this.dom.newFvc.textContent = newVisit.fvc ? `${newVisit.fvc.toFixed(2)} L` : '--';
-    
-    this.showModal('duplicateDateModal');
-}
-
-handleDuplicateAddAsNew() {
-    const data = this.state.session.duplicateDateData;
-    if (!data) return;
-    
-    // Add with modified date (add 1 day)
-    const originalDate = new Date(data.date);
-    originalDate.setDate(originalDate.getDate() + 1);
-    const newDate = originalDate.toISOString().split('T')[0];
-    
-    this.addVisitWithDate(newDate, data.newVisit);
-    this.hideModal('duplicateDateModal');
-}
-
-handleDuplicateReplace() {
-    const data = this.state.session.duplicateDateData;
-    if (!data) return;
-    
-    // Replace existing visit
-    this.addVisitWithDate(data.date, data.newVisit, true);
-    this.hideModal('duplicateDateModal');
-}
-
-addVisitWithDate(date, visitData, replace = false) {
-    if (!this.state.currentPatient) return;
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient) return;
-    
-    const visit = {
-        date,
-        fev1: visitData.fev1,
-        fvc: visitData.fvc,
-        notes: visitData.notes || '',
-        recordedAt: new Date().toISOString()
-    };
-    
-    if (replace) {
-        // Replace existing visit
-        const existingIndex = patient.visits.findIndex(v => v.date === date);
-        if (existingIndex !== -1) {
-            patient.visits[existingIndex] = visit;
-            this.showToast(`Visit replaced for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
-        }
-    } else {
-        // Add as new visit
-        patient.visits.push(visit);
-        this.showToast(`Visit added for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
-    }
-    
-    patient.updatedAt = new Date().toISOString();
-    this.state.patients.set(patient.id, patient);
-    this.saveState();
-    
-    // Update monitor session if active
-    const monitorIndex = this.state.session.monitor.visits.findIndex(v => v.date === date);
-    if (replace && monitorIndex !== -1) {
-        this.state.session.monitor.visits[monitorIndex] = visit;
-    } else if (!replace) {
-        this.state.session.monitor.visits.push(visit);
-    }
-    
-    this.updatePatientContext();
-    this.updateVisitsTable();
-    this.updateCalculateButton();
-}
-
-// ===== MODAL MANAGEMENT =====
-
-showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// ===== EXPORT FUNCTIONS =====
-
-exportAllData() {
-    if (this.state.patients.size === 0) {
-        this.showToast('No patient data to export', 'warning');
-        return;
-    }
-    
-    const data = {
-        version: 'PulmoMetrics Pro v4.0',
-        exportedAt: new Date().toISOString(),
-        patients: Array.from(this.state.patients.values()),
-        protocol: this.state.protocol,
-        settings: {
-            colorCoding: this.state.colorCoding,
-            percentageView: this.state.percentageView
-        }
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pulmometrics_pro_export_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    this.showToast('All data exported as JSON', 'success');
-}
-
-exportMonitorPDF() {
-    if (this.state.session.monitor.visits.length === 0) {
-        this.showToast('No visits to export', 'warning');
-        return;
-    }
-    
-    this.showToast('PDF export would be implemented with jsPDF', 'info');
-}
-
-exportPatientPDF() {
-    if (!this.state.currentPatient) {
-        this.showToast('No patient selected', 'error');
-        return;
-    }
-    
-    const patient = this.state.patients.get(this.state.currentPatient);
-    if (!patient || patient.visits.length === 0) {
-        this.showToast('No patient data to export', 'warning');
-        return;
-    }
-    
-    this.showToast('Patient PDF export would be implemented with jsPDF', 'info');
-}
-
-// ===== TOAST NOTIFICATIONS =====
-
-showToast(message, type = 'info', duration = 3000) {
-    const toastContainer = this.dom.toastContainer;
-    
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <div class="toast-icon">
-            ${type === 'success' ? '✓' : type === 'error' ? '✗' : type === 'warning' ? '⚠' : 'ℹ'}
-        </div>
-        <div class="toast-content">
-            <div class="toast-message">${message}</div>
-        </div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Remove toast after duration
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(20px)';
-        setTimeout(() => {
-            toastContainer.removeChild(toast);
-        }, 300);
-    }, duration);
-}
-
-// ===== UTILITY FUNCTIONS =====
-
-getPercentCategory(percent) {
-    if (!this.state.colorCoding) return 'neutral';
-    if (percent >= 90) return 'good';
-    if (percent >= 80) return 'warning';
-    return 'alert';
-}
-
-// ===== INITIALIZATION =====
-
-// Initialize the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Create and initialize the app
-    window.pulmoMetricsApp = new PulmoMetricsPro();
-    
-    // Set current date as default for date inputs
-    const today = new Date().toISOString().split('T')[0];
-    const dateInputs = document.querySelectorAll('input[type="date"]');
-    dateInputs.forEach(input => {
-        if (!input.value) {
-            input.value = today;
+        if (hasUnsavedData) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved data. Are you sure you want to leave?';
+            return 'You have unsaved data. Are you sure you want to leave?';
         }
     });
     
-    // Set default protocol thresholds in modal
-    const protocolModal = document.getElementById('protocolModal');
-    if (protocolModal) {
-        const monitorInput = protocolModal.querySelector('#monitorInput');
-        const reviewInput = protocolModal.querySelector('#reviewInput');
-        if (monitorInput) monitorInput.value = 10;
-        if (reviewInput) reviewInput.value = 20;
-    }
-});
-
-// Handle service worker registration for PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then(registration => {
-            console.log('ServiceWorker registration successful');
-        }).catch(err => {
-            console.log('ServiceWorker registration failed: ', err);
-        });
-    });
-}
-
-// Handle beforeunload to warn about unsaved data
-window.addEventListener('beforeunload', (e) => {
-    const hasUnsavedData = window.pulmoMetricsApp && 
-        (window.pulmoMetricsApp.state.session.monitor.visits.length > 0 ||
-         window.pulmoMetricsApp.state.session.quick.fev1 !== null ||
-         window.pulmoMetricsApp.state.session.full.fev1 !== null);
+    // Make the app globally accessible
+    window.PulmoMetricsPro = PulmoMetricsPro;
     
-    if (hasUnsavedData) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved data. Are you sure you want to leave?';
-        return 'You have unsaved data. Are you sure you want to leave?';
-    }
-});
-
-// Add CSS for protocol settings modal (not included in main CSS)
-const protocolModalCSS = `
-.protocol-settings {
-    padding: var(--space-1);
-}
-
-.threshold-setting {
-    margin-bottom: var(--space-4);
-    padding: var(--space-3);
-    background: var(--background);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-}
-
-.threshold-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-2);
-}
-
-.threshold-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.threshold-level {
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    font-size: 0.6875rem;
-    font-weight: 600;
-}
-
-.threshold-level.monitor {
-    background: var(--warning-light);
-    color: var(--warning);
-}
-
-.threshold-level.review {
-    background: var(--alert-light);
-    color: var(--alert);
-}
-
-.threshold-value {
-    font-family: var(--font-family-mono);
-    font-weight: 700;
-    color: var(--primary);
-    font-size: 1rem;
-}
-
-.threshold-input-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-}
-
-.threshold-slider {
-    flex: 1;
-    height: 6px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: var(--border);
-    border-radius: var(--radius-full);
-    outline: none;
-}
-
-.threshold-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid var(--surface);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.threshold-input {
-    width: 60px;
-    padding: var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    font-family: var(--font-family-mono);
-    font-size: 0.875rem;
-    text-align: center;
-    background: var(--surface);
-    color: var(--text-primary);
-}
-
-.threshold-percent {
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.threshold-description {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    line-height: 1.4;
-}
-`;
-
-// Add the CSS to the document
-const style = document.createElement('style');
-style.textContent = protocolModalCSS;
-document.head.appendChild(style);
-
-// Make the app globally accessible
-window.PulmoMetricsPro = PulmoMetricsPro;
-
-// End of PulmoMetrics Pro v4.0 JavaScript
-</script>
+    // End of PulmoMetrics Pro v5.0 JavaScript
+    </script>
 </body>
 </html>
-        
