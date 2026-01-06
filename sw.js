@@ -1,31 +1,31 @@
-// sw.js - Service Worker for Spirolite PWA
-const CACHE_NAME = 'spirolite-v1.0.0';
+// Service Worker for Spirolite PWA
+const CACHE_NAME = 'spirolite-v1.1';
 const urlsToCache = [
   './',
   './index.html',
-  './icons.js',
   './manifest.json',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js'
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install event - cache essential files
 self.addEventListener('install', event => {
-  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .catch(error => {
+        console.error('Cache installation failed:', error);
+      })
   );
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
-  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -36,40 +36,13 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fall back to network
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests and chrome-extension requests
-  if (event.request.method !== 'GET' || 
-      event.request.url.startsWith('chrome-extension://')) {
-    return;
-  }
-  
-  // Skip third-party CDN requests for Chart.js and jsPDF
-  if (event.request.url.includes('cdn.jsdelivr.net') || 
-      event.request.url.includes('cdnjs.cloudflare.com')) {
-    // Network-first for CDN resources
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Cache the response for future use
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => cache.put(event.request, responseToCache));
-          return response;
-        })
-        .catch(() => {
-          // If network fails, try cache
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-  
-  // For local resources, cache-first strategy
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -78,58 +51,60 @@ self.addEventListener('fetch', event => {
           return response;
         }
         
-        // Otherwise fetch from network
-        return fetch(event.request)
-          .then(response => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clone the response
-            const responseToCache = response.clone();
-            
-            // Cache the new resource
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-            
+        // Clone the request
+        const fetchRequest = event.request.clone();
+        
+        // Make network request
+        return fetch(fetchRequest).then(response => {
+          // Check if valid response
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
-          });
-      })
-      .catch(error => {
-        console.error('Fetch failed:', error);
-        // For navigation requests, return offline page
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-        return new Response('Network error occurred', {
-          status: 408,
-          headers: { 'Content-Type': 'text/plain' }
+          }
+          
+          // Clone the response
+          const responseToCache = response.clone();
+          
+          // Cache the new resource
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          
+          return response;
+        }).catch(() => {
+          // If offline and not cached, show offline page
+          if (event.request.mode === 'navigate') {
+            return caches.match('./');
+          }
         });
       })
   );
 });
 
-// Background sync for offline data (future enhancement)
+// Background sync for offline data
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-visits') {
-    console.log('Background sync for visits');
-    // Could sync data when online
+    event.waitUntil(syncVisits());
   }
 });
 
-// Push notifications (future enhancement)
+// Periodic sync for data updates
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'update-data') {
+    event.waitUntil(updateData());
+  }
+});
+
+// Handle push notifications
 self.addEventListener('push', event => {
   const options = {
-    body: event.data ? event.data.text() : 'Spirolite Notification',
+    body: event.data ? event.data.text() : 'New data available',
     icon: 'icon-192.png',
     badge: 'icon-192.png',
-    vibrate: [100, 50, 100],
+    vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: 'spirolite-update'
     },
     actions: [
       {
@@ -157,3 +132,14 @@ self.addEventListener('notificationclick', event => {
     );
   }
 });
+
+// Background sync functions
+async function syncVisits() {
+  // Implement your background sync logic here
+  console.log('Syncing visits data...');
+}
+
+async function updateData() {
+  // Implement periodic update logic here
+  console.log('Updating app data...');
+}
