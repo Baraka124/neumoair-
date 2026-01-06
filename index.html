@@ -4796,21 +4796,1974 @@ Example:
             this.showToast('Professional PDF report exported', 'success');
         }
         
-        // ===== CORE FUNCTIONALITY (REST OF METHODS) =====
-        // Note: The rest of the methods (calculateQuick, addVisit, updateVisitsTable, etc.)
-        // would be included here following the same pattern as the original code.
-        // For brevity, I'm showing the structure and key improvements.
+                // ===== QUICK CALCULATION MODE =====
         
-        // Key improvements in remaining methods:
-        // 1. All data saved to patient object first, then synced to session
-        // 2. Proper medical data validation
-        // 3. Enhanced error handling
-        // 4. Unsaved changes tracking
-        // 5. Professional PDF exports
+        handleQuickInput() {
+            const fev1 = parseFloat(this.dom.inputFev1.value);
+            const fvc = this.dom.inputFvc.value ? parseFloat(this.dom.inputFvc.value) : null;
+            
+            // Medical validation
+            const validationErrors = this.validateMedicalData(fev1, fvc);
+            if (validationErrors.length > 0 && fev1) {
+                this.showToast(validationErrors[0], 'warning');
+            }
+            
+            if (isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
+                this.state.session.quick.fev1 = null;
+                this.state.session.quick.fvc = null;
+                this.dom.resultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.quick.fev1 = fev1;
+            this.state.session.quick.fvc = fvc;
+            
+            this.calculateQuick();
+        }
         
-        // The complete implementation would continue here with all the original
-        // methods updated to use the improved data flow and validation.
+        handleComparisonSelection(e) {
+            const radio = e.currentTarget.querySelector('.option-radio');
+            radio.checked = true;
+            
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            e.currentTarget.classList.add('selected');
+            
+            this.state.session.quick.comparison = radio.value;
+            
+            this.handleComparisonChange();
+        }
         
+        handleComparisonChange() {
+            if (this.state.session.quick.comparison === 'baseline') {
+                const enteredBaseline = parseFloat(this.dom.baselineInput.value);
+                
+                if (enteredBaseline && enteredBaseline > 0) {
+                    this.state.session.quick.baseline = enteredBaseline;
+                    this.state.session.quick.baselineSource = 'entered';
+                    
+                    // Check for baseline conflict if patient is selected
+                    if (this.state.currentPatient) {
+                        const patient = this.state.patients.get(this.state.currentPatient);
+                        if (patient && patient.baselineFev1 && 
+                            Math.abs(patient.baselineFev1 - enteredBaseline) > 0.01) {
+                            this.showBaselineConflictModal(patient.baselineFev1, enteredBaseline);
+                            return;
+                        }
+                    }
+                } else {
+                    this.state.session.quick.baseline = null;
+                    this.state.session.quick.baselineSource = null;
+                }
+            } else {
+                this.state.session.quick.baseline = null;
+                this.state.session.quick.baselineSource = null;
+            }
+            
+            if (this.state.session.quick.fev1) {
+                this.calculateQuick();
+            }
+        }
+        
+        showBaselineConflictModal(patientBaseline, enteredBaseline) {
+            this.state.session.baselineConflictData = {
+                patientBaseline,
+                enteredBaseline
+            };
+            
+            this.dom.patientBaselineValue.textContent = `${patientBaseline.toFixed(2)} L`;
+            this.dom.enteredBaselineValue.textContent = `${enteredBaseline.toFixed(2)} L`;
+            
+            this.showModal('baselineConflictModal');
+        }
+        
+        handleBaselineConflict(choice) {
+            const data = this.state.session.baselineConflictData;
+            if (!data) return;
+            
+            switch(choice) {
+                case 'patient':
+                    this.state.session.quick.baseline = data.patientBaseline;
+                    this.state.session.quick.baselineSource = 'patient';
+                    this.dom.baselineInput.value = data.patientBaseline;
+                    break;
+                    
+                case 'entered':
+                    this.state.session.quick.baseline = data.enteredBaseline;
+                    this.state.session.quick.baselineSource = 'entered';
+                    break;
+                    
+                case 'update':
+                    this.state.session.quick.baseline = data.enteredBaseline;
+                    this.state.session.quick.baselineSource = 'entered';
+                    // Update patient baseline
+                    if (this.state.currentPatient) {
+                        const patient = this.state.patients.get(this.state.currentPatient);
+                        if (patient) {
+                            const previousBaseline = patient.baselineFev1;
+                            patient.baselineFev1 = data.enteredBaseline;
+                            patient.baselineDate = new Date().toISOString().split('T')[0];
+                            
+                            patient.baselineHistory.push({
+                                value: data.enteredBaseline,
+                                date: patient.baselineDate,
+                                method: 'quick_calc_update',
+                                previousValue: previousBaseline,
+                                recordedAt: new Date().toISOString(),
+                                notes: 'Updated from quick calculation'
+                            });
+                            
+                            patient.updatedAt = new Date().toISOString();
+                            this.state.patients.set(patient.id, patient);
+                            this.saveState();
+                            
+                            this.updatePatientContext();
+                            this.showToast('Patient baseline updated', 'success');
+                        }
+                    }
+                    break;
+            }
+            
+            this.hideModal('baselineConflictModal');
+            
+            if (this.state.session.quick.fev1) {
+                this.calculateQuick();
+            }
+        }
+        
+        calculateQuick() {
+            if (!this.state.session.quick.fev1) {
+                this.dom.resultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            const fev1 = this.state.session.quick.fev1;
+            const fvc = this.state.session.quick.fvc;
+            const comparison = this.state.session.quick.comparison;
+            const baseline = this.state.session.quick.baseline;
+            const baselineSource = this.state.session.quick.baselineSource;
+            
+            // Update basic results
+            this.dom.resultFev1Liters.textContent = fev1.toFixed(2);
+            this.dom.resultFvc.textContent = fvc ? fvc.toFixed(2) : '--';
+            
+            // Calculate ratio if FVC is provided
+            let ratio = '--';
+            if (fvc && fvc > 0) {
+                const ratioValue = (fev1 / fvc) * 100;
+                ratio = ratioValue.toFixed(1) + '%';
+            }
+            this.dom.resultRatio.textContent = ratio;
+            
+            // Get comparison data
+            let lastVisitValue = null;
+            let comparisonTitle = 'Current values only';
+            let comparisonSubtitle = '';
+            
+            if (this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    if (comparison === 'last' && patient.visits.length > 0) {
+                        const lastVisit = patient.visits[patient.visits.length - 1];
+                        lastVisitValue = lastVisit.fev1;
+                        const lastDate = new Date(lastVisit.date);
+                        comparisonTitle = 'vs Last Visit';
+                        comparisonSubtitle = `${lastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${lastVisit.fev1.toFixed(2)} L`;
+                    }
+                }
+            }
+            
+            // Calculate percentages and changes
+            let fev1Percent = null;
+            let baselinePercent = null;
+            let baselineDelta = null;
+            let visitDelta = null;
+            let visitPercent = null;
+            
+            if (baseline) {
+                baselinePercent = (fev1 / baseline) * 100;
+                baselineDelta = fev1 - baseline;
+                fev1Percent = baselinePercent;
+                
+                // Set comparison title based on baseline source
+                if (baselineSource === 'patient') {
+                    comparisonTitle = 'vs Patient Baseline';
+                    comparisonSubtitle = `Patient record: ${baseline.toFixed(2)} L`;
+                } else if (baselineSource === 'entered') {
+                    comparisonTitle = 'vs Entered Baseline';
+                    comparisonSubtitle = `Entered value: ${baseline.toFixed(2)} L`;
+                }
+            }
+            
+            if (lastVisitValue) {
+                visitDelta = fev1 - lastVisitValue;
+                visitPercent = lastVisitValue > 0 ? ((fev1 - lastVisitValue) / lastVisitValue) * 100 : 0;
+            }
+            
+            // Determine FEV1 percentage category based on protocol thresholds
+            let baselineCategory = 'neutral';
+            if (baselinePercent !== null) {
+                if (baselinePercent >= (100 - this.state.protocol.monitor)) {
+                    baselineCategory = 'good';
+                } else if (baselinePercent >= (100 - this.state.protocol.review)) {
+                    baselineCategory = 'warning';
+                } else {
+                    baselineCategory = 'alert';
+                }
+            }
+            
+            // Apply color coding if enabled
+            if (!this.state.colorCoding) {
+                baselineCategory = 'neutral';
+            }
+            
+            // Update FEV1 percentage display
+            if (baselinePercent !== null) {
+                this.dom.resultFev1Percent.textContent = `${baselinePercent.toFixed(0)}%`;
+                this.dom.resultFev1Percent.className = `percent-display ${baselineCategory}`;
+            } else {
+                this.dom.resultFev1Percent.textContent = `${fev1.toFixed(2)} L`;
+                this.dom.resultFev1Percent.className = `percent-display neutral`;
+            }
+            
+            // Update comparison results
+            if (comparison !== 'none' && (baseline || lastVisitValue)) {
+                this.dom.comparisonResults.classList.remove('hidden');
+                this.dom.comparisonTitle.textContent = comparisonTitle;
+                this.dom.comparisonSubtitle.textContent = comparisonSubtitle;
+                
+                // Update visit comparison
+                if (lastVisitValue !== null) {
+                    const arrow = visitDelta > 0 ? '↗' : (visitDelta < 0 ? '↘' : '→');
+                    const arrowClass = visitDelta > 0 ? 'up' : (visitDelta < 0 ? 'down' : 'neutral');
+                    const changeClass = visitDelta > 0 ? 'positive' : (visitDelta < 0 ? 'negative' : 'neutral');
+                    
+                    this.dom.visitTrendArrow.textContent = arrow;
+                    this.dom.visitTrendArrow.className = `trend-arrow ${arrowClass}`;
+                    this.dom.resultVisitDelta.textContent = `${visitDelta >= 0 ? '+' : ''}${visitDelta.toFixed(2)}`;
+                    this.dom.resultVisitDelta.className = `metric-value visit-change ${changeClass}`;
+                    this.dom.resultVisitPercent.textContent = `${visitPercent >= 0 ? '+' : ''}${visitPercent.toFixed(1)}%`;
+                } else {
+                    this.dom.visitTrendArrow.textContent = '→';
+                    this.dom.visitTrendArrow.className = 'trend-arrow neutral';
+                    this.dom.resultVisitDelta.textContent = '--';
+                    this.dom.resultVisitDelta.className = 'metric-value visit-change neutral';
+                    this.dom.resultVisitPercent.textContent = '--%';
+                }
+                
+                // Update baseline comparison
+                if (baseline !== null) {
+                    const arrow = baselineDelta > 0 ? '↗' : (baselineDelta < 0 ? '↘' : '→');
+                    const arrowClass = baselineDelta > 0 ? 'up' : (baselineDelta < 0 ? 'down' : 'neutral');
+                    
+                    this.dom.baselineTrendArrow.textContent = arrow;
+                    this.dom.baselineTrendArrow.className = `trend-arrow ${arrowClass}`;
+                    this.dom.resultBaselinePercent.textContent = `${baselinePercent.toFixed(1)}%`;
+                    this.dom.resultBaselinePercent.className = `metric-value baseline-percent ${baselineCategory}`;
+                    this.dom.resultBaselineDelta.textContent = `${baselineDelta >= 0 ? '+' : ''}${baselineDelta.toFixed(2)} L`;
+                } else {
+                    this.dom.baselineTrendArrow.textContent = '→';
+                    this.dom.baselineTrendArrow.className = 'trend-arrow neutral';
+                    this.dom.resultBaselinePercent.textContent = '--%';
+                    this.dom.resultBaselinePercent.className = 'metric-value baseline-percent neutral';
+                    this.dom.resultBaselineDelta.textContent = '-- L';
+                }
+                
+                // Show protocol context
+                this.dom.protocolContext.classList.remove('hidden');
+                this.dom.thresholdMonitorValue.textContent = this.state.protocol.monitor;
+                this.dom.thresholdReviewValue.textContent = this.state.protocol.review;
+                
+                // Update protocol note
+                let note = '<strong>Note:</strong> ';
+                if (baselinePercent !== null) {
+                    if (baselinePercent >= (100 - this.state.protocol.monitor)) {
+                        note += 'FEV₁ is within normal range.';
+                    } else if (baselinePercent >= (100 - this.state.protocol.review)) {
+                        note += `FEV₁ decline ≥${this.state.protocol.monitor}% (Monitor).`;
+                    } else {
+                        note += `FEV₁ decline ≥${this.state.protocol.review}% (Review).`;
+                    }
+                } else {
+                    note += 'Visit-to-visit changes (Δ) show direction only.';
+                }
+                this.dom.protocolNote.innerHTML = note;
+            } else {
+                this.dom.comparisonResults.classList.add('hidden');
+                this.dom.protocolContext.classList.add('hidden');
+            }
+            
+            // Update timestamp
+            const now = new Date();
+            this.dom.resultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            
+            this.dom.resultsPanel.classList.add('visible');
+        }
+        
+        clearQuickCalc() {
+            this.dom.inputFev1.value = '';
+            this.dom.inputFvc.value = '';
+            this.dom.baselineInput.value = '';
+            this.dom.resultsPanel.classList.remove('visible');
+            this.dom.optionNone.querySelector('.option-radio').checked = true;
+            [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.dom.optionNone.classList.add('selected');
+            
+            this.state.session.quick.fev1 = null;
+            this.state.session.quick.fvc = null;
+            this.state.session.quick.comparison = 'none';
+            this.state.session.quick.baseline = null;
+            this.state.session.quick.baselineSource = null;
+            this.state.session.quick.lastVisit = null;
+            
+            this.dom.inputFev1.focus();
+            this.showToast('Cleared', 'info');
+        }
+        
+        saveQuickVisit() {
+            if (!this.state.session.quick.fev1) {
+                this.showToast('Please enter FEV₁ measurement first', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const fev1 = this.state.session.quick.fev1;
+            const fvc = this.state.session.quick.fvc;
+            
+            // Medical validation
+            const validationErrors = this.validateMedicalData(fev1, fvc);
+            if (validationErrors.length > 0) {
+                this.showToast(validationErrors[0], 'error');
+                return;
+            }
+            
+            // Check for duplicate date
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
+            
+            if (existingVisitIndex !== -1) {
+                // Show duplicate date modal
+                this.state.session.duplicateDateData = {
+                    date: today,
+                    existingVisit: patient.visits[existingVisitIndex],
+                    newVisit: { fev1, fvc, notes: '' }
+                };
+                this.showDuplicateDateModal();
+                return;
+            }
+            
+            // Add new visit - SAVE TO PATIENT FIRST
+            const visit = {
+                date: today,
+                fev1,
+                fvc,
+                notes: '',
+                recordedAt: new Date().toISOString()
+            };
+            
+            patient.visits.push(visit);
+            patient.updatedAt = new Date().toISOString();
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            // Then sync to monitor session
+            this.state.session.monitor.visits.push(visit);
+            
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            this.showToast(`Visit saved: ${patient.id}: ${fev1.toFixed(2)} L`, 'success');
+            
+            // Clear quick calc after saving
+            this.clearQuickCalc();
+        }
+        
+        // ===== MONITOR MODE =====
+        
+        checkDateInterval() {
+            const selectedDate = new Date(this.dom.visitDate.value);
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            if (selectedDate > today) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Future date selected';
+                this.dom.dateIntervalWarning.className = 'date-warning error';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return false;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.dom.dateIntervalWarning.classList.add('hidden');
+                this.dom.visitDate.classList.remove('invalid');
+                return true;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || patient.visits.length === 0) {
+                this.dom.dateIntervalWarning.classList.add('hidden');
+                this.dom.visitDate.classList.remove('invalid');
+                return true;
+            }
+            
+            const lastVisit = patient.visits[patient.visits.length - 1];
+            const lastDate = new Date(lastVisit.date);
+            const daysDiff = Math.floor((selectedDate - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff < 0) {
+                this.dom.dateIntervalWarning.textContent = `⚠️ Date is before last visit (${lastDate.toLocaleDateString()})`;
+                this.dom.dateIntervalWarning.className = 'date-warning error';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return false;
+            } else if (daysDiff === 0) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Duplicate date (same as last visit)';
+                this.dom.dateIntervalWarning.className = 'date-warning error';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return false;
+            } else if (daysDiff < 7) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Short interval (<7 days)';
+                this.dom.dateIntervalWarning.className = 'date-warning';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return true;
+            } else if (daysDiff > 90) {
+                this.dom.dateIntervalWarning.textContent = '⚠️ Long interval (>90 days)';
+                this.dom.dateIntervalWarning.className = 'date-warning';
+                this.dom.dateIntervalWarning.classList.remove('hidden');
+                this.dom.visitDate.classList.add('invalid');
+                return true;
+            }
+            
+            this.dom.dateIntervalWarning.classList.add('hidden');
+            this.dom.visitDate.classList.remove('invalid');
+            return true;
+        }
+        
+        addVisit() {
+            if (!this.checkDateInterval()) {
+                this.showToast('Please check date selection', 'error');
+                return;
+            }
+            
+            const date = this.dom.visitDate.value;
+            const fev1 = parseFloat(this.dom.visitFev1.value);
+            const fvc = this.dom.visitFvc.value ? parseFloat(this.dom.visitFvc.value) : null;
+            const notes = this.dom.visitNotes.value.trim();
+            
+            if (!date || !fev1 || isNaN(fev1) || fev1 < 0.5 || fev1 > 8.0) {
+                this.showToast('Please enter valid date and FEV₁ measurement', 'error');
+                return;
+            }
+            
+            if (fvc && (isNaN(fvc) || fvc < 0.5 || fvc > 10.0)) {
+                this.showToast('Please enter valid FVC measurement', 'error');
+                return;
+            }
+            
+            // Medical validation
+            const validationErrors = this.validateMedicalData(fev1, fvc);
+            if (validationErrors.length > 0) {
+                this.showToast(validationErrors[0], 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            // Check for duplicate date
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
+            
+            if (existingVisitIndex !== -1) {
+                this.state.session.duplicateDateData = {
+                    date,
+                    existingVisit: patient.visits[existingVisitIndex],
+                    newVisit: { fev1, fvc, notes }
+                };
+                this.showDuplicateDateModal();
+                return;
+            }
+            
+            // Add visit - SAVE TO PATIENT FIRST
+            const visit = {
+                date,
+                fev1,
+                fvc,
+                notes,
+                recordedAt: new Date().toISOString()
+            };
+            
+            patient.visits.push(visit);
+            patient.updatedAt = new Date().toISOString();
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            // Then sync to monitor session
+            this.state.session.monitor.visits.push(visit);
+            
+            this.updateVisitsTable();
+            this.updatePatientContext();
+            
+            // Clear form
+            this.dom.visitFev1.value = '';
+            this.dom.visitFvc.value = '';
+            this.dom.visitNotes.value = '';
+            this.dom.visitFev1.focus();
+            
+            this.showToast(`Visit saved: ${date} - ${fev1.toFixed(2)} L`, 'success');
+        }
+        
+        importBulkVisits() {
+            const text = this.dom.bulkImport.value.trim();
+            if (!text) {
+                this.showToast('Please paste visit data', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            const lines = text.split('\n');
+            let added = 0;
+            let skipped = 0;
+            let errors = [];
+            
+            lines.forEach((line, index) => {
+                line = line.trim();
+                if (!line || line.startsWith('#')) return;
+                
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length < 2) {
+                    errors.push(`Line ${index + 1}: Invalid format`);
+                    return;
+                }
+                
+                const date = parts[0];
+                const fev1 = parseFloat(parts[1]);
+                const fvc = parts.length > 2 ? parseFloat(parts[2]) : null;
+                const notes = parts.length > 3 ? parts.slice(3).join(', ') : '';
+                
+                // Validate date
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    errors.push(`Line ${index + 1}: Invalid date format (YYYY-MM-DD)`);
+                    return;
+                }
+                
+                // Medical validation
+                const validationErrors = this.validateMedicalData(fev1, fvc);
+                if (validationErrors.length > 0) {
+                    errors.push(`Line ${index + 1}: ${validationErrors[0]}`);
+                    return;
+                }
+                
+                // Check for duplicate
+                const existingVisitIndex = patient.visits.findIndex(v => v.date === date);
+                if (existingVisitIndex !== -1) {
+                    skipped++;
+                    return;
+                }
+                
+                // Add visit - SAVE TO PATIENT FIRST
+                const visit = {
+                    date,
+                    fev1,
+                    fvc,
+                    notes,
+                    recordedAt: new Date().toISOString()
+                };
+                
+                patient.visits.push(visit);
+                added++;
+            });
+            
+            if (added > 0) {
+                patient.updatedAt = new Date().toISOString();
+                this.state.patients.set(patient.id, patient);
+                this.saveState();
+                
+                // Sync all visits to monitor session
+                this.state.session.monitor.visits = [...patient.visits];
+                
+                this.updateVisitsTable();
+                this.updatePatientContext();
+                
+                let message = `${added} visit${added !== 1 ? 's' : ''} imported`;
+                if (skipped > 0) message += `, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`;
+                if (errors.length > 0) message += `, ${errors.length} error${errors.length !== 1 ? 's' : ''}`;
+                
+                this.showToast(message, added > 0 ? 'success' : 'warning');
+                
+                if (errors.length > 0) {
+                    console.warn('Import errors:', errors);
+                }
+            } else {
+                this.showToast('No valid visits imported', 'warning');
+            }
+            
+            this.dom.bulkImport.value = '';
+        }
+        
+        // ===== SPREADSHEET FUNCTIONS =====
+        
+        addSpreadsheetRow() {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="editable-cell" contenteditable="true" data-field="date"></td>
+                <td class="editable-cell" contenteditable="true" data-field="fev1"></td>
+                <td class="editable-cell" contenteditable="true" data-field="fvc"></td>
+                <td class="editable-cell" contenteditable="true" data-field="notes"></td>
+            `;
+            this.dom.spreadsheetBody.appendChild(row);
+            
+            setTimeout(() => {
+                const cells = row.querySelectorAll('.editable-cell');
+                if (cells[0]) cells[0].focus();
+            }, 10);
+        }
+        
+        saveSpreadsheetData() {
+            const rows = this.dom.spreadsheetBody.querySelectorAll('tr');
+            const visits = [];
+            let errors = [];
+            
+            rows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll('.editable-cell');
+                const dateCell = cells[0];
+                const fev1Cell = cells[1];
+                const fvcCell = cells[2];
+                const notesCell = cells[3];
+                
+                const date = dateCell.textContent.trim();
+                const fev1 = fev1Cell.textContent.trim();
+                const fvc = fvcCell.textContent.trim();
+                const notes = notesCell.textContent.trim();
+                
+                // Skip empty rows
+                if (!date && !fev1 && !fvc && !notes) return;
+                
+                // Validate required fields
+                if (!date) {
+                    errors.push(`Row ${rowIndex + 1}: Date is required`);
+                    dateCell.style.color = 'var(--alert)';
+                    return;
+                }
+                
+                if (!fev1) {
+                    errors.push(`Row ${rowIndex + 1}: FEV₁ is required`);
+                    fev1Cell.style.color = 'var(--alert)';
+                    return;
+                }
+                
+                // Validate date format
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    errors.push(`Row ${rowIndex + 1}: Invalid date format (use YYYY-MM-DD)`);
+                    dateCell.style.color = 'var(--alert)';
+                    return;
+                }
+                
+                // Validate FEV1
+                const fev1Num = parseFloat(fev1);
+                const fvcNum = fvc ? parseFloat(fvc) : null;
+                
+                // Medical validation
+                const validationErrors = this.validateMedicalData(fev1Num, fvcNum);
+                if (validationErrors.length > 0) {
+                    errors.push(`Row ${rowIndex + 1}: ${validationErrors[0]}`);
+                    fev1Cell.style.color = 'var(--alert)';
+                    if (fvcCell) fvcCell.style.color = 'var(--alert)';
+                    return;
+                }
+                
+                // Add visit
+                visits.push({
+                    date,
+                    fev1: fev1Num,
+                    fvc: fvcNum,
+                    notes,
+                    recordedAt: new Date().toISOString()
+                });
+            });
+            
+            if (errors.length > 0) {
+                this.showToast(`${errors.length} error${errors.length !== 1 ? 's' : ''} found. Please fix them before saving.`, 'error');
+                return;
+            }
+            
+            if (visits.length === 0) {
+                this.showToast('No valid visits to save', 'warning');
+                return;
+            }
+            
+            // Add visits to patient
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('No patient selected', 'error');
+                return;
+            }
+            
+            visits.forEach(visit => {
+                const existingIndex = patient.visits.findIndex(v => v.date === visit.date);
+                if (existingIndex !== -1) {
+                    patient.visits[existingIndex] = visit;
+                } else {
+                    patient.visits.push(visit);
+                }
+            });
+            
+            patient.updatedAt = new Date().toISOString();
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            // Sync all visits to monitor session
+            this.state.session.monitor.visits = [...patient.visits];
+            
+            this.updateVisitsTable();
+            this.updatePatientContext();
+            
+            // Clear spreadsheet
+            this.dom.spreadsheetBody.innerHTML = `
+                <tr>
+                    <td class="editable-cell" contenteditable="true" data-field="date"></td>
+                    <td class="editable-cell" contenteditable="true" data-field="fev1"></td>
+                    <td class="editable-cell" contenteditable="true" data-field="fvc"></td>
+                    <td class="editable-cell" contenteditable="true" data-field="notes"></td>
+                </tr>
+            `;
+            
+            this.showToast(`${visits.length} visit${visits.length !== 1 ? 's' : ''} saved from spreadsheet`, 'success');
+        }
+        
+        // ===== ENTRY MODE MANAGEMENT =====
+        
+        switchEntryMode(mode) {
+            this.state.session.monitor.entryMode = mode;
+            
+            this.dom.entryModeCards.forEach(card => {
+                card.classList.toggle('active', card.dataset.mode === mode);
+            });
+            
+            this.dom.singleEntryForm.classList.toggle('hidden', mode !== 'single');
+            this.dom.bulkEntryForm.classList.toggle('hidden', mode !== 'bulk');
+            this.dom.spreadsheetEntryForm.classList.toggle('hidden', mode !== 'spreadsheet');
+            
+            if (mode === 'single') {
+                setTimeout(() => this.dom.visitFev1.focus(), 100);
+            } else if (mode === 'bulk') {
+                setTimeout(() => this.dom.bulkImport.focus(), 100);
+            } else if (mode === 'spreadsheet') {
+                setTimeout(() => {
+                    const firstCell = this.dom.spreadsheetBody.querySelector('.editable-cell');
+                    if (firstCell) firstCell.focus();
+                }, 100);
+            }
+        }
+        
+        // ===== VISITS TABLE =====
+        
+        updateVisitsTable() {
+            const visits = this.state.session.monitor.visits;
+            const tbody = this.dom.visitsTableBody;
+            
+            if (visits.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center" style="padding: var(--space-4); color: var(--text-tertiary);">
+                            No visits yet. Add visits using the form above.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort visits by date
+            const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Get baseline if available
+            let baseline = null;
+            if (this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    baseline = patient.baselineFev1;
+                }
+            }
+            
+            // Generate table rows
+            tbody.innerHTML = '';
+            
+            sortedVisits.forEach((visit, index) => {
+                const date = new Date(visit.date);
+                const daysFromTx = this.calculateDaysFromTx(visit.date);
+                const prevVisit = index > 0 ? sortedVisits[index - 1] : null;
+                
+                // Calculate metrics
+                const ratio = visit.fvc ? (visit.fev1 / visit.fvc * 100).toFixed(1) + '%' : '--';
+                const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1) : 0;
+                const visitDeltaStr = prevVisit ? `${visitDelta >= 0 ? '+' : ''}${visitDelta.toFixed(2)}` : '--';
+                
+                const baselineDelta = baseline ? (visit.fev1 - baseline) : 0;
+                const baselineDeltaStr = baseline ? `${baselineDelta >= 0 ? '+' : ''}${baselineDelta.toFixed(2)}` : '--';
+                const baselinePercent = baseline ? ((visit.fev1 / baseline) * 100) : null;
+                
+                // Enhanced percentage display format
+                let baselineDisplay = '--';
+                if (baselinePercent !== null) {
+                    if (this.state.percentageView) {
+                        baselineDisplay = `${baselinePercent.toFixed(1)}%`;
+                    } else {
+                        baselineDisplay = `${visit.fev1.toFixed(2)} L (${baselinePercent.toFixed(0)}%)`;
+                    }
+                }
+                
+                // Calculate monthly rate
+                let monthlyRate = '--';
+                let rateArrow = '→';
+                let rateClass = 'neutral';
+                if (prevVisit) {
+                    const rate = this.calculateMonthlyRate(visit.fev1, prevVisit.fev1, visit.date, prevVisit.date);
+                    if (Math.abs(rate) > 0.001) {
+                        monthlyRate = `${rate >= 0 ? '+' : ''}${rate.toFixed(3)}`;
+                        rateArrow = rate > 0 ? '↗' : '↘';
+                        rateClass = rate > 0 ? 'up' : 'down';
+                    }
+                }
+                
+                // Determine alert level for baseline comparison
+                let alertLevel = 'none';
+                if (baselinePercent !== null) {
+                    const percent = baselinePercent;
+                    const monitorThreshold = this.state.session.monitor.customThresholds.monitor;
+                    const reviewThreshold = this.state.session.monitor.customThresholds.review;
+                    
+                    if (percent <= (100 - reviewThreshold)) {
+                        alertLevel = 'review';
+                    } else if (percent <= (100 - monitorThreshold)) {
+                        alertLevel = 'monitor';
+                    }
+                }
+                
+                // Determine color classes
+                const visitDeltaClass = visitDelta > 0 ? 'positive' : (visitDelta < 0 ? 'negative' : 'neutral');
+                const baselinePercentClass = this.getBaselinePercentClass(baselinePercent);
+                
+                // Create row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td>${daysFromTx !== null ? daysFromTx : '--'}</td>
+                    <td>${visit.fev1.toFixed(2)}</td>
+                    <td>
+                        ${baselineDisplay} 
+                        ${!this.state.colorCoding ? '' : 
+                            baselinePercentClass !== 'neutral' ? 
+                            `<span class="baseline-percent ${baselinePercentClass}" style="margin-left: 4px;">●</span>` : ''
+                        }
+                    </td>
+                    <td>${visit.fvc ? visit.fvc.toFixed(2) : '--'}</td>
+                    <td>${ratio}</td>
+                    <td class="${!this.state.colorCoding ? '' : `visit-change ${visitDeltaClass}`}">
+                        ${visitDeltaStr}
+                        ${!this.state.colorCoding ? '' : 
+                            visitDeltaClass !== 'neutral' ? 
+                            `<span class="trend-arrow ${visitDelta > 0 ? 'up' : 'down'}" style="margin-left: 4px;">${visitDelta > 0 ? '↗' : '↘'}</span>` : ''
+                        }
+                    </td>
+                    <td>${baselineDeltaStr}</td>
+                    <td class="${!this.state.colorCoding ? '' : `visit-change ${visitDeltaClass}`}">
+                        ${monthlyRate}
+                        ${!this.state.colorCoding ? '' : 
+                            rateClass !== 'neutral' ? 
+                            `<span class="trend-arrow ${rateClass}" style="margin-left: 4px;">${rateArrow}</span>` : ''
+                        }
+                    </td>
+                    <td class="alert-cell">
+                        <div class="alert-indicator ${alertLevel}" title="${alertLevel === 'review' ? 'Review required' : alertLevel === 'monitor' ? 'Monitor closely' : 'Within range'}"></div>
+                    </td>
+                    <td title="${visit.notes || 'No notes'}">
+                        ${visit.notes ? '📝' : ''}
+                    </td>
+                `;
+                
+                if (visit.notes) {
+                    row.addEventListener('click', () => {
+                        this.showToast(visit.notes, 'info', 5000);
+                    });
+                }
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update chart if visible
+            if (this.dom.visualizationSection.classList.contains('visible')) {
+                if (!this.state.session.monitor.chart) {
+                    this.initChart();
+                }
+                this.updateChart();
+            }
+            
+            // Update timeline chart if visible
+            if (this.dom.timelineView.classList.contains('visible')) {
+                if (!this.state.session.monitor.timelineChart) {
+                    this.initTimelineChart();
+                }
+                this.updateTimelineChart();
+            }
+        }
+        
+        getBaselinePercentClass(percent) {
+            if (!this.state.colorCoding || percent === null) return 'neutral';
+            if (percent >= (100 - this.state.protocol.monitor)) return 'good';
+            if (percent >= (100 - this.state.protocol.review)) return 'warning';
+            return 'alert';
+        }
+        
+        calculateDaysFromTx(date) {
+            if (!this.state.currentPatient) return null;
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient || !patient.txDate) return null;
+            
+            const txDate = new Date(patient.txDate);
+            const visitDate = new Date(date);
+            const diffTime = Math.abs(visitDate - txDate);
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+        
+        calculateMonthlyRate(currentFev1, previousFev1, currentDate, previousDate) {
+            const date1 = new Date(previousDate);
+            const date2 = new Date(currentDate);
+            const daysDiff = Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+            const monthsDiff = daysDiff / 30.44;
+            if (monthsDiff <= 0) return 0;
+            return (currentFev1 - previousFev1) / monthsDiff;
+        }
+        
+        // ===== CHART.JS FUNCTIONS =====
+        
+        initChart() {
+            if (!this.dom.fev1Chart) return;
+            
+            const ctx = this.dom.fev1Chart.getContext('2d');
+            this.state.session.monitor.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'FEV₁ (L)',
+                        data: [],
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-line').trim() || '#1A5F7A',
+                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-fill').trim() || 'rgba(26, 95, 122, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-point').trim() || '#2D9596',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 95, 122, 0.9)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            callbacks: {
+                                label: (context) => {
+                                    return `FEV₁: ${context.parsed.y.toFixed(2)} L`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + ' L';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'FEV₁ (Liters)',
+                                color: 'var(--text-secondary)',
+                                font: { size: 11, weight: '600' }
+                            }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' },
+                    animations: { tension: { duration: 1000, easing: 'linear' } }
+                }
+            });
+        }
+        
+        initTimelineChart() {
+            if (!this.dom.timelineChart) return;
+            
+            const ctx = this.dom.timelineChart.getContext('2d');
+            this.state.session.monitor.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'FEV₁ (L)',
+                        data: [],
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-line').trim() || '#1A5F7A',
+                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-fill').trim() || 'rgba(26, 95, 122, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-point').trim() || '#2D9596',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 95, 122, 0.9)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            callbacks: {
+                                title: (context) => {
+                                    return new Date(context[0].label).toLocaleDateString();
+                                },
+                                label: (context) => {
+                                    return `FEV₁: ${context.parsed.y.toFixed(2)} L`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MMM yyyy'
+                                }
+                            },
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 9 },
+                                maxRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + ' L';
+                                }
+                            }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        }
+        
+        updateChart() {
+            const chart = this.state.session.monitor.chart;
+            if (!chart) return;
+            
+            const visits = this.state.session.monitor.visits;
+            if (visits.length < 2) {
+                chart.data.labels = [];
+                chart.data.datasets[0].data = [];
+                chart.update();
+                return;
+            }
+            
+            const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            chart.data.labels = sortedVisits.map(v => {
+                const date = new Date(v.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            chart.data.datasets[0].data = sortedVisits.map(v => v.fev1);
+            chart.update();
+        }
+        
+        updateTimelineChart() {
+            const chart = this.state.session.monitor.timelineChart;
+            if (!chart) return;
+            
+            const visits = this.state.session.monitor.visits;
+            if (visits.length === 0) {
+                chart.data.labels = [];
+                chart.data.datasets[0].data = [];
+                chart.update();
+                return;
+            }
+            
+            const sortedVisits = [...visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            chart.data.labels = sortedVisits.map(v => v.date);
+            chart.data.datasets[0].data = sortedVisits.map(v => v.fev1);
+            
+            chart.update();
+            
+            // Update timeline summary
+            if (sortedVisits.length > 0) {
+                const firstDate = new Date(sortedVisits[0].date);
+                const lastDate = new Date(sortedVisits[sortedVisits.length - 1].date);
+                const daysSpan = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
+                
+                let avgInterval = '--';
+                if (sortedVisits.length > 1) {
+                    const intervals = [];
+                    for (let i = 1; i < sortedVisits.length; i++) {
+                        const prev = new Date(sortedVisits[i-1].date);
+                        const curr = new Date(sortedVisits[i].date);
+                        intervals.push(Math.floor((curr - prev) / (1000 * 60 * 60 * 24)));
+                    }
+                    avgInterval = Math.round(intervals.reduce((a, b) => a + b) / intervals.length) + ' days';
+                }
+                
+                this.dom.timelineTotalVisits.textContent = sortedVisits.length;
+                this.dom.timelineTimeSpan.textContent = daysSpan + ' days';
+                this.dom.timelineAvgInterval.textContent = avgInterval;
+                
+                // Update status
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient && patient.baselineFev1) {
+                    const lastVisit = sortedVisits[sortedVisits.length - 1];
+                    const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                    this.dom.timelineStatus.textContent = `${percent}% of baseline`;
+                } else {
+                    this.dom.timelineStatus.textContent = 'No baseline set';
+                }
+                
+                // Update milestones
+                this.updateTimelineMilestones(sortedVisits, patient);
+            }
+        }
+        
+        updateTimelineMilestones(visits, patient) {
+            const milestones = this.dom.timelineMilestones;
+            milestones.innerHTML = '';
+            
+            if (!patient) return;
+            
+            // Add transplant milestone
+            if (patient.txDate) {
+                const milestone = document.createElement('div');
+                milestone.className = 'milestone';
+                milestone.innerHTML = `
+                    <div class="milestone-date">${new Date(patient.txDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    <div class="milestone-label">Transplant</div>
+                `;
+                milestones.appendChild(milestone);
+            }
+            
+            // Add baseline milestone
+            if (patient.baselineDate && patient.baselineFev1) {
+                const milestone = document.createElement('div');
+                milestone.className = 'milestone';
+                milestone.innerHTML = `
+                    <div class="milestone-date">${new Date(patient.baselineDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    <div class="milestone-label">Baseline established</div>
+                    <div class="milestone-value">${patient.baselineFev1.toFixed(2)} L</div>
+                `;
+                milestones.appendChild(milestone);
+            }
+            
+            // Add significant visits (first, last, and any with notes)
+            if (visits.length > 0) {
+                // First visit
+                const firstVisit = visits[0];
+                const milestone = document.createElement('div');
+                milestone.className = 'milestone';
+                milestone.innerHTML = `
+                    <div class="milestone-date">${new Date(firstVisit.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    <div class="milestone-label">First measurement</div>
+                    <div class="milestone-value">${firstVisit.fev1.toFixed(2)} L</div>
+                `;
+                milestones.appendChild(milestone);
+                
+                // Last visit
+                if (visits.length > 1) {
+                    const lastVisit = visits[visits.length - 1];
+                    const milestone = document.createElement('div');
+                    milestone.className = 'milestone';
+                    milestone.innerHTML = `
+                        <div class="milestone-date">${new Date(lastVisit.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div class="milestone-label">Latest measurement</div>
+                        <div class="milestone-value">${lastVisit.fev1.toFixed(2)} L</div>
+                    `;
+                    milestones.appendChild(milestone);
+                }
+                
+                // Visits with significant notes
+                visits.forEach(visit => {
+                    if (visit.notes && visit.notes.length > 20) {
+                        const milestone = document.createElement('div');
+                        milestone.className = 'milestone';
+                        milestone.innerHTML = `
+                            <div class="milestone-date">${new Date(visit.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                            <div class="milestone-label">${visit.notes.substring(0, 30)}${visit.notes.length > 30 ? '...' : ''}</div>
+                            <div class="milestone-value">${visit.fev1.toFixed(2)} L</div>
+                        `;
+                        milestones.appendChild(milestone);
+                    }
+                });
+            }
+        }
+        
+        // ===== VISUALIZATION =====
+        
+        toggleVisualization() {
+            const isVisible = this.dom.visualizationSection.classList.toggle('visible');
+            
+            if (isVisible) {
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📈</span><span>Hide Charts</span>`;
+                if (!this.state.session.monitor.chart) {
+                    this.initChart();
+                }
+                this.updateChart();
+            } else {
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📊</span><span>Show Charts</span>`;
+            }
+        }
+        
+        clearMonitorData() {
+            if (this.state.session.monitor.visits.length === 0) {
+                this.showToast('No data to clear', 'info');
+                return;
+            }
+            
+            if (confirm('Clear all visits from the monitor table? This will not delete saved patient visits.')) {
+                this.state.session.monitor.visits = [];
+                this.updateVisitsTable();
+                this.dom.visualizationSection.classList.remove('visible');
+                this.dom.toggleVisualizationBtn.innerHTML = `<span>📊</span><span>Show Charts</span>`;
+                this.showToast('Monitor data cleared', 'success');
+            }
+        }
+        
+        // ===== FULL STUDY MODE =====
+        
+        updateTimeline() {
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            
+            if (txDate && baselineDate) {
+                const tx = new Date(txDate);
+                const baseline = new Date(baselineDate);
+                
+                if (baseline < tx) {
+                    this.showToast('Baseline date cannot be before transplant date', 'error');
+                    this.dom.baselineDate.value = '';
+                    return;
+                }
+                
+                const daysDiff = Math.floor((baseline - tx) / (1000 * 60 * 60 * 24));
+                if (daysDiff > 0) {
+                    this.dom.stdTimePeriod.textContent = daysDiff;
+                }
+            }
+        }
+        
+        handleFullInput() {
+            const fev1 = parseFloat(this.dom.stdFev1.value);
+            const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
+            
+            if (isNaN(fev1) || isNaN(baselineFev1)) {
+                this.dom.stdResultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            this.state.session.full.fev1 = fev1;
+            this.state.session.full.baselineFev1 = baselineFev1;
+            
+            this.calculateFullStudy();
+        }
+        
+        calculateFullStudy() {
+            const fev1 = this.state.session.full.fev1;
+            const baselineFev1 = this.state.session.full.baselineFev1;
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            
+            if (!fev1 || !baselineFev1 || !txDate || !baselineDate) {
+                this.dom.stdResultsPanel.classList.remove('visible');
+                return;
+            }
+            
+            // Calculate time period
+            const tx = new Date(txDate);
+            const baseline = new Date(baselineDate);
+            const currentDate = new Date();
+            
+            const daysFromTx = Math.floor((currentDate - tx) / (1000 * 60 * 60 * 24));
+            const daysFromBaseline = Math.floor((currentDate - baseline) / (1000 * 60 * 60 * 24));
+            const monthsFromBaseline = daysFromBaseline / 30.44;
+            
+            // Calculate metrics
+            const delta = fev1 - baselineFev1;
+            const percentDecline = ((baselineFev1 - fev1) / baselineFev1) * 100;
+            const monthlyRate = monthsFromBaseline > 0 ? (fev1 - baselineFev1) / monthsFromBaseline : 0;
+            const currentPercent = (fev1 / baselineFev1) * 100;
+            
+            // Update UI
+            this.dom.stdCurrentFev1.textContent = fev1.toFixed(2);
+            this.dom.stdCurrentPercent.textContent = `${fev1.toFixed(2)} L (${currentPercent.toFixed(1)}%)`;
+            this.dom.stdCurrentPercent.className = `percent-display ${this.getBaselinePercentClass(currentPercent)}`;
+            this.dom.stdBaseline.textContent = baselineFev1.toFixed(2);
+            this.dom.stdTimePeriod.textContent = daysFromBaseline;
+            
+            this.dom.stdComparisonSubtitle.textContent = 
+                `${baseline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            
+            // Visit-to-visit comparison
+            const deltaClass = delta > 0 ? 'positive' : (delta < 0 ? 'negative' : 'neutral');
+            this.dom.stdCumulativeDelta.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(2)}`;
+            this.dom.stdCumulativeDelta.className = `metric-value visit-change ${deltaClass}`;
+            
+            // Baseline comparison
+            const percentClass = this.getBaselinePercentClass(currentPercent);
+            this.dom.stdPercentDecline.textContent = `${percentDecline.toFixed(1)}%`;
+            this.dom.stdPercentDecline.className = `metric-value baseline-percent ${percentClass}`;
+            
+            // Monthly rate
+            const rateClass = monthlyRate > 0 ? 'positive' : (monthlyRate < 0 ? 'negative' : 'neutral');
+            const rateArrow = monthlyRate > 0 ? '↗' : (monthlyRate < 0 ? '↘' : '→');
+            this.dom.stdMonthlyRate.textContent = `${monthlyRate >= 0 ? '+' : ''}${monthlyRate.toFixed(3)}`;
+            this.dom.stdMonthlyRate.className = `metric-value visit-change ${rateClass}`;
+            this.dom.stdRateArrow.textContent = rateArrow;
+            
+            // Update protocol note
+            let note = '<strong>Note:</strong> ';
+            if (percentDecline <= this.state.protocol.monitor) {
+                note += `Minimal decline (<${this.state.protocol.monitor}% from baseline). Continue routine monitoring.`;
+            } else if (percentDecline <= this.state.protocol.review) {
+                note += `Moderate decline (${this.state.protocol.monitor}-${this.state.protocol.review}% from baseline). Consider additional testing.`;
+            } else {
+                note += `Significant decline (>${this.state.protocol.review}% from baseline). Urgent clinical review recommended.`;
+            }
+            this.dom.stdProtocolNote.innerHTML = note;
+            
+            // Update timestamp
+            const now = new Date();
+            this.dom.stdResultsTimestamp.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            
+            this.dom.stdResultsPanel.classList.add('visible');
+        }
+        
+        clearFullStudy() {
+            this.dom.txDate.value = '';
+            this.dom.baselineDate.value = '';
+            this.dom.stdFev1.value = '';
+            this.dom.stdBaselineFev1.value = '';
+            this.dom.clinicalNotes.value = '';
+            this.dom.stdResultsPanel.classList.remove('visible');
+            
+            this.state.session.full.txDate = null;
+            this.state.session.full.baselineDate = null;
+            this.state.session.full.fev1 = null;
+            this.state.session.full.baselineFev1 = null;
+            this.state.session.full.notes = '';
+            
+            this.showToast('Cleared all', 'info');
+        }
+        
+        saveFullStudy() {
+            const txDate = this.dom.txDate.value;
+            const baselineDate = this.dom.baselineDate.value;
+            const fev1 = parseFloat(this.dom.stdFev1.value);
+            const baselineFev1 = parseFloat(this.dom.stdBaselineFev1.value);
+            const notes = this.dom.clinicalNotes.value.trim();
+            
+            if (!txDate || !baselineDate || !fev1 || !baselineFev1) {
+                this.showToast('Please complete all required fields', 'error');
+                return;
+            }
+            
+            // Medical validation
+            const validationErrors = this.validateMedicalData(fev1, null);
+            if (validationErrors.length > 0) {
+                this.showToast(validationErrors[0], 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            // Update patient information
+            const previousBaseline = patient.baselineFev1;
+            patient.txDate = txDate;
+            patient.baselineDate = baselineDate;
+            patient.baselineFev1 = baselineFev1;
+            
+            // Add to baseline history if changed
+            if (previousBaseline !== baselineFev1) {
+                patient.baselineHistory.push({
+                    value: baselineFev1,
+                    date: baselineDate,
+                    method: 'full_study_update',
+                    previousValue: previousBaseline,
+                    recordedAt: new Date().toISOString(),
+                    notes: 'Updated from Full Study mode'
+                });
+            }
+            
+            patient.updatedAt = new Date().toISOString();
+            
+            // Add as a visit if not already present
+            const today = new Date().toISOString().split('T')[0];
+            const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
+            
+            if (existingVisitIndex === -1) {
+                const visit = {
+                    date: today,
+                    fev1,
+                    fvc: null,
+                    notes,
+                    recordedAt: new Date().toISOString()
+                };
+                patient.visits.push(visit);
+                // Sync to monitor session
+                this.state.session.monitor.visits.push(visit);
+            }
+            
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            this.showToast(`Full study saved for ${patient.id}`, 'success');
+        }
+        
+        // ===== PROTOCOL MANAGEMENT =====
+        
+        updateProtocolUI() {
+            this.dom.monitorSlider.value = this.state.protocol.monitor;
+            this.dom.monitorInput.value = this.state.protocol.monitor;
+            this.dom.monitorValue.textContent = `${this.state.protocol.monitor}%`;
+            
+            this.dom.reviewSlider.value = this.state.protocol.review;
+            this.dom.reviewInput.value = this.state.protocol.review;
+            this.dom.reviewValue.textContent = `${this.state.protocol.review}%`;
+            
+            this.dom.stabilityVisits.value = this.state.protocol.stabilityVisits;
+            this.dom.stabilityThreshold.value = this.state.protocol.stabilityThreshold;
+        }
+        
+        resetProtocol() {
+            this.state.protocol = {
+                monitor: 10,
+                review: 20,
+                stabilityVisits: 4,
+                stabilityThreshold: 5
+            };
+            
+            this.updateProtocolUI();
+            this.showToast('Reset to defaults', 'info');
+        }
+        
+        saveProtocol() {
+            this.state.protocol.monitor = parseInt(this.dom.monitorInput.value) || 10;
+            this.state.protocol.review = parseInt(this.dom.reviewInput.value) || 20;
+            this.state.protocol.stabilityVisits = parseInt(this.dom.stabilityVisits.value) || 4;
+            this.state.protocol.stabilityThreshold = parseInt(this.dom.stabilityThreshold.value) || 5;
+            
+            this.saveState();
+            this.hideModal('protocolModal');
+            
+            this.updateVisitsTable();
+            
+            this.showToast('Protocol settings saved', 'success');
+        }
+        
+        // ===== DUPLICATE DATE HANDLING =====
+        
+        showDuplicateDateModal() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            const existing = data.existingVisit;
+            const newVisit = data.newVisit;
+            
+            this.dom.duplicateDateMessage.textContent = 
+                `A visit already exists for ${data.date}.`;
+            this.dom.existingFev1.textContent = `${existing.fev1.toFixed(2)} L`;
+            this.dom.existingFvc.textContent = existing.fvc ? `${existing.fvc.toFixed(2)} L` : '--';
+            this.dom.newFev1.textContent = `${newVisit.fev1.toFixed(2)} L`;
+            this.dom.newFvc.textContent = newVisit.fvc ? `${newVisit.fvc.toFixed(2)} L` : '--';
+            
+            this.showModal('duplicateDateModal');
+        }
+        
+        handleDuplicateAddAsNew() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            // Add with modified date (add 1 day)
+            const originalDate = new Date(data.date);
+            originalDate.setDate(originalDate.getDate() + 1);
+            const newDate = originalDate.toISOString().split('T')[0];
+            
+            this.addVisitWithDate(newDate, data.newVisit);
+            this.hideModal('duplicateDateModal');
+        }
+        
+        handleDuplicateReplace() {
+            const data = this.state.session.duplicateDateData;
+            if (!data) return;
+            
+            // Replace existing visit
+            this.addVisitWithDate(data.date, data.newVisit, true);
+            this.hideModal('duplicateDateModal');
+        }
+        
+        addVisitWithDate(date, visitData, replace = false) {
+            if (!this.state.currentPatient) return;
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) return;
+            
+            // Medical validation
+            const validationErrors = this.validateMedicalData(visitData.fev1, visitData.fvc);
+            if (validationErrors.length > 0) {
+                this.showToast(validationErrors[0], 'error');
+                return;
+            }
+            
+            const visit = {
+                date,
+                fev1: visitData.fev1,
+                fvc: visitData.fvc,
+                notes: visitData.notes || '',
+                recordedAt: new Date().toISOString()
+            };
+            
+            if (replace) {
+                // Replace existing visit
+                const existingIndex = patient.visits.findIndex(v => v.date === date);
+                if (existingIndex !== -1) {
+                    patient.visits[existingIndex] = visit;
+                    this.showToast(`Visit replaced for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
+                }
+            } else {
+                // Add as new visit
+                patient.visits.push(visit);
+                this.showToast(`Visit added for ${date}: ${visit.fev1.toFixed(2)} L`, 'success');
+            }
+            
+            patient.updatedAt = new Date().toISOString();
+            this.state.patients.set(patient.id, patient);
+            this.saveState();
+            
+            // Sync all visits to monitor session
+            this.state.session.monitor.visits = [...patient.visits];
+            
+            this.updatePatientContext();
+            this.updateVisitsTable();
+        }
+        
+        // ===== MODAL MANAGEMENT =====
+        
+        showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // ===== EXPORT FUNCTIONS =====
+        
+        exportAllData() {
+            if (this.state.patients.size === 0) {
+                this.showToast('No patient data to export', 'warning');
+                return;
+            }
+            
+            const data = {
+                version: 'Spirolite Professional v1.3',
+                exportedAt: new Date().toISOString(),
+                patients: Array.from(this.state.patients.values()),
+                protocol: this.state.protocol,
+                settings: {
+                    colorCoding: this.state.colorCoding,
+                    percentageView: this.state.percentageView,
+                    language: this.state.language
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `spirolite_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('All data exported as JSON backup', 'success');
+        }
+        
+        exportTimelinePDF() {
+            if (this.state.session.monitor.visits.length === 0) {
+                this.showToast('No timeline data to export', 'warning');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const patientId = this.state.currentPatient || 'Unknown';
+            const patient = this.state.patients.get(this.state.currentPatient);
+            
+            // Add header
+            doc.setFontSize(16);
+            doc.setTextColor(26, 95, 122);
+            doc.text('Spirolite Timeline Report', 20, 20);
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Patient: ${patientId}`, 20, 30);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 37);
+            
+            // Add summary
+            const visits = [...this.state.session.monitor.visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const firstDate = new Date(visits[0].date);
+            const lastDate = new Date(visits[visits.length - 1].date);
+            const daysSpan = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
+            
+            let startY = 50;
+            doc.setFontSize(14);
+            doc.text('Timeline Summary:', 20, startY);
+            startY += 7;
+            doc.setFontSize(12);
+            doc.text(`Total Visits: ${visits.length}`, 25, startY);
+            startY += 7;
+            doc.text(`Time Span: ${daysSpan} days`, 25, startY);
+            startY += 7;
+            doc.text(`First Visit: ${firstDate.toLocaleDateString()}`, 25, startY);
+            startY += 7;
+            doc.text(`Last Visit: ${lastDate.toLocaleDateString()}`, 25, startY);
+            startY += 10;
+            
+            if (patient && patient.baselineFev1) {
+                const lastVisit = visits[visits.length - 1];
+                const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                doc.text(`Current Status: ${percent}% of baseline (${patient.baselineFev1.toFixed(2)} L)`, 25, startY);
+                startY += 10;
+            }
+            
+            // Add visits list
+            doc.setFontSize(14);
+            doc.text('Visit History:', 20, startY);
+            startY += 7;
+            
+            visits.forEach(visit => {
+                if (startY > 270) {
+                    doc.addPage();
+                    startY = 20;
+                }
+                
+                const date = new Date(visit.date);
+                doc.setFontSize(10);
+                doc.text(`• ${date.toLocaleDateString()}: ${visit.fev1.toFixed(2)} L`, 25, startY);
+                startY += 5;
+                
+                if (visit.notes) {
+                    const notes = `  Notes: ${visit.notes}`;
+                    const splitNotes = doc.splitTextToSize(notes, 150);
+                    doc.text(splitNotes, 30, startY);
+                    startY += splitNotes.length * 5;
+                }
+                startY += 2;
+            });
+            
+            // Save the PDF
+            doc.save(`timeline_${patientId}_${new Date().toISOString().split('T')[0]}.pdf`);
+            this.showToast('Timeline PDF exported', 'success');
+        }
+        
+        // ===== KEYBOARD SHORTCUTS =====
+        
+        handleKeyboardShortcuts(e) {
+            if (!e.target || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (this.state.mode === 'quick') {
+                    this.saveQuickVisit();
+                } else if (this.state.mode === 'full') {
+                    this.saveFullStudy();
+                } else if (this.state.mode === 'monitor') {
+                    if (this.state.session.monitor.entryMode === 'single') {
+                        this.addVisit();
+                    } else if (this.state.session.monitor.entryMode === 'spreadsheet') {
+                        this.saveSpreadsheetData();
+                    }
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (this.state.mode === 'quick') {
+                    this.clearQuickCalc();
+                } else if (this.state.mode === 'full') {
+                    this.clearFullStudy();
+                } else if (this.state.mode === 'monitor') {
+                    if (this.state.session.monitor.entryMode === 'single') {
+                        this.dom.visitFev1.value = '';
+                        this.dom.visitFvc.value = '';
+                        this.dom.visitNotes.value = '';
+                        this.dom.visitFev1.focus();
+                    }
+                }
+            }
+            
+            if (e.key === 'Tab' && this.state.mode === 'quick') {
+                if (document.activeElement === this.dom.inputFvc) {
+                    e.preventDefault();
+                    this.dom.optionBaseline.querySelector('.option-radio').focus();
+                }
+            }
+            
+            if (e.key === '1' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('quick');
+            } else if (e.key === '2' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('monitor');
+            } else if (e.key === '3' && e.ctrlKey) {
+                e.preventDefault();
+                this.switchMode('full');
+            }
+            
+            if (e.altKey && e.key === 'c') {
+                e.preventDefault();
+                this.dom.colorCodingToggle.click();
+                this.showToast(this.dom.colorCodingToggle.checked ? 'Color coding enabled' : 'Color coding disabled', 'info');
+            }
+            
+            if (e.altKey && e.key === 'l') {
+                e.preventDefault();
+                this.toggleLanguage();
+            }
+            
+            if (e.altKey && e.key === 'p' && this.state.mode === 'monitor') {
+                e.preventDefault();
+                this.dom.togglePercentageView.click();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                if (this.state.mode === 'monitor') {
+                    this.exportProfessionalPDF();
+                } else {
+                    this.exportAllData();
+                }
+            }
+            
+            if (e.key === 'Enter' && this.state.mode === 'monitor') {
+                const active = document.activeElement;
+                if (active === this.dom.visitFev1 || active === this.dom.visitFvc || active === this.dom.visitNotes) {
+                    e.preventDefault();
+                    this.addVisit();
+                }
+            }
+            
+            if (e.key === 'Enter' && this.state.mode === 'quick') {
+                const active = document.activeElement;
+                if (active === this.dom.inputFev1 || active === this.dom.inputFvc || active === this.dom.baselineInput) {
+                    e.preventDefault();
+                    this.handleQuickInput();
+                }
+            }
+        }
+        
+        // ===== MODE MANAGEMENT =====
+        
+        switchMode(mode) {
+            this.state.mode = mode;
+            
+            this.dom.navBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            ['quick', 'monitor', 'full'].forEach(m => {
+                const el = document.getElementById(`mode${m.charAt(0).toUpperCase() + m.slice(1)}`);
+                el.classList.toggle('active', m === mode);
+            });
+            
+            if (mode === 'full' && this.state.currentPatient) {
+                const patient = this.state.patients.get(this.state.currentPatient);
+                if (patient) {
+                    if (patient.txDate) this.dom.txDate.value = patient.txDate;
+                    if (patient.baselineDate) this.dom.baselineDate.value = patient.baselineDate;
+                    if (patient.baselineFev1) this.dom.stdBaselineFev1.value = patient.baselineFev1;
+                    this.updateTimeline();
+                }
+            } else if (mode === 'monitor') {
+                this.updateVisitsTable();
+                this.switchEntryMode(this.state.session.monitor.entryMode);
+                this.switchMonitorView(this.state.session.monitor.view);
+            }
+        }
+        
+        // ===== MONITOR VIEW TOGGLE =====
+        
+        switchMonitorView(view) {
+            this.state.session.monitor.view = view;
+            
+            this.dom.viewToggleBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            
+            if (view === 'table') {
+                this.dom.tableView.classList.add('visible');
+                this.dom.timelineView.classList.remove('visible');
+            } else {
+                this.dom.tableView.classList.remove('visible');
+                this.dom.timelineView.classList.add('visible');
+                
+                // Initialize timeline chart if needed
+                if (!this.state.session.monitor.timelineChart) {
+                    this.initTimelineChart();
+                }
+                this.updateTimelineChart();
+            }
+        }
+        
+        // ===== TOAST NOTIFICATIONS =====
+        
+        showToast(message, type = 'info', duration = 3000) {
+            const toastContainer = this.dom.toastContainer;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '✅' : 
+                        type === 'error' ? '❌' : 
+                        type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${icon}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(30px)';
+                setTimeout(() => {
+                    if (toastContainer.contains(toast)) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+    }
     }
     
     // Initialize the application when DOM is loaded
