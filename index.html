@@ -7,23 +7,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="Spirolite - Professional Lung Function Calculator and Tracker">
+    <meta name="description" content="Spirolite - Professional Lung Function Calculator & Tracker">
     
-    <title>Spirolite | Lung Function Calculator</title>
+    <title>Spiro<span style="color: #1A5F7A; font-weight: 800">lite</span> | Calculate & Track</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Professional App Icons -->
+    <!-- App Icons -->
     <link rel="icon" type="image/svg+xml" href="icon.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="apple-mobile-web-app-title" content="Spirolite">
     
-    <!-- Chart.js for visualizations -->
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsPDF for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
@@ -163,7 +162,7 @@
             width: 100%;
         }
         
-        /* ===== PROFESSIONAL LOADING OVERLAY ===== */
+        /* ===== ENHANCED LOADING OVERLAY ===== */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -196,10 +195,11 @@
         }
         
         .loading-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             margin-bottom: var(--space-5);
             position: relative;
+            animation: float 3s ease-in-out infinite;
         }
         
         .loading-logo-inner {
@@ -211,43 +211,50 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .loading-logo-inner::before {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-image: url("icon.svg");
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            animation: float 3s ease-in-out infinite;
+            content: '🫁';
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ffffff, #e0f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
         }
         
         @keyframes float {
             0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-5px) scale(1.05); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
         }
         
         .loading-logo-glow {
             position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
             background: linear-gradient(45deg, 
                 rgba(26, 95, 122, 0.3), 
                 rgba(87, 197, 182, 0.3), 
                 rgba(26, 95, 122, 0.3));
             border-radius: var(--radius-xl);
-            filter: blur(15px);
+            filter: blur(25px);
             animation: glow 2s ease-in-out infinite alternate;
             z-index: -1;
         }
         
         @keyframes glow {
-            from { opacity: 0.5; }
+            from { opacity: 0.4; }
             to { opacity: 0.8; }
         }
         
@@ -264,11 +271,12 @@
             font-size: 0.75rem;
             color: white;
             font-weight: 500;
+            opacity: 0.9;
         }
         
         .loading-progress {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-full);
             overflow: hidden;
@@ -280,7 +288,7 @@
             background: linear-gradient(90deg, var(--secondary), white);
             width: 0%;
             border-radius: var(--radius-full);
-            transition: width 0.3s ease;
+            transition: width 0.5s ease;
             position: relative;
             overflow: hidden;
         }
@@ -294,7 +302,7 @@
             bottom: 0;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(255, 255, 255, 0.4), 
+                rgba(255, 255, 255, 0.6), 
                 transparent);
             animation: shimmer 2s infinite;
         }
@@ -308,14 +316,15 @@
             font-size: 0.875rem;
             color: white;
             margin-top: var(--space-4);
-            font-weight: 500;
+            font-weight: 600;
             text-align: center;
             line-height: 1.4;
+            opacity: 0.9;
         }
         
         .loading-subtext {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             margin-top: var(--space-2);
             max-width: 280px;
             line-height: 1.4;
@@ -345,15 +354,9 @@
                 margin: var(--space-4) auto;
                 height: calc(100vh - 2 * var(--space-4));
                 max-height: 900px;
-            }
-        }
-        
-        /* ===== SAFE AREA ADJUSTMENTS ===== */
-        @supports (padding: max(0px)) {
-            .main-content {
-                padding-left: max(var(--space-4), env(safe-area-inset-left));
-                padding-right: max(var(--space-4), env(safe-area-inset-right));
-                padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+                border-radius: var(--radius-xl);
+                overflow: hidden;
+                box-shadow: var(--shadow-xl);
             }
         }
         
@@ -382,8 +385,8 @@
         }
         
         .header-toggle {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: var(--radius-md);
             background: rgba(26, 95, 122, 0.1);
             display: flex;
@@ -393,11 +396,13 @@
             transition: all var(--transition-fast);
             color: var(--primary);
             font-size: 0.75rem;
+            border: 1px solid rgba(26, 95, 122, 0.2);
         }
         
         .header-toggle:hover {
             background: rgba(26, 95, 122, 0.2);
             transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
         
         .header-toggle.collapsed .toggle-icon {
@@ -421,10 +426,9 @@
         }
         
         .app-logo {
-            width: 36px;
-            height: 36px;
-            background: url("icon.svg") no-repeat center center;
-            background-size: contain;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
@@ -432,6 +436,13 @@
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(26, 95, 122, 0.3);
+        }
+        
+        .app-logo::before {
+            content: '🫁';
+            font-size: 1.25rem;
+            color: white;
         }
         
         .app-name {
@@ -440,17 +451,26 @@
         }
         
         .app-name h1 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--primary);
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text-primary);
             line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
+        .app-name h1 .spiro {
+            color: var(--text-primary);
+        }
+        
+        .app-name h1 .lite {
+            color: var(--primary);
+            font-weight: 900;
+        }
+        
         .app-name span {
-            font-size: 0.625rem;
+            font-size: 0.6875rem;
             color: var(--text-secondary);
             font-weight: 500;
             display: block;
@@ -501,18 +521,19 @@
         }
         
         .patient-avatar-small {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 600;
-            font-size: 0.75rem;
+            font-weight: 700;
+            font-size: 0.875rem;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(26, 95, 122, 0.3);
+            box-shadow: 0 3px 10px rgba(26, 95, 122, 0.3);
+            border: 2px solid white;
         }
         
         .patient-meta-compact {
@@ -548,9 +569,9 @@
         
         /* ===== HEADER BUTTONS ===== */
         .header-btn {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
             border-radius: var(--radius-md);
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -562,7 +583,7 @@
             justify-content: center;
             cursor: pointer;
             transition: all var(--transition-fast);
-            font-size: 0.875rem;
+            font-size: 1rem;
         }
         
         .header-btn:hover {
@@ -570,6 +591,7 @@
             color: white;
             border-color: var(--primary);
             transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
         
         .header-btn:active {
@@ -577,17 +599,17 @@
         }
         
         .header-btn.small {
-            width: 32px;
-            height: 32px;
-            min-width: 32px;
-            font-size: 0.75rem;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            font-size: 0.875rem;
         }
         
-        /* Visual Toggle */
+        /* ===== VISUAL TOGGLE ===== */
         .visual-toggle-container {
             display: flex;
             align-items: center;
-            gap: var(--space-1);
+            gap: var(--space-2);
         }
         
         .visual-toggle-label {
@@ -598,8 +620,8 @@
         
         .visual-toggle {
             position: relative;
-            width: 44px;
-            height: 24px;
+            width: 48px;
+            height: 26px;
         }
         
         .visual-toggle input {
@@ -623,14 +645,14 @@
         .visual-toggle-slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
+            height: 18px;
+            width: 18px;
             left: 4px;
             bottom: 4px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .visual-toggle input:checked + .visual-toggle-slider {
@@ -638,7 +660,7 @@
         }
         
         .visual-toggle input:checked + .visual-toggle-slider:before {
-            transform: translateX(20px);
+            transform: translateX(22px);
         }
         
         /* ===== NAVIGATION ===== */
@@ -681,7 +703,7 @@
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            min-width: 70px;
+            min-width: 75px;
             white-space: nowrap;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -841,6 +863,36 @@
             font-weight: 600;
             font-size: 0.75rem;
             pointer-events: none;
+        }
+        
+        /* ===== REAL-TIME VALIDATION ===== */
+        .validation-message {
+            font-size: 0.6875rem;
+            margin-top: var(--space-1);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-md);
+            display: none;
+        }
+        
+        .validation-message.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            display: block;
+        }
+        
+        .validation-message.error {
+            background: var(--alert-light);
+            color: var(--alert);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            display: block;
+        }
+        
+        .validation-message.success {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+            display: block;
         }
         
         /* ===== PERCENTAGE DISPLAY STYLES ===== */
@@ -1372,7 +1424,7 @@
             align-items: center;
             justify-content: center;
             gap: var(--space-1);
-            min-height: 36px;
+            min-height: 40px;
         }
         
         @media (max-width: 640px) {
@@ -2055,6 +2107,95 @@
             margin-top: 2px;
         }
         
+        /* ===== UNDO/REDO INDICATORS ===== */
+        .undo-redo-container {
+            display: flex;
+            gap: var(--space-1);
+            align-items: center;
+        }
+        
+        .undo-btn, .redo-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+        }
+        
+        .undo-btn:hover:not(:disabled), .redo-btn:hover:not(:disabled) {
+            background: var(--primary-light);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .undo-btn:disabled, .redo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* ===== AUTO-SAVE INDICATOR ===== */
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: var(--space-2) var(--space-3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            z-index: var(--z-toast);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .save-indicator.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .save-indicator.saving {
+            color: var(--warning);
+        }
+        
+        .save-indicator.success {
+            color: var(--success);
+        }
+        
+        .save-indicator.error {
+            color: var(--alert);
+        }
+        
+        /* ===== ACCESSIBILITY ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
         /* ===== UTILITY CLASSES ===== */
         .hidden {
             display: none !important;
@@ -2462,7 +2603,7 @@
     </style>
 </head>
 <body>
-    <!-- Professional Loading Overlay -->
+    <!-- Enhanced Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-logo">
@@ -2480,9 +2621,15 @@
                 </div>
             </div>
             
-            <div class="loading-text" id="loadingText">Spirolite v1.3</div>
-            <div class="loading-subtext" id="loadingSubtext">Professional Lung Function Calculator</div>
+            <div class="loading-text" id="loadingText">Spiro<span style="color: white; font-weight: 800">lite</span> v1.3</div>
+            <div class="loading-subtext" id="loadingSubtext">Professional Lung Function Calculator & Tracker</div>
         </div>
+    </div>
+    
+    <!-- Auto-save Indicator -->
+    <div class="save-indicator" id="saveIndicator">
+        <span class="save-icon">💾</span>
+        <span class="save-text">Saved</span>
     </div>
     
     <!-- Main App Container -->
@@ -2496,11 +2643,19 @@
                 <div class="app-title">
                     <div class="app-logo" title="Spirolite"></div>
                     <div class="app-name">
-                        <h1>Spirolite</h1>
-                        <span>Professional Lung Function Tracker</span>
+                        <h1><span class="spiro">Spiro</span><span class="lite">lite</span></h1>
+                        <span>Calculate & Track</span>
                     </div>
                 </div>
                 <div class="header-actions">
+                    <div class="undo-redo-container">
+                        <button class="undo-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+                            <span>↶</span>
+                        </button>
+                        <button class="redo-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>
+                            <span>↷</span>
+                        </button>
+                    </div>
                     <button class="header-btn" id="protocolSettingsBtn" title="Protocol Settings">
                         <span>⚙️</span>
                     </button>
@@ -2577,9 +2732,11 @@
                                        id="inputFev1"
                                        placeholder="2.85"
                                        autofocus
-                                       required>
+                                       required
+                                       aria-label="FEV1 measurement in liters">
                                 <span class="input-unit">L</span>
                             </div>
+                            <div class="validation-message" id="fev1Validation"></div>
                         </div>
                         
                         <div class="input-group">
@@ -2594,9 +2751,11 @@
                                        max="10.0" 
                                        class="measurement-input" 
                                        id="inputFvc"
-                                       placeholder="3.40">
+                                       placeholder="3.40"
+                                       aria-label="FVC measurement in liters">
                                 <span class="input-unit">L</span>
                             </div>
+                            <div class="validation-message" id="fvcValidation"></div>
                         </div>
                     </div>
                     
@@ -2606,7 +2765,7 @@
                             <span>📊 Comparison Reference</span>
                         </div>
                         <div class="comparison-options">
-                            <label class="comparison-option" id="optionNone">
+                            <label class="comparison-option" id="optionNone" aria-label="Current values only">
                                 <input type="radio" name="comparison" class="option-radio" value="none" checked>
                                 <div class="option-content">
                                     <div class="option-label">Current values only</div>
@@ -2614,7 +2773,7 @@
                                 </div>
                             </label>
                             
-                            <label class="comparison-option" id="optionBaseline">
+                            <label class="comparison-option" id="optionBaseline" aria-label="Compare to established baseline">
                                 <input type="radio" name="comparison" class="option-radio" value="baseline">
                                 <div class="option-content">
                                     <div class="option-label">vs Established Baseline</div>
@@ -2622,12 +2781,13 @@
                                            step="0.01" 
                                            class="option-input" 
                                            id="baselineInput"
-                                           placeholder="Enter baseline FEV₁ (L)">
+                                           placeholder="Enter baseline FEV₁ (L)"
+                                           aria-label="Baseline FEV1 in liters">
                                     <div class="option-note">Compare to post-transplant baseline value</div>
                                 </div>
                             </label>
                             
-                            <label class="comparison-option" id="optionLast">
+                            <label class="comparison-option" id="optionLast" aria-label="Compare to last visit">
                                 <input type="radio" name="comparison" class="option-radio" value="last">
                                 <div class="option-content">
                                     <div class="option-label">vs Last Visit</div>
@@ -2716,11 +2876,11 @@
                 
                 <!-- Action Buttons -->
                 <div class="action-bar">
-                    <button class="action-btn secondary" id="clearQuickBtn">
+                    <button class="action-btn secondary" id="clearQuickBtn" aria-label="Clear all inputs">
                         <span>🗑️</span>
                         <span>Clear</span>
                     </button>
-                    <button class="action-btn primary" id="saveQuickBtn">
+                    <button class="action-btn primary" id="saveQuickBtn" aria-label="Save current visit">
                         <span>💾</span>
                         <span>Save Visit</span>
                     </button>
@@ -2738,10 +2898,10 @@
                         
                         <!-- View Toggle -->
                         <div class="view-toggle">
-                            <button class="view-toggle-btn active" data-view="table">
+                            <button class="view-toggle-btn active" data-view="table" aria-label="Table view">
                                 <span>📋 Table</span>
                             </button>
-                            <button class="view-toggle-btn" data-view="timeline">
+                            <button class="view-toggle-btn" data-view="timeline" aria-label="Timeline view">
                                 <span>📅 Timeline</span>
                             </button>
                         </div>
@@ -2761,8 +2921,9 @@
                                    class="measurement-input compact" 
                                    id="manualBaselineInput"
                                    placeholder="Enter baseline FEV₁"
-                                   style="flex: 1;">
-                            <button class="baseline-set-btn" id="setBaselineBtn" disabled>
+                                   style="flex: 1;"
+                                   aria-label="Manual baseline FEV1 input">
+                            <button class="baseline-set-btn" id="setBaselineBtn" disabled aria-label="Set baseline">
                                 <span>✓</span>
                                 <span>Set</span>
                             </button>
@@ -2771,17 +2932,17 @@
                     
                     <!-- Data Entry Mode Selector -->
                     <div class="entry-mode-selector" id="entryModeSelector">
-                        <div class="entry-mode-card active" data-mode="single">
+                        <div class="entry-mode-card active" data-mode="single" aria-label="Single entry mode">
                             <div class="entry-mode-icon">➕</div>
                             <div class="entry-mode-title">Single Entry</div>
                             <div class="entry-mode-desc">Enter one visit at a time</div>
                         </div>
-                        <div class="entry-mode-card" data-mode="bulk">
+                        <div class="entry-mode-card" data-mode="bulk" aria-label="Bulk import mode">
                             <div class="entry-mode-icon">📥</div>
                             <div class="entry-mode-title">Bulk Import</div>
                             <div class="entry-mode-desc">Paste multiple visits at once</div>
                         </div>
-                        <div class="entry-mode-card" data-mode="spreadsheet">
+                        <div class="entry-mode-card" data-mode="spreadsheet" aria-label="Spreadsheet mode">
                             <div class="entry-mode-icon">📋</div>
                             <div class="entry-mode-title">Spreadsheet</div>
                             <div class="entry-mode-desc">Table-style data entry</div>
@@ -2796,16 +2957,16 @@
                         </div>
                         <div class="form-row">
                             <div style="flex: 1; min-width: 120px;">
-                                <input type="date" class="date-input" id="visitDate" required>
+                                <input type="date" class="date-input" id="visitDate" required aria-label="Visit date">
                                 <div class="date-warning hidden" id="dateIntervalWarning"></div>
                             </div>
                             <input type="number" step="0.01" min="0.5" max="8.0" 
                                    class="measurement-input compact" 
-                                   id="visitFev1" placeholder="FEV₁ (L)" required>
+                                   id="visitFev1" placeholder="FEV₁ (L)" required aria-label="Visit FEV1">
                             <input type="number" step="0.01" min="0.5" max="10.0" 
                                    class="measurement-input compact" 
-                                   id="visitFvc" placeholder="FVC (L)">
-                            <button class="header-btn" id="addVisitBtn" title="Add Visit">
+                                   id="visitFvc" placeholder="FVC (L)" aria-label="Visit FVC">
+                            <button class="header-btn" id="addVisitBtn" title="Add Visit" aria-label="Add visit">
                                 <span>➕</span>
                             </button>
                         </div>
@@ -2817,7 +2978,8 @@
                                 <span class="input-help">Symptoms, medications, context</span>
                             </div>
                             <textarea class="clinical-notes-input" id="visitNotes" 
-                                      placeholder="e.g., Recent URI, increased prednisone dose, feeling well..."></textarea>
+                                      placeholder="e.g., Recent URI, increased prednisone dose, feeling well..."
+                                      aria-label="Clinical notes"></textarea>
                             <div class="notes-hint">Notes will appear as tooltips in the table</div>
                         </div>
                     </div>
@@ -2832,8 +2994,9 @@
                                   placeholder="Format: YYYY-MM-DD, FEV1, FVC (optional), NOTES (optional)
 Example:
 2024-01-15, 2.85, 3.40, Doing well
-2024-03-10, 3.10, 3.80, Post-antibiotics"></textarea>
-                        <button class="action-btn secondary mt-2" id="importBulkBtn" style="width: 100%;">
+2024-03-10, 3.10, 3.80, Post-antibiotics"
+                                  aria-label="Bulk import text area"></textarea>
+                        <button class="action-btn secondary mt-2" id="importBulkBtn" style="width: 100%;" aria-label="Import visits">
                             <span>📥</span>
                             <span>Import Visits</span>
                         </button>
@@ -2845,30 +3008,30 @@ Example:
                             <span>Spreadsheet Entry</span>
                             <span class="input-help">Click cells to edit, Tab to navigate</span>
                         </div>
-                        <table class="spreadsheet-table" id="spreadsheetTable">
+                        <table class="spreadsheet-table" id="spreadsheetTable" aria-label="Spreadsheet for data entry">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>FEV₁ (L)</th>
-                                    <th>FVC (L)</th>
-                                    <th>Notes</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">FEV₁ (L)</th>
+                                    <th scope="col">FVC (L)</th>
+                                    <th scope="col">Notes</th>
                                 </tr>
                             </thead>
                             <tbody id="spreadsheetBody">
                                 <tr>
-                                    <td class="editable-cell" contenteditable="true" data-field="date"></td>
-                                    <td class="editable-cell" contenteditable="true" data-field="fev1"></td>
-                                    <td class="editable-cell" contenteditable="true" data-field="fvc"></td>
-                                    <td class="editable-cell" contenteditable="true" data-field="notes"></td>
+                                    <td class="editable-cell" contenteditable="true" data-field="date" role="gridcell"></td>
+                                    <td class="editable-cell" contenteditable="true" data-field="fev1" role="gridcell"></td>
+                                    <td class="editable-cell" contenteditable="true" data-field="fvc" role="gridcell"></td>
+                                    <td class="editable-cell" contenteditable="true" data-field="notes" role="gridcell"></td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="action-bar mt-3" style="border-top: none; margin-top: var(--space-2); padding-top: 0;">
-                            <button class="action-btn secondary" id="addSpreadsheetRowBtn">
+                            <button class="action-btn secondary" id="addSpreadsheetRowBtn" aria-label="Add row to spreadsheet">
                                 <span>➕</span>
                                 <span>Add Row</span>
                             </button>
-                            <button class="action-btn primary" id="saveSpreadsheetBtn">
+                            <button class="action-btn primary" id="saveSpreadsheetBtn" aria-label="Save all spreadsheet data">
                                 <span>💾</span>
                                 <span>Save All</span>
                             </button>
@@ -2881,35 +3044,35 @@ Example:
                             <span style="font-weight: 600; font-size: 0.75rem;">Visit History</span>
                             <div style="display: flex; gap: var(--space-2); align-items: center;">
                                 <div class="visual-toggle-container">
-                                    <label class="visual-toggle" title="Toggle color coding">
-                                        <input type="checkbox" id="colorCodingToggle" checked>
+                                    <label class="visual-toggle" title="Toggle color coding" aria-label="Toggle color coding">
+                                        <input type="checkbox" id="colorCodingToggle" checked aria-checked="true">
                                         <span class="visual-toggle-slider"></span>
                                     </label>
                                     <span class="visual-toggle-label">Colors</span>
                                 </div>
-                                <button class="header-btn small" id="togglePercentageView" title="Toggle percentage view">
+                                <button class="header-btn small" id="togglePercentageView" title="Toggle percentage view" aria-label="Toggle percentage view">
                                     <span>%</span>
                                 </button>
-                                <button class="language-toggle" id="languageToggle" title="Switch language">
+                                <button class="language-toggle" id="languageToggle" title="Switch language" aria-label="Switch language">
                                     EN
                                 </button>
                             </div>
                         </div>
                         <div class="table-wrapper">
-                            <table class="medical-table">
+                            <table class="medical-table" aria-label="Patient visits table">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Days</th>
-                                        <th>FEV₁ (L)</th>
-                                        <th>% of PB</th>
-                                        <th>FVC</th>
-                                        <th>Ratio</th>
-                                        <th>Δ Visit</th>
-                                        <th>Δ Baseline</th>
-                                        <th>Rate</th>
-                                        <th class="alert-cell">Alert</th>
-                                        <th>Notes</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Days</th>
+                                        <th scope="col">FEV₁ (L)</th>
+                                        <th scope="col">% of PB</th>
+                                        <th scope="col">FVC</th>
+                                        <th scope="col">Ratio</th>
+                                        <th scope="col">Δ Visit</th>
+                                        <th scope="col">Δ Baseline</th>
+                                        <th scope="col">Rate</th>
+                                        <th scope="col" class="alert-cell">Alert</th>
+                                        <th scope="col">Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody id="visitsTableBody">
@@ -2928,17 +3091,17 @@ Example:
                         <div class="table-header">
                             <span style="font-weight: 600; font-size: 0.75rem;">Patient Timeline</span>
                             <div style="display: flex; gap: var(--space-2);">
-                                <button class="header-btn small" id="exportTimelineBtn" title="Export Timeline">
+                                <button class="header-btn small" id="exportTimelineBtn" title="Export Timeline" aria-label="Export timeline">
                                     <span>📤</span>
                                 </button>
                             </div>
                         </div>
                         <div class="timeline-container">
                             <div class="timeline-chart-container">
-                                <canvas id="timelineChart"></canvas>
+                                <canvas id="timelineChart" aria-label="Timeline chart of FEV1 measurements"></canvas>
                             </div>
                             
-                            <div class="timeline-milestones" id="timelineMilestones">
+                            <div class="timeline-milestones" id="timelineMilestones" aria-label="Patient milestones">
                                 <!-- Milestones will be added here -->
                             </div>
                             
@@ -2972,7 +3135,7 @@ Example:
                         
                         <!-- Chart with Stability Zones -->
                         <div class="chart-container">
-                            <canvas id="fev1Chart"></canvas>
+                            <canvas id="fev1Chart" aria-label="FEV1 trend chart"></canvas>
                         </div>
                         
                         <!-- Threshold Configuration -->
@@ -2982,13 +3145,15 @@ Example:
                                 <div class="threshold-item">
                                     <span>Monitor at:</span>
                                     <input type="number" min="5" max="50" value="10" 
-                                           class="threshold-input compact" id="monitorThreshold">
+                                           class="threshold-input compact" id="monitorThreshold"
+                                           aria-label="Monitor threshold percentage">
                                     <span>%</span>
                                 </div>
                                 <div class="threshold-item">
                                     <span>Review at:</span>
                                     <input type="number" min="10" max="50" value="20" 
-                                           class="threshold-input compact" id="reviewThreshold">
+                                           class="threshold-input compact" id="reviewThreshold"
+                                           aria-label="Review threshold percentage">
                                     <span>%</span>
                                 </div>
                             </div>
@@ -3001,15 +3166,15 @@ Example:
                 
                 <!-- Monitor Actions -->
                 <div class="action-bar">
-                    <button class="action-btn secondary" id="clearMonitorBtn">
+                    <button class="action-btn secondary" id="clearMonitorBtn" aria-label="Clear monitor table">
                         <span>🗑️</span>
                         <span>Clear Table</span>
                     </button>
-                    <button class="action-btn primary" id="exportPDFBtn">
+                    <button class="action-btn primary" id="exportPDFBtn" aria-label="Export PDF report">
                         <span>📄</span>
                         <span>Export PDF Report</span>
                     </button>
-                    <button class="action-btn secondary" id="toggleVisualizationBtn">
+                    <button class="action-btn secondary" id="toggleVisualizationBtn" aria-label="Toggle visualization">
                         <span>📊</span>
                         <span>Show Charts</span>
                     </button>
@@ -3030,11 +3195,11 @@ Example:
                         <div class="form-row">
                             <div style="flex: 1;">
                                 <div class="input-label" style="margin-bottom: var(--space-1); font-size: 0.6875rem;">Transplant Date</div>
-                                <input type="date" class="date-input" id="txDate" required>
+                                <input type="date" class="date-input" id="txDate" required aria-label="Transplant date">
                             </div>
                             <div style="flex: 1;">
                                 <div class="input-label" style="margin-bottom: var(--space-1); font-size: 0.6875rem;">Baseline Established</div>
-                                <input type="date" class="date-input" id="baselineDate">
+                                <input type="date" class="date-input" id="baselineDate" aria-label="Baseline date">
                             </div>
                         </div>
                     </div>
@@ -3051,7 +3216,8 @@ Example:
                                        class="measurement-input" 
                                        id="stdFev1"
                                        placeholder="Enter FEV₁"
-                                       required>
+                                       required
+                                       aria-label="Current FEV1">
                                 <span class="input-unit">L</span>
                             </div>
                         </div>
@@ -3065,7 +3231,8 @@ Example:
                                        class="measurement-input" 
                                        id="stdBaselineFev1"
                                        placeholder="Enter baseline"
-                                       required>
+                                       required
+                                       aria-label="Baseline FEV1">
                                 <span class="input-unit">L</span>
                             </div>
                         </div>
@@ -3075,7 +3242,8 @@ Example:
                     <div class="input-group">
                         <div class="input-label">Clinical Context</div>
                         <textarea class="bulk-textarea" id="clinicalNotes"
-                                  placeholder="Enter clinical context, symptoms, medications, or other relevant information..."></textarea>
+                                  placeholder="Enter clinical context, symptoms, medications, or other relevant information..."
+                                  aria-label="Clinical context notes"></textarea>
                         <div class="notes-hint">Optional: For your reference only</div>
                     </div>
                 </div>
@@ -3150,11 +3318,11 @@ Example:
                 
                 <!-- Full Study Actions -->
                 <div class="action-bar">
-                    <button class="action-btn secondary" id="clearStdBtn">
+                    <button class="action-btn secondary" id="clearStdBtn" aria-label="Clear full study">
                         <span>🗑️</span>
                         <span>Clear All</span>
                     </button>
-                    <button class="action-btn primary" id="saveStudyBtn">
+                    <button class="action-btn primary" id="saveStudyBtn" aria-label="Save full study">
                         <span>💾</span>
                         <span>Save Full Study</span>
                     </button>
@@ -3171,7 +3339,7 @@ Example:
         <div class="modal-content glass-modal">
             <div class="modal-header">
                 <div class="modal-title">Protocol Settings</div>
-                <button class="modal-close" id="closeProtocolModal">
+                <button class="modal-close" id="closeProtocolModal" aria-label="Close modal">
                     <span>×</span>
                 </button>
             </div>
@@ -3197,14 +3365,16 @@ Example:
                                    step="1" 
                                    value="10" 
                                    class="threshold-slider" 
-                                   id="monitorSlider">
+                                   id="monitorSlider"
+                                   aria-label="Monitor threshold slider">
                             <input type="number" 
                                    min="5" 
                                    max="15" 
                                    step="1" 
                                    value="10" 
                                    class="threshold-input" 
-                                   id="monitorInput">
+                                   id="monitorInput"
+                                   aria-label="Monitor threshold input">
                             <span class="threshold-percent">%</span>
                         </div>
                         <div class="threshold-description">
@@ -3227,14 +3397,16 @@ Example:
                                    step="1" 
                                    value="20" 
                                    class="threshold-slider" 
-                                   id="reviewSlider">
+                                   id="reviewSlider"
+                                   aria-label="Review threshold slider">
                             <input type="number" 
                                    min="15" 
                                    max="30" 
                                    step="1" 
                                    value="20" 
                                    class="threshold-input" 
-                                   id="reviewInput">
+                                   id="reviewInput"
+                                   aria-label="Review threshold input">
                             <span class="threshold-percent">%</span>
                         </div>
                         <div class="threshold-description">
@@ -3259,7 +3431,8 @@ Example:
                                    value="4" 
                                    class="threshold-input" 
                                    id="stabilityVisits"
-                                   style="flex: 0.5;">
+                                   style="flex: 0.5;"
+                                   aria-label="Stability visits count">
                             <span style="flex: 2; font-size: 0.75rem;">visits with variation ≤</span>
                             <input type="number" 
                                    min="1" 
@@ -3268,7 +3441,8 @@ Example:
                                    value="5" 
                                    class="threshold-input" 
                                    id="stabilityThreshold"
-                                   style="flex: 0.5;">
+                                   style="flex: 0.5;"
+                                   aria-label="Stability threshold percentage">
                             <span class="threshold-percent">%</span>
                         </div>
                         <div class="threshold-description">
@@ -3278,11 +3452,11 @@ Example:
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="action-btn secondary" id="resetProtocolBtn">
+                <button class="action-btn secondary" id="resetProtocolBtn" aria-label="Reset to defaults">
                     <span>↺</span>
                     <span>Reset to Defaults</span>
                 </button>
-                <button class="action-btn primary" id="saveProtocolBtn">
+                <button class="action-btn primary" id="saveProtocolBtn" aria-label="Save protocol">
                     <span>💾</span>
                     <span>Save Protocol</span>
                 </button>
@@ -3295,7 +3469,7 @@ Example:
         <div class="modal-content glass-modal">
             <div class="modal-header">
                 <div class="modal-title">Create New Patient</div>
-                <button class="modal-close" id="closeNewPatientModal">
+                <button class="modal-close" id="closeNewPatientModal" aria-label="Close modal">
                     <span>×</span>
                 </button>
             </div>
@@ -3309,29 +3483,32 @@ Example:
                            autofocus
                            required
                            pattern="[A-Za-z0-9]{3,10}"
-                           title="3-10 characters, letters and numbers only">
+                           title="3-10 characters, letters and numbers only"
+                           aria-label="Patient ID">
                 </div>
                 <div class="input-group mb-3">
                     <div class="input-label">Transplant Date</div>
                     <input type="date" 
                            class="date-input" 
                            id="newTxDate"
-                           required>
+                           required
+                           aria-label="Transplant date">
                 </div>
                 <div class="input-group">
                     <div class="input-label">Description (Optional)</div>
                     <input type="text" 
                            class="measurement-input compact" 
                            id="newPatientDesc"
-                           placeholder="e.g., Bilateral lung transplant">
+                           placeholder="e.g., Bilateral lung transplant"
+                           aria-label="Patient description">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="action-btn secondary" id="cancelNewPatientBtn">
+                <button class="action-btn secondary" id="cancelNewPatientBtn" aria-label="Cancel">
                     <span>✕</span>
                     <span>Cancel</span>
                 </button>
-                <button class="action-btn primary" id="createPatientBtn">
+                <button class="action-btn primary" id="createPatientBtn" aria-label="Create patient">
                     <span>➕</span>
                     <span>Create Patient</span>
                 </button>
@@ -3344,7 +3521,7 @@ Example:
         <div class="modal-content glass-modal">
             <div class="modal-header">
                 <div class="modal-title">Select Patient</div>
-                <button class="modal-close" id="closePatientListModal">
+                <button class="modal-close" id="closePatientListModal" aria-label="Close modal">
                     <span>×</span>
                 </button>
             </div>
@@ -3358,7 +3535,7 @@ Example:
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="action-btn primary" id="addNewPatientBtn">
+                <button class="action-btn primary" id="addNewPatientBtn" aria-label="Add new patient">
                     <span>➕</span>
                     <span>Add New Patient</span>
                 </button>
@@ -3373,7 +3550,7 @@ Example:
                 <div class="modal-title">
                     <span>⚠️</span> <span>Baseline Conflict</span>
                 </div>
-                <button class="modal-close" id="closeBaselineConflictModal">
+                <button class="modal-close" id="closeBaselineConflictModal" aria-label="Close modal">
                     <span>×</span>
                 </button>
             </div>
@@ -3404,15 +3581,15 @@ Example:
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="action-btn secondary" id="usePatientBaselineBtn">
+                <button class="action-btn secondary" id="usePatientBaselineBtn" aria-label="Use patient baseline">
                     <span>👤</span>
                     <span>Use Patient Baseline</span>
                 </button>
-                <button class="action-btn secondary" id="useEnteredBaselineBtn">
+                <button class="action-btn secondary" id="useEnteredBaselineBtn" aria-label="Use entered baseline">
                     <span>✏️</span>
                     <span>Use Entered Baseline</span>
                 </button>
-                <button class="action-btn primary" id="updatePatientBaselineBtn">
+                <button class="action-btn primary" id="updatePatientBaselineBtn" aria-label="Update patient baseline">
                     <span>💾</span>
                     <span>Update Patient Record</span>
                 </button>
@@ -3425,7 +3602,7 @@ Example:
         <div class="modal-content glass-modal">
             <div class="modal-header">
                 <div class="modal-title"><span>⚠️</span> <span>Visit Already Exists</span></div>
-                <button class="modal-close" id="closeDuplicateModal">
+                <button class="modal-close" id="closeDuplicateModal" aria-label="Close modal">
                     <span>×</span>
                 </button>
             </div>
@@ -3471,15 +3648,15 @@ Example:
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="action-btn secondary" id="cancelDuplicateBtn">
+                <button class="action-btn secondary" id="cancelDuplicateBtn" aria-label="Cancel">
                     <span>✕</span>
                     <span>Cancel</span>
                 </button>
-                <button class="action-btn secondary" id="addAsNewBtn">
+                <button class="action-btn secondary" id="addAsNewBtn" aria-label="Add as new entry">
                     <span>➕</span>
                     <span>Add as New Entry</span>
                 </button>
-                <button class="action-btn primary" id="replaceExistingBtn">
+                <button class="action-btn primary" id="replaceExistingBtn" aria-label="Replace existing">
                     <span>🔄</span>
                     <span>Replace Existing</span>
                 </button>
@@ -3490,9 +3667,55 @@ Example:
     <!-- JavaScript -->
     <script>
     // ============================================
-    // SPIRALITE v1.3 - PROFESSIONAL EDITION
-    // Professional Lung Function Calculator and Tracker
+    // SPIROLITE v1.3 - PROFESSIONAL EDITION
+    // Professional Lung Function Calculator & Tracker
     // ============================================
+
+    class HistoryManager {
+        constructor() {
+            this.stack = [];
+            this.index = -1;
+            this.maxSize = 50;
+        }
+        
+        push(state, action) {
+            // Trim if needed
+            if (this.index < this.stack.length - 1) {
+                this.stack = this.stack.slice(0, this.index + 1);
+            }
+            
+            this.stack.push({
+                state: JSON.parse(JSON.stringify(state)), // Deep clone
+                action,
+                timestamp: Date.now()
+            });
+            
+            if (this.stack.length > this.maxSize) {
+                this.stack.shift();
+            }
+            
+            this.index = this.stack.length - 1;
+        }
+        
+        canUndo() { return this.index > 0; }
+        canRedo() { return this.index < this.stack.length - 1; }
+        
+        undo() {
+            if (this.canUndo()) {
+                this.index--;
+                return this.stack[this.index];
+            }
+            return null;
+        }
+        
+        redo() {
+            if (this.canRedo()) {
+                this.index++;
+                return this.stack[this.index];
+            }
+            return null;
+        }
+    }
 
     class SpiroliteApp {
         constructor() {
@@ -3539,15 +3762,10 @@ Example:
                     duplicateDateData: null,
                     baselineConflictData: null
                 },
-                stability: {
-                    currentStatus: 'unknown',
-                    lastCheck: null,
-                    stablePeriods: []
-                },
-                uiCollapsed: false,
-                unsavedChanges: false
+                uiCollapsed: false
             };
             
+            this.history = new HistoryManager();
             this.dom = {};
             this.init();
         }
@@ -3643,6 +3861,8 @@ Example:
             this.dom.headerToggle = document.getElementById('headerToggle');
             
             // Header actions
+            this.dom.undoBtn = document.getElementById('undoBtn');
+            this.dom.redoBtn = document.getElementById('redoBtn');
             this.dom.protocolSettingsBtn = document.getElementById('protocolSettingsBtn');
             this.dom.exportBtn = document.getElementById('exportBtn');
             this.dom.colorCodingToggle = document.getElementById('colorCodingToggle');
@@ -3664,6 +3884,8 @@ Example:
             this.dom.quickPatientBadge = document.getElementById('quickPatientBadge');
             this.dom.inputFev1 = document.getElementById('inputFev1');
             this.dom.inputFvc = document.getElementById('inputFvc');
+            this.dom.fev1Validation = document.getElementById('fev1Validation');
+            this.dom.fvcValidation = document.getElementById('fvcValidation');
             this.dom.optionNone = document.getElementById('optionNone');
             this.dom.optionBaseline = document.getElementById('optionBaseline');
             this.dom.optionLast = document.getElementById('optionLast');
@@ -3816,6 +4038,9 @@ Example:
             this.dom.addAsNewBtn = document.getElementById('addAsNewBtn');
             this.dom.replaceExistingBtn = document.getElementById('replaceExistingBtn');
             
+            // Save indicator
+            this.dom.saveIndicator = document.getElementById('saveIndicator');
+            
             // Toast container
             this.dom.toastContainer = document.getElementById('toastContainer');
         }
@@ -3830,6 +4055,10 @@ Example:
             // Original header click still works
             this.dom.appHeader.addEventListener('click', () => this.toggleUICollapse());
             this.dom.patientBar.addEventListener('click', () => this.toggleUICollapse());
+            
+            // Undo/Redo buttons
+            this.dom.undoBtn.addEventListener('click', () => this.handleUndo());
+            this.dom.redoBtn.addEventListener('click', () => this.handleRedo());
             
             // Color coding toggle
             this.dom.colorCodingToggle.addEventListener('change', () => this.toggleColorCoding());
@@ -3848,10 +4077,21 @@ Example:
             this.dom.newPatientBtn.addEventListener('click', () => this.showModal('newPatientModal'));
             this.dom.patientListBtn.addEventListener('click', () => this.showPatientList());
             
-            // Quick mode
-            this.dom.inputFev1.addEventListener('input', () => this.handleQuickInput());
-            this.dom.inputFvc.addEventListener('input', () => this.handleQuickInput());
-            this.dom.baselineInput.addEventListener('input', () => this.handleComparisonChange());
+            // Quick mode - Real-time validation
+            this.dom.inputFev1.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'fev1');
+                this.handleQuickInput();
+            });
+            
+            this.dom.inputFvc.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'fvc');
+                this.handleQuickInput();
+            });
+            
+            this.dom.baselineInput.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'baseline');
+                this.handleComparisonChange();
+            });
             
             [this.dom.optionNone, this.dom.optionBaseline, this.dom.optionLast].forEach(option => {
                 option.addEventListener('click', (e) => this.handleComparisonSelection(e));
@@ -3862,7 +4102,8 @@ Example:
             this.dom.saveQuickBtn.addEventListener('click', () => this.saveQuickVisit());
             
             // Monitor mode - Baseline control
-            this.dom.manualBaselineInput.addEventListener('input', () => {
+            this.dom.manualBaselineInput.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'baseline');
                 const value = parseFloat(this.dom.manualBaselineInput.value);
                 this.dom.setBaselineBtn.disabled = !value || isNaN(value) || value < 0.5 || value > 8.0;
             });
@@ -3908,8 +4149,14 @@ Example:
             // Full mode
             this.dom.txDate.addEventListener('change', () => this.updateTimeline());
             this.dom.baselineDate.addEventListener('change', () => this.updateTimeline());
-            this.dom.stdFev1.addEventListener('input', () => this.handleFullInput());
-            this.dom.stdBaselineFev1.addEventListener('input', () => this.handleFullInput());
+            this.dom.stdFev1.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'fev1');
+                this.handleFullInput();
+            });
+            this.dom.stdBaselineFev1.addEventListener('input', (e) => {
+                this.validateRealTime(e.target, 'baseline');
+                this.handleFullInput();
+            });
             this.dom.clearStdBtn.addEventListener('click', () => this.clearFullStudy());
             this.dom.saveStudyBtn.addEventListener('click', () => this.saveFullStudy());
             
@@ -3989,7 +4236,7 @@ Example:
             
             // Auto-save on page unload
             window.addEventListener('beforeunload', (e) => {
-                if (this.state.unsavedChanges) {
+                if (this.hasUnsavedChanges()) {
                     e.preventDefault();
                     e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
                     return 'You have unsaved changes. Are you sure you want to leave?';
@@ -4118,6 +4365,130 @@ Example:
             });
         }
         
+        // ===== ENHANCED VALIDATION =====
+        
+        validateRealTime(input, type) {
+            const value = parseFloat(input.value);
+            let message = '';
+            let messageType = '';
+            
+            if (!input.value.trim()) {
+                this.clearValidation(type);
+                return true;
+            }
+            
+            if (isNaN(value)) {
+                message = 'Please enter a valid number';
+                messageType = 'error';
+            } else {
+                switch(type) {
+                    case 'fev1':
+                        if (value < 0.5) {
+                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            messageType = 'warning';
+                        } else if (value > 8.0) {
+                            message = '⚠️ Above physiological maximum (8.0 L)';
+                            messageType = 'warning';
+                        } else {
+                            message = '✓ Valid FEV₁ measurement';
+                            messageType = 'success';
+                        }
+                        break;
+                        
+                    case 'fvc':
+                        if (value < 0.5) {
+                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            messageType = 'warning';
+                        } else if (value > 10.0) {
+                            message = '⚠️ Above physiological maximum (10.0 L)';
+                            messageType = 'warning';
+                        } else {
+                            message = '✓ Valid FVC measurement';
+                            messageType = 'success';
+                        }
+                        break;
+                        
+                    case 'baseline':
+                        if (value < 0.5) {
+                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            messageType = 'warning';
+                        } else if (value > 8.0) {
+                            message = '⚠️ Above physiological maximum (8.0 L)';
+                            messageType = 'warning';
+                        } else {
+                            message = '✓ Valid baseline';
+                            messageType = 'success';
+                        }
+                        break;
+                }
+            }
+            
+            this.showValidation(type, message, messageType);
+            return messageType !== 'error';
+        }
+        
+        showValidation(type, message, messageType) {
+            const validationEl = document.getElementById(`${type}Validation`);
+            if (validationEl) {
+                validationEl.textContent = message;
+                validationEl.className = `validation-message ${messageType}`;
+            }
+        }
+        
+        clearValidation(type) {
+            const validationEl = document.getElementById(`${type}Validation`);
+            if (validationEl) {
+                validationEl.textContent = '';
+                validationEl.className = 'validation-message';
+            }
+        }
+        
+        // ===== UNDO/REDO FUNCTIONALITY =====
+        
+        handleUndo() {
+            if (!this.history.canUndo()) return;
+            
+            const previousState = this.history.undo();
+            if (previousState) {
+                this.restoreState(previousState.state);
+                this.showToast(`Undo: ${previousState.action}`, 'info');
+                this.updateUndoRedoButtons();
+            }
+        }
+        
+        handleRedo() {
+            if (!this.history.canRedo()) return;
+            
+            const nextState = this.history.redo();
+            if (nextState) {
+                this.restoreState(nextState.state);
+                this.showToast(`Redo: ${nextState.action}`, 'info');
+                this.updateUndoRedoButtons();
+            }
+        }
+        
+        saveToHistory(action) {
+            this.history.push(this.state, action);
+            this.updateUndoRedoButtons();
+        }
+        
+        updateUndoRedoButtons() {
+            this.dom.undoBtn.disabled = !this.history.canUndo();
+            this.dom.redoBtn.disabled = !this.history.canRedo();
+        }
+        
+        restoreState(state) {
+            this.state = JSON.parse(JSON.stringify(state));
+            this.updateUI();
+            this.updateVisitsTable();
+            this.updatePatientContext();
+        }
+        
+        hasUnsavedChanges() {
+            // Check if there are any pending changes
+            return this.history.stack.length > 0;
+        }
+        
         // ===== STATE MANAGEMENT =====
         
         async loadState() {
@@ -4170,6 +4541,8 @@ Example:
         }
         
         saveState() {
+            this.showSaveIndicator(true);
+            
             try {
                 const data = {
                     protocol: this.state.protocol,
@@ -4182,11 +4555,41 @@ Example:
                 };
                 
                 localStorage.setItem('spirolite_state_v1.3', JSON.stringify(data));
-                this.state.unsavedChanges = false;
+                this.showSaveIndicator(false, true);
             } catch (error) {
                 console.error('Failed to save state:', error);
+                this.showSaveIndicator(false, false);
                 this.showToast('Failed to save data', 'error');
             }
+        }
+        
+        showSaveIndicator(show, success = null) {
+            const indicator = this.dom.saveIndicator;
+            const saveIcon = indicator.querySelector('.save-icon');
+            const saveText = indicator.querySelector('.save-text');
+            
+            if (!show) {
+                if (success === true) {
+                    saveIcon.textContent = '✓';
+                    saveText.textContent = 'Saved';
+                    indicator.classList.add('success');
+                    setTimeout(() => {
+                        indicator.classList.remove('visible', 'success');
+                    }, 2000);
+                } else if (success === false) {
+                    saveIcon.textContent = '✗';
+                    saveText.textContent = 'Save failed';
+                    indicator.classList.add('error');
+                    setTimeout(() => {
+                        indicator.classList.remove('visible', 'error');
+                    }, 3000);
+                }
+                return;
+            }
+            
+            saveIcon.textContent = '💾';
+            saveText.textContent = 'Saving...';
+            indicator.classList.add('visible', 'saving');
         }
         
         updateUI() {
@@ -4292,6 +4695,7 @@ Example:
             this.setCurrentPatient(id);
             
             this.hideModal('newPatientModal');
+            this.saveToHistory(`Created patient ${id}`);
             this.saveState();
             
             this.showToast(`Patient created: ${id}`, 'success');
@@ -4333,7 +4737,7 @@ Example:
                         </div>
                         <div style="display: flex; gap: var(--space-2); align-items: center;">
                             ${lastVisit ? `<div style="font-weight: 600; color: var(--primary); font-size: 0.75rem;">${lastVisit.fev1.toFixed(2)} L</div>` : ''}
-                            <button class="header-btn small delete-patient-btn" data-id="${patient.id}" title="Delete patient">
+                            <button class="header-btn small delete-patient-btn" data-id="${patient.id}" title="Delete patient" aria-label="Delete patient">
                                 <span>🗑️</span>
                             </button>
                         </div>
@@ -4378,6 +4782,7 @@ Example:
             this.state.patients.delete(patientId);
             
             // Save state (auto-removes patient from localStorage)
+            this.saveToHistory(`Deleted patient ${patientId}`);
             this.saveState();
             
             // Refresh patient list if modal is open
@@ -4553,250 +4958,7 @@ Example:
             return errors;
         }
         
-        // ===== PDF EXPORT ENHANCEMENTS =====
-        
-        exportProfessionalPDF() {
-            if (this.state.session.monitor.visits.length === 0) {
-                this.showToast('No visits to export', 'warning');
-                return;
-            }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const patientId = this.state.currentPatient || 'Unknown';
-            const patient = this.state.patients.get(this.state.currentPatient);
-            const today = new Date();
-            
-            // ===== COVER PAGE =====
-            doc.setFillColor(26, 95, 122);
-            doc.rect(0, 0, 210, 297, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(32);
-            doc.text('SPIROLITE', 105, 100, { align: 'center' });
-            doc.setFontSize(18);
-            doc.text('Lung Function Report', 105, 120, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.text(`Patient: ${patientId}`, 105, 160, { align: 'center' });
-            
-            if (patient && patient.txDate) {
-                const txDate = new Date(patient.txDate);
-                doc.text(`Transplant Date: ${txDate.toLocaleDateString()}`, 105, 170, { align: 'center' });
-            }
-            
-            doc.text(`Report Date: ${today.toLocaleDateString()}`, 105, 180, { align: 'center' });
-            doc.text(`Generated: ${today.toLocaleString()}`, 105, 190, { align: 'center' });
-            
-            doc.addPage();
-            
-            // ===== PATIENT SUMMARY PAGE =====
-            doc.setFillColor(240, 240, 240);
-            doc.rect(10, 10, 190, 40, 'F');
-            doc.setTextColor(26, 95, 122);
-            doc.setFontSize(16);
-            doc.text('Patient Summary', 20, 25);
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            let yPos = 45;
-            
-            doc.text(`Patient ID: ${patientId}`, 20, yPos);
-            yPos += 8;
-            
-            if (patient) {
-                if (patient.txDate) {
-                    const txDate = new Date(patient.txDate);
-                    doc.text(`Transplant Date: ${txDate.toLocaleDateString()}`, 20, yPos);
-                    yPos += 8;
-                }
-                
-                if (patient.description) {
-                    doc.text(`Description: ${patient.description}`, 20, yPos);
-                    yPos += 8;
-                }
-                
-                if (patient.baselineFev1) {
-                    doc.text(`Baseline FEV₁: ${patient.baselineFev1.toFixed(2)} L`, 20, yPos);
-                    yPos += 8;
-                }
-                
-                doc.text(`Total Visits: ${patient.visits.length}`, 20, yPos);
-                yPos += 8;
-                
-                if (patient.visits.length > 0) {
-                    const firstVisit = patient.visits[0];
-                    const lastVisit = patient.visits[patient.visits.length - 1];
-                    const firstDate = new Date(firstVisit.date);
-                    const lastDate = new Date(lastVisit.date);
-                    const daysSpan = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
-                    
-                    doc.text(`Monitoring Period: ${daysSpan} days`, 20, yPos);
-                    yPos += 8;
-                    
-                    doc.text(`First Visit: ${firstDate.toLocaleDateString()} (${firstVisit.fev1.toFixed(2)} L)`, 20, yPos);
-                    yPos += 8;
-                    
-                    doc.text(`Last Visit: ${lastDate.toLocaleDateString()} (${lastVisit.fev1.toFixed(2)} L)`, 20, yPos);
-                    yPos += 8;
-                    
-                    if (patient.baselineFev1) {
-                        const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
-                        doc.text(`Current Status: ${percent}% of baseline`, 20, yPos);
-                        yPos += 8;
-                    }
-                }
-            }
-            
-            yPos += 10;
-            
-            // ===== VISITS TABLE =====
-            doc.setFillColor(26, 95, 122);
-            doc.rect(10, yPos, 190, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.text('Visit History', 20, yPos + 6);
-            
-            const visits = [...this.state.session.monitor.visits].sort((a, b) => new Date(a.date) - new Date(b.date));
-            const tableData = visits.map((visit, index) => {
-                const prevVisit = index > 0 ? visits[index - 1] : null;
-                const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1).toFixed(2) : '--';
-                const baselineDelta = patient && patient.baselineFev1 ? (visit.fev1 - patient.baselineFev1).toFixed(2) : '--';
-                const baselinePercent = patient && patient.baselineFev1 ? ((visit.fev1 / patient.baselineFev1) * 100).toFixed(1) : '--';
-                const rate = prevVisit ? this.calculateMonthlyRate(visit.fev1, prevVisit.fev1, visit.date, prevVisit.date).toFixed(3) : '--';
-                
-                return [
-                    new Date(visit.date).toLocaleDateString(),
-                    visit.fev1.toFixed(2),
-                    baselinePercent + '%',
-                    visit.fvc ? visit.fvc.toFixed(2) : '--',
-                    visit.fvc ? ((visit.fev1 / visit.fvc) * 100).toFixed(1) + '%' : '--',
-                    visitDelta,
-                    baselineDelta,
-                    rate,
-                    visit.notes || ''
-                ];
-            });
-            
-            doc.autoTable({
-                head: [['Date', 'FEV₁ (L)', '% of PB', 'FVC', 'Ratio', 'Δ Visit', 'Δ Baseline', 'Rate', 'Notes']],
-                body: tableData,
-                startY: yPos + 15,
-                theme: 'grid',
-                headStyles: { 
-                    fillColor: [26, 95, 122],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold'
-                },
-                alternateRowStyles: { fillColor: [240, 240, 240] },
-                styles: { fontSize: 8 },
-                columnStyles: {
-                    0: { cellWidth: 25 },
-                    1: { cellWidth: 20 },
-                    2: { cellWidth: 20 },
-                    3: { cellWidth: 20 },
-                    4: { cellWidth: 20 },
-                    5: { cellWidth: 15 },
-                    6: { cellWidth: 20 },
-                    7: { cellWidth: 15 },
-                    8: { cellWidth: 'auto' }
-                }
-            });
-            
-            // ===== SUMMARY PAGE =====
-            doc.addPage();
-            
-            doc.setFillColor(240, 240, 240);
-            doc.rect(10, 10, 190, 40, 'F');
-            doc.setTextColor(26, 95, 122);
-            doc.setFontSize(16);
-            doc.text('Clinical Summary & Recommendations', 20, 25);
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            yPos = 60;
-            
-            if (patient && patient.visits.length > 0 && patient.baselineFev1) {
-                const lastVisit = patient.visits[patient.visits.length - 1];
-                const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
-                
-                doc.text('Current Status:', 20, yPos);
-                doc.setFont('helvetica', 'bold');
-                doc.text(`${percent}% of baseline`, 60, yPos);
-                doc.setFont('helvetica', 'normal');
-                yPos += 10;
-                
-                // Trend analysis
-                if (patient.visits.length > 1) {
-                    const firstVisit = patient.visits[0];
-                    const trend = this.calculateMonthlyRate(
-                        lastVisit.fev1,
-                        firstVisit.fev1,
-                        lastVisit.date,
-                        firstVisit.date
-                    );
-                    
-                    doc.text('Overall Trend:', 20, yPos);
-                    doc.setFont('helvetica', trend > 0 ? 'bold' : 'normal');
-                    doc.setTextColor(trend > 0 ? 5 : 150 : trend < 0 ? 220 : 38 : 0);
-                    doc.text(`${trend >= 0 ? '+' : ''}${trend.toFixed(3)} L/month`, 60, yPos);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont('helvetica', 'normal');
-                    yPos += 10;
-                }
-                
-                // Protocol recommendations
-                doc.text('Protocol Assessment:', 20, yPos);
-                yPos += 10;
-                
-                if (parseFloat(percent) >= (100 - this.state.protocol.monitor)) {
-                    doc.setTextColor(5, 150, 105);
-                    doc.text('✓ Within normal range', 25, yPos);
-                    doc.text('  Continue routine monitoring', 25, yPos + 5);
-                } else if (parseFloat(percent) >= (100 - this.state.protocol.review)) {
-                    doc.setTextColor(245, 158, 11);
-                    doc.text('⚠ Monitor threshold reached', 25, yPos);
-                    doc.text(`  Consider additional testing (≥${this.state.protocol.monitor}% decline)`, 25, yPos + 5);
-                } else {
-                    doc.setTextColor(220, 38, 38);
-                    doc.text('✗ Review threshold reached', 25, yPos);
-                    doc.text(`  Urgent clinical review recommended (≥${this.state.protocol.review}% decline)`, 25, yPos + 5);
-                }
-                doc.setTextColor(0, 0, 0);
-                yPos += 15;
-                
-                // Recent trend
-                if (patient.visits.length > 3) {
-                    const recentVisits = patient.visits.slice(-3);
-                    const recentTrend = this.calculateMonthlyRate(
-                        recentVisits[2].fev1,
-                        recentVisits[0].fev1,
-                        recentVisits[2].date,
-                        recentVisits[0].date
-                    );
-                    
-                    doc.text('Recent Trend (last 3 visits):', 20, yPos);
-                    doc.setFont('helvetica', recentTrend > 0 ? 'bold' : 'normal');
-                    doc.setTextColor(recentTrend > 0 ? 5 : 150 : recentTrend < 0 ? 220 : 38 : 0);
-                    doc.text(`${recentTrend >= 0 ? '+' : ''}${recentTrend.toFixed(3)} L/month`, 85, yPos);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont('helvetica', 'normal');
-                    yPos += 10;
-                }
-            }
-            
-            // ===== FOOTER =====
-            doc.setFontSize(8);
-            doc.setTextColor(150, 150, 150);
-            doc.text('Generated by Spirolite Professional v1.3 - Confidential Medical Document', 105, 285, { align: 'center' });
-            
-            // Save the PDF
-            doc.save(`Spirolite_Report_${patientId}_${today.toISOString().split('T')[0]}.pdf`);
-            this.showToast('Professional PDF report exported', 'success');
-        }
-        
-                // ===== QUICK CALCULATION MODE =====
+        // ===== QUICK CALCULATION MODE =====
         
         handleQuickInput() {
             const fev1 = parseFloat(this.dom.inputFev1.value);
@@ -4916,6 +5078,7 @@ Example:
                             
                             patient.updatedAt = new Date().toISOString();
                             this.state.patients.set(patient.id, patient);
+                            this.saveToHistory(`Updated baseline for ${patient.id}`);
                             this.saveState();
                             
                             this.updatePatientContext();
@@ -5181,6 +5344,7 @@ Example:
             patient.updatedAt = new Date().toISOString();
             
             this.state.patients.set(patient.id, patient);
+            this.saveToHistory(`Added visit for ${patient.id}: ${fev1.toFixed(2)} L`);
             this.saveState();
             
             // Then sync to monitor session
@@ -5322,6 +5486,7 @@ Example:
             patient.updatedAt = new Date().toISOString();
             
             this.state.patients.set(patient.id, patient);
+            this.saveToHistory(`Added visit for ${patient.id} on ${date}: ${fev1.toFixed(2)} L`);
             this.saveState();
             
             // Then sync to monitor session
@@ -5413,6 +5578,7 @@ Example:
             if (added > 0) {
                 patient.updatedAt = new Date().toISOString();
                 this.state.patients.set(patient.id, patient);
+                this.saveToHistory(`Bulk imported ${added} visits for ${patient.id}`);
                 this.saveState();
                 
                 // Sync all visits to monitor session
@@ -5546,6 +5712,7 @@ Example:
             
             patient.updatedAt = new Date().toISOString();
             this.state.patients.set(patient.id, patient);
+            this.saveToHistory(`Saved ${visits.length} visits from spreadsheet for ${patient.id}`);
             this.saveState();
             
             // Sync all visits to monitor session
@@ -6119,6 +6286,49 @@ Example:
             }
         }
         
+        setManualBaseline() {
+            const value = parseFloat(this.dom.manualBaselineInput.value);
+            
+            if (!value || isNaN(value) || value < 0.5 || value > 8.0) {
+                this.showToast('Please enter a valid baseline FEV₁', 'error');
+                return;
+            }
+            
+            if (!this.state.currentPatient) {
+                this.showToast('Please select a patient first', 'error');
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showToast('Patient not found', 'error');
+                return;
+            }
+            
+            const previousBaseline = patient.baselineFev1;
+            patient.baselineFev1 = value;
+            patient.baselineDate = new Date().toISOString().split('T')[0];
+            
+            patient.baselineHistory.push({
+                value,
+                date: patient.baselineDate,
+                method: 'manual_set',
+                previousValue: previousBaseline,
+                recordedAt: new Date().toISOString(),
+                notes: 'Manually set baseline'
+            });
+            
+            patient.updatedAt = new Date().toISOString();
+            this.state.patients.set(patient.id, patient);
+            
+            this.saveToHistory(`Set baseline for ${patient.id} to ${value.toFixed(2)} L`);
+            this.saveState();
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            
+            this.showToast(`Baseline set: ${value.toFixed(2)} L`, 'success');
+        }
+        
         // ===== FULL STUDY MODE =====
         
         updateTimeline() {
@@ -6316,6 +6526,7 @@ Example:
             }
             
             this.state.patients.set(patient.id, patient);
+            this.saveToHistory(`Saved full study for ${patient.id}`);
             this.saveState();
             
             this.updatePatientContext();
@@ -6441,6 +6652,7 @@ Example:
             
             patient.updatedAt = new Date().toISOString();
             this.state.patients.set(patient.id, patient);
+            this.saveToHistory(`${replace ? 'Replaced' : 'Added'} visit for ${patient.id} on ${date}`);
             this.saveState();
             
             // Sync all visits to monitor session
@@ -6499,6 +6711,247 @@ Example:
             URL.revokeObjectURL(url);
             
             this.showToast('All data exported as JSON backup', 'success');
+        }
+        
+        exportProfessionalPDF() {
+            if (this.state.session.monitor.visits.length === 0) {
+                this.showToast('No visits to export', 'warning');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const patientId = this.state.currentPatient || 'Unknown';
+            const patient = this.state.patients.get(this.state.currentPatient);
+            const today = new Date();
+            
+            // ===== COVER PAGE =====
+            doc.setFillColor(26, 95, 122);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(32);
+            doc.text('SPIROLITE', 105, 100, { align: 'center' });
+            doc.setFontSize(18);
+            doc.text('Lung Function Report', 105, 120, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.text(`Patient: ${patientId}`, 105, 160, { align: 'center' });
+            
+            if (patient && patient.txDate) {
+                const txDate = new Date(patient.txDate);
+                doc.text(`Transplant Date: ${txDate.toLocaleDateString()}`, 105, 170, { align: 'center' });
+            }
+            
+            doc.text(`Report Date: ${today.toLocaleDateString()}`, 105, 180, { align: 'center' });
+            doc.text(`Generated: ${today.toLocaleString()}`, 105, 190, { align: 'center' });
+            
+            doc.addPage();
+            
+            // ===== PATIENT SUMMARY PAGE =====
+            doc.setFillColor(240, 240, 240);
+            doc.rect(10, 10, 190, 40, 'F');
+            doc.setTextColor(26, 95, 122);
+            doc.setFontSize(16);
+            doc.text('Patient Summary', 20, 25);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            let yPos = 45;
+            
+            doc.text(`Patient ID: ${patientId}`, 20, yPos);
+            yPos += 8;
+            
+            if (patient) {
+                if (patient.txDate) {
+                    const txDate = new Date(patient.txDate);
+                    doc.text(`Transplant Date: ${txDate.toLocaleDateString()}`, 20, yPos);
+                    yPos += 8;
+                }
+                
+                if (patient.description) {
+                    doc.text(`Description: ${patient.description}`, 20, yPos);
+                    yPos += 8;
+                }
+                
+                if (patient.baselineFev1) {
+                    doc.text(`Baseline FEV₁: ${patient.baselineFev1.toFixed(2)} L`, 20, yPos);
+                    yPos += 8;
+                }
+                
+                doc.text(`Total Visits: ${patient.visits.length}`, 20, yPos);
+                yPos += 8;
+                
+                if (patient.visits.length > 0) {
+                    const firstVisit = patient.visits[0];
+                    const lastVisit = patient.visits[patient.visits.length - 1];
+                    const firstDate = new Date(firstVisit.date);
+                    const lastDate = new Date(lastVisit.date);
+                    const daysSpan = Math.floor((lastDate - firstDate) / (1000 * 60 * 60 * 24));
+                    
+                    doc.text(`Monitoring Period: ${daysSpan} days`, 20, yPos);
+                    yPos += 8;
+                    
+                    doc.text(`First Visit: ${firstDate.toLocaleDateString()} (${firstVisit.fev1.toFixed(2)} L)`, 20, yPos);
+                    yPos += 8;
+                    
+                    doc.text(`Last Visit: ${lastDate.toLocaleDateString()} (${lastVisit.fev1.toFixed(2)} L)`, 20, yPos);
+                    yPos += 8;
+                    
+                    if (patient.baselineFev1) {
+                        const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                        doc.text(`Current Status: ${percent}% of baseline`, 20, yPos);
+                        yPos += 8;
+                    }
+                }
+            }
+            
+            yPos += 10;
+            
+            // ===== VISITS TABLE =====
+            doc.setFillColor(26, 95, 122);
+            doc.rect(10, yPos, 190, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            doc.text('Visit History', 20, yPos + 6);
+            
+            const visits = [...this.state.session.monitor.visits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const tableData = visits.map((visit, index) => {
+                const prevVisit = index > 0 ? visits[index - 1] : null;
+                const visitDelta = prevVisit ? (visit.fev1 - prevVisit.fev1).toFixed(2) : '--';
+                const baselineDelta = patient && patient.baselineFev1 ? (visit.fev1 - patient.baselineFev1).toFixed(2) : '--';
+                const baselinePercent = patient && patient.baselineFev1 ? ((visit.fev1 / patient.baselineFev1) * 100).toFixed(1) : '--';
+                const rate = prevVisit ? this.calculateMonthlyRate(visit.fev1, prevVisit.fev1, visit.date, prevVisit.date).toFixed(3) : '--';
+                
+                return [
+                    new Date(visit.date).toLocaleDateString(),
+                    visit.fev1.toFixed(2),
+                    baselinePercent + '%',
+                    visit.fvc ? visit.fvc.toFixed(2) : '--',
+                    visit.fvc ? ((visit.fev1 / visit.fvc) * 100).toFixed(1) + '%' : '--',
+                    visitDelta,
+                    baselineDelta,
+                    rate,
+                    visit.notes || ''
+                ];
+            });
+            
+            doc.autoTable({
+                head: [['Date', 'FEV₁ (L)', '% of PB', 'FVC', 'Ratio', 'Δ Visit', 'Δ Baseline', 'Rate', 'Notes']],
+                body: tableData,
+                startY: yPos + 15,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: [26, 95, 122],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: { fillColor: [240, 240, 240] },
+                styles: { fontSize: 8 },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 20 },
+                    2: { cellWidth: 20 },
+                    3: { cellWidth: 20 },
+                    4: { cellWidth: 20 },
+                    5: { cellWidth: 15 },
+                    6: { cellWidth: 20 },
+                    7: { cellWidth: 15 },
+                    8: { cellWidth: 'auto' }
+                }
+            });
+            
+            // ===== SUMMARY PAGE =====
+            doc.addPage();
+            
+            doc.setFillColor(240, 240, 240);
+            doc.rect(10, 10, 190, 40, 'F');
+            doc.setTextColor(26, 95, 122);
+            doc.setFontSize(16);
+            doc.text('Clinical Summary & Recommendations', 20, 25);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            yPos = 60;
+            
+            if (patient && patient.visits.length > 0 && patient.baselineFev1) {
+                const lastVisit = patient.visits[patient.visits.length - 1];
+                const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(1);
+                
+                doc.text('Current Status:', 20, yPos);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`${percent}% of baseline`, 60, yPos);
+                doc.setFont('helvetica', 'normal');
+                yPos += 10;
+                
+                // Trend analysis
+                if (patient.visits.length > 1) {
+                    const firstVisit = patient.visits[0];
+                    const trend = this.calculateMonthlyRate(
+                        lastVisit.fev1,
+                        firstVisit.fev1,
+                        lastVisit.date,
+                        firstVisit.date
+                    );
+                    
+                    doc.text('Overall Trend:', 20, yPos);
+                    doc.setFont('helvetica', trend > 0 ? 'bold' : 'normal');
+                    doc.setTextColor(trend > 0 ? 5 : 150 : trend < 0 ? 220 : 38 : 0);
+                    doc.text(`${trend >= 0 ? '+' : ''}${trend.toFixed(3)} L/month`, 60, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont('helvetica', 'normal');
+                    yPos += 10;
+                }
+                
+                // Protocol recommendations
+                doc.text('Protocol Assessment:', 20, yPos);
+                yPos += 10;
+                
+                if (parseFloat(percent) >= (100 - this.state.protocol.monitor)) {
+                    doc.setTextColor(5, 150, 105);
+                    doc.text('✓ Within normal range', 25, yPos);
+                    doc.text('  Continue routine monitoring', 25, yPos + 5);
+                } else if (parseFloat(percent) >= (100 - this.state.protocol.review)) {
+                    doc.setTextColor(245, 158, 11);
+                    doc.text('⚠ Monitor threshold reached', 25, yPos);
+                    doc.text(`  Consider additional testing (≥${this.state.protocol.monitor}% decline)`, 25, yPos + 5);
+                } else {
+                    doc.setTextColor(220, 38, 38);
+                    doc.text('✗ Review threshold reached', 25, yPos);
+                    doc.text(`  Urgent clinical review recommended (≥${this.state.protocol.review}% decline)`, 25, yPos + 5);
+                }
+                doc.setTextColor(0, 0, 0);
+                yPos += 15;
+                
+                // Recent trend
+                if (patient.visits.length > 3) {
+                    const recentVisits = patient.visits.slice(-3);
+                    const recentTrend = this.calculateMonthlyRate(
+                        recentVisits[2].fev1,
+                        recentVisits[0].fev1,
+                        recentVisits[2].date,
+                        recentVisits[0].date
+                    );
+                    
+                    doc.text('Recent Trend (last 3 visits):', 20, yPos);
+                    doc.setFont('helvetica', recentTrend > 0 ? 'bold' : 'normal');
+                    doc.setTextColor(recentTrend > 0 ? 5 : 150 : recentTrend < 0 ? 220 : 38 : 0);
+                    doc.text(`${recentTrend >= 0 ? '+' : ''}${recentTrend.toFixed(3)} L/month`, 85, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont('helvetica', 'normal');
+                    yPos += 10;
+                }
+            }
+            
+            // ===== FOOTER =====
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generated by Spirolite Professional v1.3 - Confidential Medical Document', 105, 285, { align: 'center' });
+            
+            // Save the PDF
+            doc.save(`Spirolite_Report_${patientId}_${today.toISOString().split('T')[0]}.pdf`);
+            this.showToast('Professional PDF report exported', 'success');
         }
         
         exportTimelinePDF() {
@@ -6584,6 +7037,21 @@ Example:
         handleKeyboardShortcuts(e) {
             if (!e.target || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
                 return;
+            }
+            
+            // Undo/Redo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    this.handleRedo();
+                } else {
+                    this.handleUndo();
+                }
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                this.handleRedo();
             }
             
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -6764,7 +7232,6 @@ Example:
             }, duration);
         }
     }
-    }
     
     // Initialize the application when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
@@ -6791,7 +7258,6 @@ Example:
             });
         });
     }
-    
     </script>
 </body>
 </html>
