@@ -16,9 +16,16 @@
     <link rel="alternate icon" type="image/png" sizes="512x512" href="icon-512.png?v=1.4">
     <link rel="apple-touch-icon" href="icon-192.png?v=1.4">
     
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- PWA Modules -->
+    <script src="icons.js?v=1.4"></script>
+    <script src="sw.js?v=1.4"></script>
+    <script src="update-manager.js?v=1.4"></script>
+    <script src="pwa-install.js?v=1.4"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -97,7 +104,10 @@
         
         .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
         .loading-content { text-align: center; padding: var(--space-6); max-width: 320px; width: 90%; }
-        .loading-logo { width: 100px; height: 100px; margin-bottom: var(--space-5); animation: float 3s ease-in-out infinite; }
+        .loading-logo { 
+            width: 80px; height: 80px; margin-bottom: var(--space-5); 
+            animation: subtlePulse 2s ease-in-out infinite;
+        }
         .loading-logo-inner {
             width: 100%; height: 100%; border-radius: var(--radius-xl);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -107,7 +117,7 @@
         .loading-logo-inner::before {
             content: ''; background-image: url('icon.svg'); background-size: contain;
             background-repeat: no-repeat; background-position: center;
-            width: 100%; height: 100%; display: block; animation: pulse 2s ease-in-out infinite;
+            width: 100%; height: 100%; display: block;
         }
         .loading-progress-container { width: 100%; max-width: 280px; margin: var(--space-5) 0; }
         .loading-progress-label { display: flex; justify-content: space-between; margin-bottom: var(--space-2);
@@ -117,8 +127,10 @@
         .loading-progress-bar { height: 100%; background: linear-gradient(90deg, var(--secondary), white);
             width: 0%; border-radius: var(--radius-full); transition: width 0.5s ease; }
         
-        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+        @keyframes subtlePulse { 
+            0%, 100% { transform: scale(1); opacity: 1; } 
+            50% { transform: scale(1.02); opacity: 0.95; } 
+        }
         
         /* ===== APP CONTAINER ===== */
         .app-container {
@@ -220,7 +232,7 @@
             display: flex; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border); padding: var(--space-2) var(--space-4); gap: var(--space-1);
             position: sticky; top: 0; z-index: var(--z-sticky); overflow-x: auto; -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; transition: all var(--transition-normal);
+            scrollbar-width: none; transition: all var(--transition-fast);
         }
         .app-navigation.collapsed { top: -48px; }
         .app-navigation::-webkit-scrollbar { display: none; }
@@ -734,15 +746,16 @@
             </div>
             <div class="loading-progress-container">
                 <div class="loading-progress-label">
-                    <span id="loadingStep">Initializing Spirolite...</span>
+                    <span id="loadingStep">Initializing Spirolite Professional</span>
                     <span id="loadingPercent">0%</span>
                 </div>
                 <div class="loading-progress">
                     <div class="loading-progress-bar" id="loadingProgressBar"></div>
                 </div>
             </div>
-            <div class="loading-text" id="loadingText">Spiro<span style="color: white; font-weight: 800">lite</span> v1.4</div>
-            <div class="loading-subtext" id="loadingSubtext">Professional Lung Function Calculator & Tracker</div>
+            <div class="loading-text" style="color: white; font-size: 0.75rem; margin-top: var(--space-2); opacity: 0.8;">
+                Clinical Lung Function Analysis
+            </div>
         </div>
     </div>
     
@@ -1009,9 +1022,9 @@
                         <span>🗑️</span>
                         <span>Clear</span>
                     </button>
-                    <button class="action-btn primary" id="saveQuickBtn" aria-label="Save current visit">
-                        <span>💾</span>
-                        <span>Save Visit</span>
+                    <button class="action-btn primary" id="calculateQuickBtn" aria-label="Calculate">
+                        <span>📊</span>
+                        <span>Calculate</span>
                     </button>
                 </div>
             </div>
@@ -1736,8 +1749,7 @@ Example:
     
     <script>
     // ============================================
-    // SPIROLITE v1.4 - FUNCTIONAL SPECIFICATION IMPLEMENTATION
-    // CORE PRINCIPLE: Transplant Date is the Foundation
+    // SPIROLITE v1.4 - REFACTORED WITH ALL FIXES
     // ============================================
 
     class HistoryManager {
@@ -1840,17 +1852,16 @@ Example:
         }
         
         async init() {
-            this.showLoading('Initializing Spirolite v1.4...', 0);
+            this.showLoading('Initializing Spirolite Professional', 0);
             await this.cacheDOM();
             this.setupEventListeners();
             
+            // Professional loading sequence
             const loadingSteps = [
-                { text: 'Loading core modules...', percent: 15 },
-                { text: 'Initializing database...', percent: 30 },
-                { text: 'Loading patient records...', percent: 50 },
-                { text: 'Setting up calculations...', percent: 70 },
-                { text: 'Preparing interface...', percent: 85 },
-                { text: 'Finalizing setup...', percent: 95 }
+                { text: 'Loading application core...', percent: 25 },
+                { text: 'Preparing clinical tools...', percent: 50 },
+                { text: 'Configuring calculations...', percent: 75 },
+                { text: 'Ready for clinical use', percent: 100 }
             ];
             
             let step = 0;
@@ -1861,24 +1872,58 @@ Example:
                 } else {
                     clearInterval(loadInterval);
                     setTimeout(() => {
-                        this.updateLoading('Spirolite v1.4 ready', 100);
-                        setTimeout(() => {
-                            this.hideLoading();
-                            this.showToast('Spirolite Professional v1.4 ready', 'success');
-                        }, 800);
-                    }, 600);
+                        this.hideLoading();
+                        this.showToast('Spirolite Professional ready', 'success');
+                    }, 500);
                 }
-            }, 800);
+            }, 600);
             
             this.setViewportHeight();
             this.loadState();
             this.updateUI();
             
-            // Set today's date as default for date inputs
+            // Set date inputs
             const today = new Date().toISOString().split('T')[0];
             this.dom.visitDate.value = today;
-            this.dom.newTxDate.value = today;
             this.dom.visitDate.max = today;
+            
+            // Initialize PWA
+            this.initPWA();
+        }
+        
+        async initPWA() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js?v=1.4', {
+                        scope: './',
+                        updateViaCache: 'none'
+                    });
+                    
+                    console.log('Service Worker registered:', registration);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                this.showToast('New version available. Refresh to update.', 'info', 5000);
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Service Worker registration failed:', error);
+                }
+            }
+            
+            // Initialize PWA install prompt
+            if (window.PWAInstall) {
+                try {
+                    this.pwaInstall = new PWAInstall();
+                } catch (e) {
+                    console.log('PWA install handler not available');
+                }
+            }
         }
         
         updateLoading(text, percent) {
@@ -1906,7 +1951,7 @@ Example:
                 loadingOverlay.style.display = 'none';
                 appContainer.classList.add('loaded');
                 document.body.classList.remove('loading');
-            }, 500);
+            }, 300);
         }
         
         setViewportHeight() {
@@ -1992,7 +2037,7 @@ Example:
             
             // Quick actions
             this.dom.clearQuickBtn = document.getElementById('clearQuickBtn');
-            this.dom.saveQuickBtn = document.getElementById('saveQuickBtn');
+            this.dom.calculateQuickBtn = document.getElementById('calculateQuickBtn');
             
             // Monitor mode
             this.dom.modeMonitor = document.getElementById('modeMonitor');
@@ -2183,7 +2228,7 @@ Example:
             
             // Quick actions
             this.dom.clearQuickBtn.addEventListener('click', () => this.clearQuickCalc());
-            this.dom.saveQuickBtn.addEventListener('click', () => this.saveQuickVisit());
+            this.dom.calculateQuickBtn.addEventListener('click', () => this.calculateQuick());
             
             // Monitor mode - Baseline control
             this.dom.manualBaselineInput.addEventListener('input', (e) => {
@@ -2342,6 +2387,7 @@ Example:
                 const touchDuration = Date.now() - touchStartTime;
                 const diff = touchStartY - touchEndY;
                 
+                // Swipe down to collapse, swipe up to expand
                 if (touchDuration < 300 && Math.abs(diff) > 50) {
                     if (diff > 0 && !this.state.uiCollapsed) {
                         this.toggleUICollapse(true);
@@ -2442,7 +2488,7 @@ Example:
             });
         }
         
-        // ===== DATE MANAGEMENT (MANDATORY) =====
+        // ===== DATE MANAGEMENT =====
         
         validateTxDate(input) {
             const value = input.value;
@@ -2483,7 +2529,7 @@ Example:
             // Determine status color
             let status = 'valid';
             if (daysSinceTx < 0) {
-                status = 'missing'; // Should not happen due to validation
+                status = 'missing';
             } else if (daysSinceTx <= 30) {
                 status = 'recent';
             }
@@ -2541,39 +2587,39 @@ Example:
                 switch(type) {
                     case 'fev1':
                         if (value < 0.5) {
-                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            message = 'Below physiological minimum (0.5 L)';
                             messageType = 'warning';
                         } else if (value > 8.0) {
-                            message = '⚠️ Above physiological maximum (8.0 L)';
+                            message = 'Above physiological maximum (8.0 L)';
                             messageType = 'warning';
                         } else {
-                            message = '✓ Valid FEV₁ measurement';
+                            message = 'Valid FEV₁ measurement';
                             messageType = 'success';
                         }
                         break;
                         
                     case 'fvc':
                         if (value < 0.5) {
-                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            message = 'Below physiological minimum (0.5 L)';
                             messageType = 'warning';
                         } else if (value > 10.0) {
-                            message = '⚠️ Above physiological maximum (10.0 L)';
+                            message = 'Above physiological maximum (10.0 L)';
                             messageType = 'warning';
                         } else {
-                            message = '✓ Valid FVC measurement';
+                            message = 'Valid FVC measurement';
                             messageType = 'success';
                         }
                         break;
                         
                     case 'baseline':
                         if (value < 0.5) {
-                            message = '⚠️ Below physiological minimum (0.5 L)';
+                            message = 'Below physiological minimum (0.5 L)';
                             messageType = 'warning';
                         } else if (value > 8.0) {
-                            message = '⚠️ Above physiological maximum (8.0 L)';
+                            message = 'Above physiological maximum (8.0 L)';
                             messageType = 'warning';
                         } else {
-                            message = '✓ Valid baseline';
+                            message = 'Valid baseline';
                             messageType = 'success';
                         }
                         break;
@@ -2712,11 +2758,11 @@ Example:
                         }
                     }
                     
-                    this.showToast('App state loaded successfully', 'success');
+                    this.showToast('Application state loaded', 'success');
                 }
             } catch (error) {
                 console.error('Failed to load state:', error);
-                this.showToast('Starting with fresh state', 'warning');
+                this.showToast('Starting with fresh state', 'info');
             }
         }
         
@@ -3540,79 +3586,6 @@ Example:
             
             this.dom.inputFev1.focus();
             this.showToast('Cleared', 'info');
-        }
-        
-        saveQuickVisit() {
-            if (!this.state.session.quick.fev1) {
-                this.showToast('Please enter FEV₁ measurement first', 'error');
-                return;
-            }
-            
-            if (!this.state.currentPatient) {
-                this.showToast('Please select a patient first', 'error');
-                return;
-            }
-            
-            const patient = this.state.patients.get(this.state.currentPatient);
-            if (!patient) {
-                this.showToast('Patient not found', 'error');
-                return;
-            }
-            
-            const today = new Date().toISOString().split('T')[0];
-            const fev1 = this.state.session.quick.fev1;
-            const fvc = this.state.session.quick.fvc;
-            
-            // Medical validation
-            const validationErrors = this.validateMedicalData(fev1, fvc);
-            if (validationErrors.length > 0) {
-                this.showToast(validationErrors[0], 'error');
-                return;
-            }
-            
-            // Validate date (should be today for quick save)
-            const dateValidation = this.validateVisitDate(today);
-            if (!dateValidation.valid) {
-                this.showToast(dateValidation.message, 'error');
-                return;
-            }
-            
-            // Check for duplicate date
-            const existingVisitIndex = patient.visits.findIndex(v => v.date === today);
-            
-            if (existingVisitIndex !== -1) {
-                this.state.session.duplicateDateData = {
-                    date: today,
-                    existingVisit: patient.visits[existingVisitIndex],
-                    newVisit: { fev1, fvc, notes: '' }
-                };
-                this.showDuplicateDateModal();
-                return;
-            }
-            
-            // Add new visit
-            const visit = {
-                date: today,
-                fev1,
-                fvc,
-                notes: '',
-                recordedAt: new Date().toISOString()
-            };
-            
-            patient.visits.push(visit);
-            patient.updatedAt = new Date().toISOString();
-            
-            this.state.patients.set(patient.id, patient);
-            this.saveToHistory(`Added visit for ${patient.id}: ${fev1.toFixed(2)} L`);
-            this.saveState();
-            
-            this.state.session.monitor.visits.push(visit);
-            
-            this.updatePatientContext();
-            this.updateVisitsTable();
-            this.showToast(`Visit saved: ${patient.id}: ${fev1.toFixed(2)} L`, 'success');
-            
-            this.clearQuickCalc();
         }
         
         // ===== MONITOR MODE =====
@@ -5246,7 +5219,7 @@ Example:
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 if (this.state.mode === 'quick') {
-                    this.saveQuickVisit();
+                    this.calculateQuick();
                 } else if (this.state.mode === 'full') {
                     this.saveFullStudy();
                 } else if (this.state.mode === 'monitor') {
@@ -5329,7 +5302,7 @@ Example:
                 const active = document.activeElement;
                 if (active === this.dom.inputFev1 || active === this.dom.inputFvc || active === this.dom.baselineInput) {
                     e.preventDefault();
-                    this.handleQuickInput();
+                    this.calculateQuick();
                 }
             }
         }
@@ -5423,48 +5396,7 @@ Example:
     
     document.addEventListener('DOMContentLoaded', () => {
         window.spiroliteApp = new SpiroliteApp();
-        
-        const today = new Date().toISOString().split('T')[0];
-        const dateInputs = document.querySelectorAll('input[type="date"]');
-        dateInputs.forEach(input => {
-            if (!input.value) {
-                input.value = today;
-                input.max = today;
-            }
-        });
     });
-    
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js', { 
-                scope: './',
-                updateViaCache: 'none'
-            })
-            .then(registration => {
-                console.log('SW registered: ', registration);
-                
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    console.log('SW update found');
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            if (confirm('A new version of Spirolite is available. Reload to update?')) {
-                                window.location.reload();
-                            }
-                        }
-                    });
-                });
-            })
-            .catch(error => {
-                console.error('SW registration failed: ', error);
-            });
-            
-            if (navigator.serviceWorker.controller) {
-                console.log('Service Worker controlling the page');
-            }
-        });
-    }
     </script>
 </body>
 </html>
