@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="Spirolite - Professional Lung Function Calculator & Tracker">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <title>Spiro<span style="color: #1A5F7A; font-weight: 800">lite</span> | Calculate & Track</title>
     
@@ -26,6 +29,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="pwa-install.js" defer></script>
     
     <style>
         /* ===== CSS RESET & BASE ===== */
@@ -7276,16 +7280,53 @@ yPos += 10;
         });
     });
     
-    // Handle service worker registration for PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(registration => {
-                console.log('ServiceWorker registration successful');
-            }).catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-            });
+   // Enhanced service worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { 
+      scope: './',
+      updateViaCache: 'none'
+    })
+    .then(registration => {
+      console.log('SW registered: ', registration);
+      
+      // Check for updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        console.log('SW update found');
+        
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New update available
+            showUpdateNotification();
+          }
         });
-    }
+      });
+    })
+    .catch(error => {
+      console.error('SW registration failed: ', error);
+    });
+    
+    // Listen for messages from service worker
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'SW_READY') {
+        console.log('Service Worker ready:', event.data.version);
+      }
+    });
+  });
+  
+  // Check for controller (offline capability)
+  if (navigator.serviceWorker.controller) {
+    console.log('Service Worker controlling the page');
+  }
+}
+
+function showUpdateNotification() {
+  // Show update notification to user
+  if (confirm('A new version of Spirolite is available. Reload to update?')) {
+    window.location.reload();
+  }
+}
     </script>
 </body>
 </html>
