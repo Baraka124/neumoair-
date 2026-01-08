@@ -6561,102 +6561,565 @@ exportFullReport() {
     }
     
     this.showEnhancedToast(`Switched to ${mode} mode`, 'info');
-}handleKeyboardShortcuts(e) {
-    // Don't interfere with form inputs
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
-        return;
-    }
-    
-    // Enhanced keyboard shortcuts with visual feedback
-    
-    // Ctrl+Z / Cmd+Z for Undo
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-        e.preventDefault();
-        if (e.shiftKey) {
-            this.handleRedo();
-        } else {
-            this.handleUndo();
+        handleKeyboardShortcuts(e) {
+            // Don't interfere with form inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+            
+            // Enhanced keyboard shortcuts with visual feedback
+            
+            // Ctrl+Z / Cmd+Z for Undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    this.handleRedo();
+                } else {
+                    this.handleUndo();
+                }
+            }
+            
+            // Ctrl+Y / Cmd+Y for Redo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                this.handleRedo();
+            }
+            
+            // Ctrl+S / Cmd+S for Save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                this.saveState();
+                this.showEnhancedToast('Data saved', 'success');
+            }
+            
+            // Escape to clear
+            if (e.key === 'Escape') {
+                if (this.state.mode === 'quick') {
+                    this.clearQuickCalc();
+                }
+            }
+            
+            // Number keys for mode switching
+            if (e.key === '1' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                this.switchMode('quick');
+            } else if (e.key === '2' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                this.switchMode('monitor');
+            } else if (e.key === '3' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                this.switchMode('full');
+            }
+            
+            // Alt+C for color coding toggle
+            if (e.altKey && e.key === 'c') {
+                e.preventDefault();
+                this.dom.colorCodingToggle.click();
+                this.showEnhancedToast(`Color coding ${this.dom.colorCodingToggle.checked ? 'enabled' : 'disabled'}`, 'info');
+            }
+            
+            // Alt+L for language toggle
+            if (e.altKey && e.key === 'l') {
+                e.preventDefault();
+                this.toggleLanguage();
+            }
+            
+            // Ctrl+E / Cmd+E for export
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                if (this.state.mode === 'monitor') {
+                    this.exportProfessionalPDF();
+                } else if (this.state.mode === 'full') {
+                    this.exportFullReport();
+                } else {
+                    this.exportAllData();
+                }
+            }
+            
+            // Enter key in monitor mode
+            if (e.key === 'Enter' && this.state.mode === 'monitor') {
+                const active = document.activeElement;
+                if (active === this.dom.visitFev1 || active === this.dom.visitFvc || active === this.dom.visitNotes) {
+                    e.preventDefault();
+                    this.addVisit();
+                }
+            }
+            
+            // Space to toggle header
+            if (e.key === ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                e.preventDefault();
+                this.toggleUICollapse();
+            }
         }
-    }
-    
-    // Ctrl+Y / Cmd+Y for Redo
-    if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
-        e.preventDefault();
-        this.handleRedo();
-    }
-    
-    // Ctrl+S / Cmd+S for Save
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        this.saveState();
-        this.showEnhancedToast('Data saved', 'success');
-    }
-    
-    // Escape to clear
-    if (e.key === 'Escape') {
-        if (this.state.mode === 'quick') {
-            this.clearQuickCalc();
+        
+        // ===== COMPLETE MISSING METHOD IMPLEMENTATIONS =====
+        
+        loadState() {
+            try {
+                const saved = localStorage.getItem('spirolite_state_v1.6');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Restore state with data validation
+                    if (parsed.protocol) this.state.protocol = parsed.protocol;
+                    if (parsed.colorCoding !== undefined) this.state.colorCoding = parsed.colorCoding;
+                    if (parsed.percentageView !== undefined) this.state.percentageView = parsed.percentageView;
+                    if (parsed.language) this.state.language = parsed.language;
+                    
+                    // Restore patients
+                    if (parsed.patients && Array.isArray(parsed.patients)) {
+                        this.state.patients.clear();
+                        parsed.patients.forEach(patient => {
+                            this.state.patients.set(patient.id, {
+                                ...patient,
+                                visits: patient.visits || [],
+                                baselineHistory: patient.baselineHistory || []
+                            });
+                        });
+                    }
+                    
+                    // Restore current patient
+                    if (parsed.currentPatient && this.state.patients.has(parsed.currentPatient)) {
+                        this.state.currentPatient = parsed.currentPatient;
+                    }
+                    
+                    console.log('State loaded successfully');
+                }
+            } catch (error) {
+                console.error('Failed to load state:', error);
+                this.showEnhancedToast('Failed to load saved data', 'error');
+            }
         }
-    }
-    
-    // Number keys for mode switching
-    if (e.key === '1' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.switchMode('quick');
-    } else if (e.key === '2' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.switchMode('monitor');
-    } else if (e.key === '3' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.switchMode('full');
-    }
-    
-    // Alt+C for color coding toggle
-    if (e.altKey && e.key === 'c') {
-        e.preventDefault();
-        this.dom.colorCodingToggle.click();
-        this.showEnhancedToast(`Color coding ${this.dom.colorCodingToggle.checked ? 'enabled' : 'disabled'}`, 'info');
-    }
-    
-    // Alt+L for language toggle
-    if (e.altKey && e.key === 'l') {
-        e.preventDefault();
-        this.toggleLanguage();
-    }
-    
-    // Ctrl+E / Cmd+E for export
-    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-        e.preventDefault();
-        if (this.state.mode === 'monitor') {
-            this.exportProfessionalPDF();
-        } else if (this.state.mode === 'full') {
-            this.exportFullReport();
-        } else {
-            this.exportAllData();
+        
+        saveState() {
+            try {
+                const stateToSave = {
+                    ...this.state,
+                    patients: Array.from(this.state.patients.values()),
+                    charts: undefined // Don't save chart instances
+                };
+                
+                localStorage.setItem('spirolite_state_v1.6', JSON.stringify(stateToSave));
+                this.showSaveIndicator(true, true);
+            } catch (error) {
+                console.error('Failed to save state:', error);
+                this.showSaveIndicator(true, false);
+            }
         }
-    }
-    
-    // Enter key in monitor mode
-    if (e.key === 'Enter' && this.state.mode === 'monitor') {
-        const active = document.activeElement;
-        if (active === this.dom.visitFev1 || active === this.dom.visitFvc || active === this.dom.visitNotes) {
-            e.preventDefault();
-            this.addVisit();
+        
+        validateMedicalData(fev1, fvc = null) {
+            const errors = [];
+            
+            if (fev1 === undefined || fev1 === null) {
+                errors.push('FEV₁ is required');
+            } else if (isNaN(fev1)) {
+                errors.push('FEV₁ must be a valid number');
+            } else if (fev1 < 0.5) {
+                errors.push('FEV₁ is below physiological minimum (0.5 L)');
+            } else if (fev1 > 8.0) {
+                errors.push('FEV₁ exceeds physiological maximum (8.0 L)');
+            }
+            
+            if (fvc !== null && fvc !== undefined) {
+                if (isNaN(fvc)) {
+                    errors.push('FVC must be a valid number');
+                } else if (fvc < 0.5) {
+                    errors.push('FVC is below physiological minimum (0.5 L)');
+                } else if (fvc > 10.0) {
+                    errors.push('FVC exceeds physiological maximum (10.0 L)');
+                } else if (fev1 > fvc) {
+                    errors.push('FEV₁ cannot be greater than FVC');
+                }
+            }
+            
+            return errors;
         }
-    }
-    
-    // Space to toggle header
-    if (e.key === ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        e.preventDefault();
-        this.toggleUICollapse();
-    }
-}
+        
+        showNewPatientModal() {
+            this.dom.patientModalTitle.textContent = 'Create New Patient';
+            this.dom.patientIdInput.value = '';
+            this.dom.patientTxDate.value = '';
+            this.dom.patientBaselineFev1.value = '';
+            this.dom.patientDescription.value = '';
+            this.showModal('patientModal');
         }
-        // Initialize the app when DOM is loaded
+        
+        showPatientListModal() {
+            this.updatePatientList();
+            this.showModal('patientListModal');
+        }
+        
+        updatePatientList() {
+            const patientList = this.dom.patientList;
+            
+            if (this.state.patients.size === 0) {
+                patientList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <div class="empty-state-title">No patients yet</div>
+                        <div class="empty-state-description">
+                            Create your first patient to get started with clinical monitoring.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: var(--space-2);">';
+            
+            Array.from(this.state.patients.values()).forEach(patient => {
+                const isCurrent = patient.id === this.state.currentPatient;
+                const txDate = patient.txDate ? new Date(patient.txDate).toLocaleDateString() : 'No TX date';
+                const visitCount = patient.visits ? patient.visits.length : 0;
+                
+                html += `
+                    <div class="comparison-option ${isCurrent ? 'selected' : ''}" 
+                         data-patient-id="${patient.id}"
+                         style="cursor: pointer; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: var(--space-2); width: 100%;">
+                            <div class="patient-avatar-small" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                ${patient.id.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--text-primary); font-size: 0.75rem;">
+                                    ${patient.id}
+                                    ${isCurrent ? ' (Current)' : ''}
+                                </div>
+                                <div style="font-size: 0.625rem; color: var(--text-secondary);">
+                                    ${txDate} • ${visitCount} visit${visitCount !== 1 ? 's' : ''}
+                                </div>
+                            </div>
+                            ${isCurrent ? '<span style="color: var(--success); font-size: 0.75rem;">✓</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            patientList.innerHTML = html;
+            
+            // Add click handlers
+            patientList.querySelectorAll('.comparison-option').forEach(item => {
+                item.addEventListener('click', () => {
+                    const patientId = item.dataset.patientId;
+                    this.selectPatient(patientId);
+                    this.hideModal('patientListModal');
+                });
+            });
+        }
+        
+        selectPatient(patientId) {
+            if (!this.state.patients.has(patientId)) {
+                this.showEnhancedToast('Patient not found', 'error');
+                return;
+            }
+            
+            this.state.currentPatient = patientId;
+            this.saveToHistory(`Selected patient: ${patientId}`);
+            this.saveState();
+            
+            this.updateUI();
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            this.updateFullStudyAnalytics();
+            
+            this.showEnhancedToast(`Patient ${patientId} selected`, 'success');
+        }
+        
+        validateTxDate(input) {
+            const date = input.value;
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (date > today) {
+                this.dom.patientTxDateValidation.textContent = 'Date cannot be in the future';
+                this.dom.patientTxDateValidation.className = 'validation-message error';
+                return false;
+            }
+            
+            if (date && new Date(date).getFullYear() < 1900) {
+                this.dom.patientTxDateValidation.textContent = 'Date is too far in the past';
+                this.dom.patientTxDateValidation.className = 'validation-message warning';
+                return false;
+            }
+            
+            this.dom.patientTxDateValidation.textContent = '';
+            this.dom.patientTxDateValidation.className = 'validation-message';
+            return true;
+        }
+        
+        savePatient() {
+            const id = this.dom.patientIdInput.value.trim();
+            const txDate = this.dom.patientTxDate.value;
+            const baseline = this.dom.patientBaselineFev1.value ? parseFloat(this.dom.patientBaselineFev1.value) : null;
+            const description = this.dom.patientDescription.value.trim();
+            
+            // Validate inputs
+            if (!id) {
+                this.showEnhancedToast('Patient ID is required', 'error');
+                return;
+            }
+            
+            if (!/^[A-Za-z0-9_-]{3,20}$/.test(id)) {
+                this.showEnhancedToast('Patient ID must be 3-20 characters (letters, numbers, -, _)', 'error');
+                return;
+            }
+            
+            if (!txDate) {
+                this.showEnhancedToast('Transplant date is required', 'error');
+                return;
+            }
+            
+            if (!this.validateTxDate(this.dom.patientTxDate)) {
+                return;
+            }
+            
+            if (baseline && (isNaN(baseline) || baseline < 0.5 || baseline > 8.0)) {
+                this.showEnhancedToast('Baseline FEV₁ must be between 0.5 and 8.0 L', 'error');
+                return;
+            }
+            
+            // Check for duplicate patient ID
+            if (this.state.patients.has(id) && this.state.currentPatient !== id) {
+                this.showConfirmationModal(
+                    'Patient Already Exists',
+                    `Patient "${id}" already exists. Do you want to update the existing patient?`,
+                    () => {
+                        this.updatePatientData(id, txDate, baseline, description);
+                    },
+                    () => {
+                        // Do nothing
+                    }
+                );
+                return;
+            }
+            
+            this.updatePatientData(id, txDate, baseline, description);
+        }
+        
+        updatePatientData(id, txDate, baseline, description) {
+            const patient = {
+                id,
+                txDate,
+                description,
+                baselineFev1: baseline,
+                baselineDate: baseline ? new Date().toISOString().split('T')[0] : null,
+                visits: this.state.patients.has(id) ? this.state.patients.get(id).visits : [],
+                baselineHistory: baseline ? [{
+                    value: baseline,
+                    date: new Date().toISOString().split('T')[0],
+                    method: 'initial_setup',
+                    recordedAt: new Date().toISOString()
+                }] : [],
+                createdAt: this.state.patients.has(id) ? this.state.patients.get(id).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.state.patients.set(id, patient);
+            this.state.currentPatient = id;
+            
+            this.saveToHistory(`Created/updated patient: ${id}`);
+            this.saveState();
+            
+            this.updateUI();
+            this.updatePatientContext();
+            this.updateVisitsTable();
+            this.updateFullStudyAnalytics();
+            
+            this.hideModal('patientModal');
+            this.showEnhancedToast(`Patient ${id} saved successfully`, 'success');
+        }
+        
+        saveToHistory(action) {
+            const historyItem = {
+                action,
+                timestamp: new Date().toISOString(),
+                patient: this.state.currentPatient,
+                mode: this.state.mode
+            };
+            
+            // Keep only last 50 history items
+            if (!this.history.stack) this.history.stack = [];
+            this.history.stack.push(historyItem);
+            if (this.history.stack.length > 50) {
+                this.history.stack = this.history.stack.slice(-50);
+            }
+            this.history.index = this.history.stack.length - 1;
+        }
+        
+        handleUndo() {
+            const previousState = this.history.undo();
+            if (previousState) {
+                this.state = previousState.state;
+                this.updateUI();
+                this.dom.undoBtn.disabled = !this.history.canUndo();
+                this.dom.redoBtn.disabled = !this.history.canRedo();
+                this.showEnhancedToast(`Undo: ${previousState.action}`, 'info');
+            }
+        }
+        
+        handleRedo() {
+            const nextState = this.history.redo();
+            if (nextState) {
+                this.state = nextState.state;
+                this.updateUI();
+                this.dom.undoBtn.disabled = !this.history.canUndo();
+                this.dom.redoBtn.disabled = !this.history.canRedo();
+                this.showEnhancedToast(`Redo: ${nextState.action}`, 'info');
+            }
+        }
+        
+        updateUI() {
+            // Update patient badges
+            const patientBadgeText = this.state.currentPatient ? this.state.currentPatient : 'No Patient';
+            [this.dom.quickPatientBadge, this.dom.monitorPatientBadge, this.dom.fullPatientBadge].forEach(badge => {
+                badge.textContent = patientBadgeText;
+            });
+            
+            // Update color coding toggle
+            this.dom.colorCodingToggle.checked = this.state.colorCoding;
+            
+            // Update undo/redo buttons
+            this.dom.undoBtn.disabled = !this.history.canUndo();
+            this.dom.redoBtn.disabled = !this.history.canRedo();
+            
+            // Apply color coding class to body
+            document.body.classList.toggle('color-coding-off', !this.state.colorCoding);
+        }
+        
+        updatePatientContext() {
+            if (!this.state.currentPatient) {
+                // Default state
+                this.dom.patientAvatar.textContent = '--';
+                this.dom.patientIdDisplay.textContent = 'Select Patient';
+                this.dom.patientStatusBadge.textContent = 'No data';
+                this.dom.visitsCountCompact.textContent = '0 visits';
+                this.dom.txDateDisplay.textContent = 'No TX date';
+                this.dom.txDateIndicator.className = 'tx-date-indicator missing';
+                return;
+            }
+            
+            const patient = this.state.patients.get(this.state.currentPatient);
+            if (!patient) {
+                this.showEnhancedToast('Patient data corrupted', 'error');
+                return;
+            }
+            
+            // Update patient avatar
+            this.dom.patientAvatar.textContent = patient.id.substring(0, 2).toUpperCase();
+            
+            // Update patient ID display
+            this.dom.patientIdDisplay.textContent = patient.id;
+            
+            // Update status badge
+            const visitCount = patient.visits ? patient.visits.length : 0;
+            this.dom.visitsCountCompact.textContent = `${visitCount} visit${visitCount !== 1 ? 's' : ''}`;
+            
+            if (visitCount === 0) {
+                this.dom.patientStatusBadge.textContent = 'No visits';
+            } else if (patient.baselineFev1) {
+                const lastVisit = patient.visits[patient.visits.length - 1];
+                const percent = (lastVisit.fev1 / patient.baselineFev1 * 100).toFixed(0);
+                this.dom.patientStatusBadge.textContent = `${percent}% of PB`;
+            } else {
+                this.dom.patientStatusBadge.textContent = `${visitCount} visits`;
+            }
+            
+            // Update transplant date indicator
+            if (patient.txDate) {
+                const txDate = new Date(patient.txDate);
+                const today = new Date();
+                const daysSinceTx = Math.floor((today - txDate) / (1000 * 60 * 60 * 24));
+                
+                this.dom.txDateDisplay.textContent = `${daysSinceTx} days post-Tx`;
+                
+                // Color code based on time since transplant
+                if (daysSinceTx < 0) {
+                    this.dom.txDateIndicator.className = 'tx-date-indicator missing';
+                } else if (daysSinceTx < 365) {
+                    this.dom.txDateIndicator.className = 'tx-date-indicator recent';
+                } else {
+                    this.dom.txDateIndicator.className = 'tx-date-indicator valid';
+                }
+            } else {
+                this.dom.txDateDisplay.textContent = 'No TX date';
+                this.dom.txDateIndicator.className = 'tx-date-indicator missing';
+            }
+            
+            // Update last visit note in quick mode
+            if (patient.visits.length > 0) {
+                const lastVisit = patient.visits[patient.visits.length - 1];
+                const lastDate = new Date(lastVisit.date);
+                this.dom.lastVisitNote.textContent = `Last: ${lastDate.toLocaleDateString()} - ${lastVisit.fev1.toFixed(2)} L`;
+            } else {
+                this.dom.lastVisitNote.textContent = 'No previous visits found';
+            }
+        }
+        
+        toggleColorCoding() {
+            this.state.colorCoding = this.dom.colorCodingToggle.checked;
+            document.body.classList.toggle('color-coding-off', !this.state.colorCoding);
+            this.saveState();
+            this.updateVisitsTable();
+            
+            this.showEnhancedToast(
+                `Color coding ${this.state.colorCoding ? 'enabled' : 'disabled'}`,
+                'info'
+            );
+        }
+        
+        togglePercentageView() {
+            this.state.percentageView = !this.state.percentageView;
+            this.saveState();
+            this.updateVisitsTable();
+            
+            this.showEnhancedToast(
+                `Percentage view ${this.state.percentageView ? 'enabled' : 'disabled'}`,
+                'info'
+            );
+        }
+        
+        toggleLanguage() {
+            this.state.language = this.state.language === 'en' ? 'es' : 'en';
+            this.saveState();
+            
+            // Update language toggle button
+            this.dom.languageToggle.textContent = this.state.language.toUpperCase();
+            
+            // Update UI text based on language
+            this.updateUITextForLanguage();
+            
+            this.showEnhancedToast(
+                `Language switched to ${this.state.language === 'en' ? 'English' : 'Spanish'}`,
+                'info'
+            );
+        }
+        
+        updateUITextForLanguage() {
+            // This is a basic implementation - you'd expand this for full localization
+            if (this.state.language === 'es') {
+                this.dom.quickPatientBadge.textContent = this.state.currentPatient || 'Sin Paciente';
+                this.dom.monitorPatientBadge.textContent = this.state.currentPatient || 'Sin Paciente';
+                this.dom.fullPatientBadge.textContent = this.state.currentPatient || 'Sin Paciente';
+                // Add more translations as needed
+            } else {
+                this.dom.quickPatientBadge.textContent = this.state.currentPatient || 'No Patient';
+                this.dom.monitorPatientBadge.textContent = this.state.currentPatient || 'No Patient';
+                this.dom.fullPatientBadge.textContent = this.state.currentPatient || 'No Patient';
+            }
+        }
+        
+        hasUnsavedChanges() {
+            // Simple check - you might want to implement more sophisticated logic
+            return this.state.currentPatient !== null && 
+                   this.state.patients.has(this.state.currentPatient) && 
+                   this.state.patients.get(this.state.currentPatient).visits.length > 0;
+        }
+        
+    } // End of SpiroliteApp class
+    
+    // Initialize the app when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
         window.spiroliteApp = new SpiroliteApp();
     });
-    </script>
+            </script>
 </body>
 </html>
-
